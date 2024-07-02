@@ -25,7 +25,7 @@ const Accordion = () => {
           <div className="w-full px-8 lg:w-1/2">
             <AccordionItem
               header="¿Cómo puedo registrarme en VaxTrace?"
-              text="It takes 2-3 weeks to get your first blog post ready. That includes the in-depth research & creation of your monthly content marketing strategy that we do before writing your first blog post, Ipsum available ."
+              text="Infoooo."
             />
             <AccordionItem
               header="¿Es seguro usar VaxTrace para almacenar mi información de vacunación?"
@@ -39,15 +39,15 @@ const Accordion = () => {
           <div className="w-full px-4 lg:w-1/2">
             <AccordionItem
               header="¿Qué hago si pierdo acceso a mi cuenta de VaxTrace?"
-              text="It takes 2-3 weeks to get your first blog post ready. That includes the in-depth research & creation of your monthly content marketing strategy that we do before writing your first blog post, Ipsum available ."
+              text="Infooooo ."
             />
             <AccordionItem
               header="How do I access my child’s full vaccination record?"
-              text="It takes 2-3 weeks to get your first blog post ready. That includes the in-depth research & creation of your monthly content marketing strategy that we do before writing your first blog post, Ipsum available ."
+              text="Infooooo."
             />
             <AccordionItem
               header="Can I download my child’s vaccination record?"
-              text="It takes 2-3 weeks to get your first blog post ready. That includes the in-depth research & creation of your monthly content marketing strategy that we do before writing your first blog post, Ipsum available ."
+              text="Infoooooooo ."
             />
           </div>
         </div>
@@ -90,7 +90,7 @@ export default Accordion;
 const AccordionItem = ({ header, text }: { header: string, text: string }) => {
     const [active, setActive] = useState(false);
   
-    // Modificado para tomar 'event' como argumento
+    // Modificado para tomar 'event' como argument
     const handleToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();  // Ahora se usa el 'event' pasado como argumento
       setActive(!active);

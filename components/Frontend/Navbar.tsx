@@ -69,7 +69,7 @@ export default function Navbar() {
               <div className="space-y-2 py-6">
                 <a href="#" className="block px-3 py-2 text-base font-semibold text-gray-800">About Us</a>
                 <a href="#" className="block px-3 py-2 text-base font-semibold text-gray-800">Vaccine Information</a>
-                <a href="#" className="block px-3 py-2 text-base font-semibold text-gray-800">FAQs</a>
+                <a href="#faqs" className="block px-3 py-2 text-base font-semibold text-gray-800" onClick={() => setMobileMenuOpen(false)}>FAQs</a>
               </div>
               <div className="py-6">
                 <a href="#" className="block px-3 py-2.5 text-base font-semibold text-gray-800">Login</a>
