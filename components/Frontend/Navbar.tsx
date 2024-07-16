@@ -32,7 +32,7 @@ export default function Navbar() {
           </a>
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end items-center space-x-4">
-          <a href="#" className="px-4 py-2 text-sm font-medium text-gray-800 bg-gray-100 hover:bg-gray-200 rounded-md">
+          <a href="/sign-in" className="px-4 py-2 text-sm font-medium text-gray-800 bg-gray-100 hover:bg-gray-200 rounded-md">
             Login
           </a>
           <a href="#" className="px-4 py-2 text-sm font-medium text-white bg-cyan-900 rounded-md hover:bg-blue-700">
@@ -72,7 +72,7 @@ export default function Navbar() {
                 <a href="#faqs" className="block px-3 py-2 text-base font-semibold text-gray-800" onClick={() => setMobileMenuOpen(false)}>FAQs</a>
               </div>
               <div className="py-6">
-                <a href="#" className="block px-3 py-2.5 text-base font-semibold text-gray-800">Login</a>
+                <a href="/sign-in" className="block px-3 py-2.5 text-base font-semibold text-gray-800">Login</a>
                 <a href="#" className="block px-3 py-2.5 text-base font-semibold text-white bg-cyan-900 rounded-md">Center Sign Up</a>
               </div>
             </div>
