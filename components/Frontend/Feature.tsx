@@ -1,6 +1,18 @@
-import { ClipboardDocumentIcon, ShieldCheckIcon, BellAlertIcon } from '@heroicons/react/24/outline';
+import {
+  ClipboardDocumentIcon,
+  ShieldCheckIcon,
+  BellAlertIcon,
+} from "@heroicons/react/24/outline";
 
-const ServiceCard = ({ Icon, title, description }: {Icon:any,title:any,description:any}) => {
+const ServiceCard = ({
+  Icon,
+  title,
+  description,
+}: {
+  Icon: any;
+  title: any;
+  description: any;
+}) => {
   return (
     <div className="w-full px-4 md:w-1/4">
       <div className="mx-auto mb-10 w-full max-w-sm h-[350px] flex flex-col items-center text-center bg-white rounded-xl overflow-hidden shadow-lg">
@@ -19,11 +31,12 @@ const Feature = () => {
     <section className="bg-transparent py-10" id="services">
       <div className="container mx-auto px-4">
         <div className="text-center mb-10">
-          <h2 className='mt-4 text-3xl font-bold text-gray-900 sm:text-4xl xl:text-5xl'>
+          <h2 className="mt-4 text-3xl font-bold text-gray-900 sm:text-4xl xl:text-5xl">
             ¿Qué ofrecemos?
           </h2>
           <p className="mt-4 text-base text-gray-600">
-            Estamos dedicados a brindarle la comodidad y servicios que harán de este proceso un mejor momento.
+            Estamos dedicados a brindarle la comodidad y servicios que harán de
+            este proceso un mejor momento.
           </p>
         </div>
 

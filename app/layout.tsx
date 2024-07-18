@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
-import { Inter as FontSans } from "next/font/google"
+import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
- 
-import { cn } from "@/lib/utils"
 
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
-})
+});
 
 export const metadata: Metadata = {
   title: "Vaxtrace",
@@ -21,9 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={fontSans.className}>
-        {children}
-        </body>
+      <body className={fontSans.className}>{children}</body>
     </html>
   );
 }
