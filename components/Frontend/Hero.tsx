@@ -100,7 +100,7 @@ const Hero = () => {
     </div>
   );
 };
-
+//
 export default Hero;
 
 const SingleImage = ({ href, imgSrc }:{href:string, imgSrc:string}) => {
