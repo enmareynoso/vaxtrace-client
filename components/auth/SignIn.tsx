@@ -3,16 +3,39 @@ import Image from "next/image";
 import logo from "../../images/logo.png";
 import MainImage from "../../images/heroImage.png";
 import { Button } from "@/components/ui/button";
+import { login } from "@/lib/api/auth";
+import { useRouter } from "next/router";
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // -------------------------------------------------  Este log es temporal para realizar pruebas
     console.log("Email:", email);
     console.log("Password:", password);
-    // Lógica para el inicio de sesión
+    // -------------------------------------------------
+    try {
+      setError("");
+
+      const data = await login(email, password);
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        router.push("/back-office/dashboard");
+      } else {
+        setError("Login failed: Invalid response from server.");
+      }
+    } catch (error: any) {
+      if (error.response && error.response.data) {
+        setError(error.response.data.message);
+      } else {
+        setError("Login failed: An unexpected error occurred.");
+      }
+    }
   };
 
   return (
@@ -118,7 +141,10 @@ const SignIn: React.FC = () => {
               Login
             </Button>
             <div className="mt-4 text-center">
-              <a href="/auth/forgot-password" className="text-white hover:underline">
+              <a
+                href="/auth/forgot-password"
+                className="text-white hover:underline"
+              >
                 Forgot Password?
               </a>
             </div>

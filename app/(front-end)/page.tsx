@@ -1,5 +1,5 @@
 "use client";
-import Accordion from "@/components/Frontend/Faq";
+import Accordion from "@/components/common/Faq";
 import Feature from "@/components/Frontend/Feature";
 import Hero from "@/components/Frontend/Hero";
 
