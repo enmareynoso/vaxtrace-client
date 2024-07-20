@@ -1,5 +1,4 @@
-// components/Checkbox.tsx
-import { FC } from 'react';
+import { FC } from "react";
 
 interface CheckboxProps {
   label: string;
@@ -9,12 +8,12 @@ interface CheckboxProps {
 
 const Checkbox: FC<CheckboxProps> = ({ label, checked, onChange }) => {
   return (
-    <label className='text-white'>
+    <label className="text-white">
       <input
         type="checkbox"
         checked={checked}
         onChange={onChange}
-        className='mr-2'
+        className="mr-2"
       />
       {label}
     </label>
