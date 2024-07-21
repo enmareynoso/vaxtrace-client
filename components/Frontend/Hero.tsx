@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import MainImage from "../../images/heroImage.png"; // Asegúrate de que el nombre de archivo sea correcto
+import MainImage from "../../public/images/heroImage.png";
 
 const Hero = () => {
   return (

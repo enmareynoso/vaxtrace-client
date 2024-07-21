@@ -1,31 +1,29 @@
+"use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import logo from "../../images/logo.png";
-import MainImage from "../../images/heroImage.png";
+import logo from "@/public/images/logo.png";
+import MainImage from "@/public/images/heroImage.png";
 import { Button } from "@/components/ui/button";
-import { login } from "@/lib/api/auth";
-import { useRouter } from "next/router";
+import { loginUser } from "@/lib/api/auth";
+import { useRouter } from "next/navigation";
+import { Console } from "console";
 
 const SignIn: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // -------------------------------------------------  Este log es temporal para realizar pruebas
-    console.log("Email:", email);
-    console.log("Password:", password);
-    // -------------------------------------------------
+
     try {
       setError("");
-
-      const data = await login(email, password);
+      const data = await loginUser({ email, password });
 
       if (data.token) {
         localStorage.setItem("token", data.token);
-        router.push("/back-office/dashboard");
+        router.push("/dashboard");
       } else {
         setError("Login failed: Invalid response from server.");
       }
@@ -134,6 +132,7 @@ const SignIn: React.FC = () => {
                 required
               />
             </div>
+            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
             <Button
               variant="outline"
               className="w-full bg-slate-900 text-white py-2 rounded hover:bg-gray-800 transition duration-200"

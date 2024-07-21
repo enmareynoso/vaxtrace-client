@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Dialog } from "@headlessui/react";
 import Image from "next/image";
-import logo from "../../images/logo.png";
+import logo from "../../public/images/logo.png";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 
 export default function Navbar() {

@@ -1,19 +1,56 @@
 import axios from "axios";
+import cookies from "js-cookie";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL as string;
 
-export const login = async (email: string, password: string) => {
-  const response = await axios.post(`${BASE_URL}/auth/login`, {
-    email,
-    password,
-  });
-  return response.data;
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+interface PasswordResetRequest {
+  email: string;
+  token: string;
+  newPassword: string;
+}
+
+export const loginUser = async (
+  credentials: LoginCredentials
+): Promise<any> => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/login`, credentials);
+    cookies.set("token", response.data.access_token);
+    return response.data;
+  } catch (error: any) {
+    throw error.response.data || "An error occurred during login.";
+  }
 };
 
-export const register = async (email: string, password: string) => {
-  const response = await axios.post(`${BASE_URL}/auth/register`, {
-    email,
-    password,
-  });
-  return response.data;
+export const requestPasswordReset = async (email: string): Promise<any> => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/request-password-reset`,
+      { email }
+    );
+    return response.data;
+  } catch (error: any) {
+    throw (
+      error.response.data ||
+      "An error occurred while requesting the password reset."
+    );
+  }
+};
+
+export const resetPassword = async (
+  resetRequest: PasswordResetRequest
+): Promise<any> => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/reset-password`,
+      resetRequest
+    );
+    return response.data;
+  } catch (error: any) {
+    throw error.response.data || "An error occurred during the password reset.";
+  }
 };

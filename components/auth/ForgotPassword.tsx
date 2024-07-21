@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
-import logo from "../../images/logo.png";
-import MainImage from "../../images/heroImage.png";
+import logo from "../../Public/images/logo.png";
+import MainImage from "../../Public/images/heroImage.png";
 import { Button } from "@/components/ui/button";
 
 const ForgotPassword: React.FC = () => {
@@ -105,8 +105,12 @@ const ForgotPassword: React.FC = () => {
               Reset password
             </Button>
             <div className="mt-6 text-center">
-              <a href="/auth/signup" className="text-white hover:underline block">
-              Don’t have an account? <span className="font-semibold">SIGN UP</span> 
+              <a
+                href="/auth/signup"
+                className="text-white hover:underline block"
+              >
+                Don’t have an account?{" "}
+                <span className="font-semibold">SIGN UP</span>
               </a>
             </div>
           </form>

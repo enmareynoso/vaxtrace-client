@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
-import logo from "../../images/logo.png";
-import MainImage from "../../images/heroImage.png";
+import logo from "../../public/images/logo.png";
+import MainImage from "../../public/images/heroImage.png";
 import { Button } from "@/components/ui/button";
 import Checkbox from "../ui/checkbox";
 
