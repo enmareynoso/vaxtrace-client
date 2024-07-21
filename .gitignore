@@ -39,7 +39,6 @@ next-env.d.ts
 target
 dist
 logs
-public
 .cache
 .vscode
 .idea

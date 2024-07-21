@@ -6,7 +6,6 @@ import MainImage from "@/public/images/heroImage.png";
 import { Button } from "@/components/ui/button";
 import { loginUser } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
-import { Console } from "console";
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState<string>("");
