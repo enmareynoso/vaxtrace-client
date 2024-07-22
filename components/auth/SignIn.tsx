@@ -140,7 +140,7 @@ const SignIn: React.FC = () => {
             </Button>
             <div className="mt-4 text-center">
               <a
-                href="/auth/forgot-password"
+                href="/auth/forgot_password"
                 className="text-white hover:underline"
               >
                 Forgot Password?

@@ -9,14 +9,20 @@ interface LoginCredentials {
 }
 
 interface PasswordResetRequest {
-  email: string;
   token: string;
   newPassword: string;
 }
 
-export const loginUser = async (
-  credentials: LoginCredentials
-): Promise<any> => {
+interface CreateUserRequest {
+  email: string;
+  document: string;
+  first_name: string;
+  last_name: string;
+  birthdate: string;
+  gender: string;
+}
+
+export const loginUser = async (credentials: LoginCredentials): Promise<any> => {
   try {
     const response = await axios.post(`${API_BASE_URL}/login`, credentials);
     cookies.set("token", response.data.access_token);
@@ -29,7 +35,7 @@ export const loginUser = async (
 export const requestPasswordReset = async (email: string): Promise<any> => {
   try {
     const response = await axios.post(
-      `${API_BASE_URL}/request-password-reset`,
+      `${API_BASE_URL}/request_password_reset`,
       { email }
     );
     return response.data;
@@ -41,16 +47,35 @@ export const requestPasswordReset = async (email: string): Promise<any> => {
   }
 };
 
-export const resetPassword = async (
-  resetRequest: PasswordResetRequest
-): Promise<any> => {
+export const resetPassword = async (resetRequest: PasswordResetRequest): Promise<any> => {
   try {
     const response = await axios.post(
-      `${API_BASE_URL}/reset-password`,
+      `${API_BASE_URL}/reset_password`,
       resetRequest
     );
     return response.data;
   } catch (error: any) {
     throw error.response.data || "An error occurred during the password reset.";
+  }
+};
+
+export const setPassword = async (resetRequest: PasswordResetRequest): Promise<any> => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/set_password`,
+      resetRequest
+    );
+    return response.data;
+  } catch (error: any) {
+    throw error.response.data || "An error occurred during setting the password.";
+  }
+};
+
+export const createUser = async (userRequest: CreateUserRequest): Promise<any> => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/create_user`, userRequest);
+    return response.data;
+  } catch (error: any) {
+    throw error.response.data || "An error occurred during user creation.";
   }
 };
