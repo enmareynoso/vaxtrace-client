@@ -50,24 +50,12 @@ export const requestPasswordReset = async (email: string): Promise<any> => {
 export const resetPassword = async (resetRequest: PasswordResetRequest): Promise<any> => {
   try {
     const response = await axios.post(
-      `${API_BASE_URL}/reset_password`,
-      resetRequest
-    );
-    return response.data;
-  } catch (error: any) {
-    throw error.response.data || "An error occurred during the password reset.";
-  }
-};
-
-export const setPassword = async (resetRequest: PasswordResetRequest): Promise<any> => {
-  try {
-    const response = await axios.post(
       `${API_BASE_URL}/set_password`,
       resetRequest
     );
     return response.data;
   } catch (error: any) {
-    throw error.response.data || "An error occurred during setting the password.";
+    throw error.response.data || "An error occurred during the password reset.";
   }
 };
 

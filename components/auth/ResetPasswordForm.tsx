@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { useRouter } from 'next/router';
+"use client"
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { resetPassword } from '@/lib/api/auth';
 
 const ResetPasswordForm: React.FC = () => {
   const router = useRouter();
-  const { token } = router.query;
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');

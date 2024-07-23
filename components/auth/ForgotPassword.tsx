@@ -3,14 +3,20 @@ import Image from "next/image";
 import logo from "../../Public/images/logo.png";
 import MainImage from "../../Public/images/heroImage.png";
 import { Button } from "@/components/ui/button";
+import { requestPasswordReset } from "@/lib/api/auth"; // Ensure the path is correct
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Email:", email);
-    // lógica para enviar el email de recuperación de contraseña
+    try {
+      const response = await requestPasswordReset(email);
+      setMessage("Password reset email sent successfully.");
+    } catch (error) {
+      setMessage("An error occurred while requesting the password reset.");
+    }
   };
 
   return (
@@ -104,6 +110,7 @@ const ForgotPassword: React.FC = () => {
             >
               Reset password
             </Button>
+            {message && <p className="mt-4 text-white">{message}</p>}
             <div className="mt-6 text-center">
               <a
                 href="/auth/signup"
