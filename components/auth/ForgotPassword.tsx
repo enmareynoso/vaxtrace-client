@@ -4,25 +4,34 @@ import logo from "../../Public/images/logo.png";
 import MainImage from "../../Public/images/heroImage.png";
 import { Button } from "@/components/ui/button";
 import { requestPasswordReset } from "@/lib/api/auth"; // Ensure the path is correct
+import { useToast } from "@/components/ui/use-toast";
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await requestPasswordReset(email);
-      setMessage("Password reset email sent successfully.");
+      toast({
+        title: "Success",
+        description: "Password reset email sent successfully.",
+        duration: 5000,
+      });
     } catch (error) {
-      setMessage("An error occurred while requesting the password reset.");
+      toast({
+        title: "Error",
+        description: "An error occurred while requesting the password reset.",
+        duration: 5000,
+      });
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row relative">
       <div className="relative w-full md:w-1/2 flex flex-col items-center justify-center p-6 md:p-12 flex-1 bg-cyan-900 overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden">
           <svg
             width="100%"
             height="100%"
@@ -110,7 +119,6 @@ const ForgotPassword: React.FC = () => {
             >
               Reset password
             </Button>
-            {message && <p className="mt-4 text-white">{message}</p>}
             <div className="mt-6 text-center">
               <a
                 href="/auth/signup"
@@ -174,3 +182,4 @@ const ForgotPassword: React.FC = () => {
 };
 
 export default ForgotPassword;
+

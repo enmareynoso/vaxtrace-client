@@ -1,10 +1,21 @@
 import type { Metadata } from "next";
-import { Inter as FontSans } from "next/font/google";
-import "./globals.css";
+import { Pacifico as FontCursive } from 'next/font/google';
+import './globals.css';
+import { Toaster } from '@/components/ui/toaster';
+
+import { Roboto as FontSans } from 'next/font/google';
 
 const fontSans = FontSans({
-  subsets: ["latin"],
-  variable: "--font-sans",
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-sans',
+});
+
+
+const fontCursive = FontCursive({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-cursive',
 });
 
 export const metadata: Metadata = {
@@ -19,7 +30,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={fontSans.className}>{children}</body>
+      <body className={fontSans.className}>{children}
+        <Toaster />
+      </body>
     </html>
   );
 }
