@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Pacifico as FontCursive } from 'next/font/google';
 import './globals.css';
-import { Toaster } from '@/components/ui/toaster';
 
 import { Roboto as FontSans } from 'next/font/google';
+import { ThemeProvider } from "@/components/theme-provider";
 
 const fontSans = FontSans({
   subsets: ['latin'],
@@ -30,8 +30,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={fontSans.className}>{children}
-        <Toaster />
+      <body className={fontSans.className}>
+      <ThemeProvider
+            attribute="class"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
       </body>
     </html>
   );

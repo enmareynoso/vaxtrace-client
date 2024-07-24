@@ -115,7 +115,7 @@ const SignIn: React.FC = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white"
                 placeholder="Email"
                 required
               />
@@ -126,7 +126,7 @@ const SignIn: React.FC = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded dark:bg-gray-500"
                 placeholder="Password"
                 required
               />
@@ -134,7 +134,7 @@ const SignIn: React.FC = () => {
             {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
             <Button
               variant="outline"
-              className="w-full bg-slate-900 text-white py-2 rounded hover:bg-gray-800 transition duration-200"
+              className="w-full bg-slate-900 text-white py-2 rounded hover:bg-gray-800 transition duration-200 dark:bg-gray-700 dark:hover:bg-slate-900"
             >
               Login
             </Button>

@@ -4,26 +4,29 @@ import logo from "../../Public/images/logo.png";
 import MainImage from "../../Public/images/heroImage.png";
 import { Button } from "@/components/ui/button";
 import { requestPasswordReset } from "@/lib/api/auth"; // Ensure the path is correct
-import { useToast } from "@/components/ui/use-toast";
+import toast, { Toaster } from 'react-hot-toast';
+
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState("");
-  const { toast } = useToast();
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await requestPasswordReset(email);
-      toast({
-        title: "Success",
-        description: "Password reset email sent successfully.",
-        duration: 5000,
-      });
+      toast.success('Funciono')
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "An error occurred while requesting the password reset.",
-        duration: 5000,
+      toast.error("Something went wrong", {
+        style: {
+          border: '1px solid #F44336',
+          padding: '16px',
+          color: '#F44336',
+        },
+        iconTheme: {
+          primary: '#F44336',
+          secondary: '#FFFAEE',
+        },
       });
     }
   };
@@ -108,7 +111,7 @@ const ForgotPassword: React.FC = () => {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border rounded text-black"
+                className="w-full px-4 py-2 border rounded text-black dark:bg-gray-700 dark:text-white"
                 placeholder="Email"
                 required
               />
@@ -118,6 +121,9 @@ const ForgotPassword: React.FC = () => {
               className="w-full bg-slate-900 text-white py-2 rounded hover:text-white hover:bg-gray-800 transition duration-200"
             >
               Reset password
+              <Toaster  
+              position="bottom-center"
+              reverseOrder={false}/>
             </Button>
             <div className="mt-6 text-center">
               <a

@@ -1,12 +1,11 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from "next/image";
 import logo from "@/public/images/logo.png";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { resetPassword } from '@/lib/api/auth';
-import './ResetPassword.css';
 import { Eye, EyeOff } from 'lucide-react'; 
-import { useToast } from "@/components/ui/use-toast";
+import toast, { Toaster } from 'react-hot-toast';
 
 const ResetPasswordForm: React.FC = () => {
   const router = useRouter();
@@ -16,17 +15,22 @@ const ResetPasswordForm: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Password do not match",
-        duration: 5000,
+      toast.error("Passwords do not match", {
+        style: {
+          border: '1px solid #F44336',
+          padding: '16px',
+          color: '#F44336',
+        },
+        iconTheme: {
+          primary: '#F44336',
+          secondary: '#FFFAEE',
+        },
       });
+      return;
     }
     try {
       const resetRequest = {
@@ -34,11 +38,7 @@ const ResetPasswordForm: React.FC = () => {
         newPassword: newPassword,
       };
       await resetPassword(resetRequest);
-      toast({
-        title: "Success",
-        description: "Password updated successfully",
-        duration: 5000,
-      })
+      toast.success('Password reset successful');
     } catch (err: any) {
       setError(err.message || 'An error occurred during the password reset.');
     }
@@ -48,7 +48,7 @@ const ResetPasswordForm: React.FC = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
       <div className="absolute inset-0 overflow-hidden z-0">
         <svg
           width="100%"
@@ -79,44 +79,47 @@ const ResetPasswordForm: React.FC = () => {
           </defs>
         </svg>
       </div>
-      <div className="reset-password-container relative z-10">
-        <Image className="logo" src={logo} alt="Vaxtrace Logo" />
-        <h2>Welcome to Vaxtrace!</h2>
-        <p>To get started with your new account, please update your password.</p>
-        <h4>Set password</h4>
-        {error && <p className="error-message">{error}</p>}
-        {success && <p className="success-message">{success}</p>}
-        <form>
-          <div className="form-group">
-            <label htmlFor="newPassword">New password:</label>
-            <div className="password-wrapper">
+      <div className="relative z-10 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
+        <div className="text-center mb-6">
+          <Image className="mx-auto" src={logo} alt="Vaxtrace Logo" width={80} height={80} />
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-4">Welcome to Vaxtrace!</h2>
+          <p className="text-gray-600 dark:text-gray-300">To get started with your new account, please update your password.</p>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group mb-4">
+            <label htmlFor="newPassword" className="block text-gray-700 dark:text-gray-300">New password:</label>
+            <div className="password-wrapper relative">
               <input
                 type={showPassword ? "text" : "password"}
                 id="newPassword"
+                className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
               />
-              <button type="button" onClick={togglePasswordVisibility} className="password-toggle">
+              <button type="button" onClick={togglePasswordVisibility} className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-700 dark:text-gray-200">
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
           </div>
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Verify password:</label>
-            <div className="password-wrapper">
+          <div className="form-group mb-4">
+            <label htmlFor="confirmPassword" className="block text-gray-700 dark:text-gray-300">Verify password:</label>
+            <div className="password-wrapper relative">
               <input
                 type={showPassword ? "text" : "password"}
                 id="confirmPassword"
+                className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
-              <button type="button" onClick={togglePasswordVisibility} className="password-toggle">
+              <button type="button" onClick={togglePasswordVisibility} className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-700 dark:text-gray-200">
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
           </div>
-          <button type="submit" onClick={handleSubmit} className="submit-button">Set Password</button>
+          <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">Set Password</button>
+          <Toaster position="bottom-center" reverseOrder={false} />
         </form>
+        {error && <p className="mt-4 text-red-600 dark:text-red-400">{error}</p>}
       </div>
     </div>
   );
