@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import { resetPassword } from '@/lib/api/auth';
+import { Button } from "@/components/ui/button";
 
 const ResetPasswordForm: React.FC = () => {
   const router = useRouter();
@@ -14,6 +15,7 @@ const ResetPasswordForm: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false); // Estado de carga
   const [error, setError] = useState('');
   const [showToast, setShowToast] = useState(false);
 
@@ -37,19 +39,22 @@ const ResetPasswordForm: React.FC = () => {
       return;
     }
     setShowToast(false);
+    setLoading(true); 
     try {
       const resetRequest = {
         token,
-        new_password: newPassword, // Asegúrate de usar el nombre de campo correcto
+        new_password: newPassword, 
       };
       console.log("Sending reset request:", resetRequest); // Log the data being sent
       await resetPassword(resetRequest);
       toast.success('Password reset successful');
       setTimeout(() => {
         router.push('/auth/login'); // Redirect after successful reset
-      }, 2000); // 2 seconds delay
+      }, 1000); // 1 seconds delay
     } catch (err: any) {
       toast.error(err.message || 'Token has expired, Ask For another');
+    } finally {
+      setLoading(false); // Establecer el estado de carga en false
     }
   };
 
@@ -105,8 +110,9 @@ const ResetPasswordForm: React.FC = () => {
                 className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
+                disabled={loading} // Deshabilitar input mientras se carga
               />
-              <button type="button" onClick={togglePasswordVisibility} className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-700 dark:text-gray-200">
+              <button type="button" onClick={togglePasswordVisibility} className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-700 dark:text-gray-200" disabled={loading}>
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
@@ -120,14 +126,17 @@ const ResetPasswordForm: React.FC = () => {
                 className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                disabled={loading}
               />
-              <button type="button" onClick={togglePasswordVisibility} className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-700 dark:text-gray-200">
+              <button type="button" onClick={togglePasswordVisibility} className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-700 dark:text-gray-200" disabled={loading}>
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
           </div>
           <input type="hidden" name="token" value={token} />
-          <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">Set Password</button>
+          <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600" disabled={loading}>
+            {loading ? 'Processing...' : 'Set Password'}
+          </button>
           <Toaster position="bottom-center" reverseOrder={false} />
         </form>
         {error && <p className="mt-4 text-red-600 dark:text-red-400">{error}</p>}
@@ -137,3 +146,4 @@ const ResetPasswordForm: React.FC = () => {
 };
 
 export default ResetPasswordForm;
+
