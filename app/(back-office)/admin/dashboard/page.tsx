@@ -9,24 +9,24 @@ import { LastUser } from '../../components/LastUser/LastUser'
 const dataCardsSummary = [
   {
     icon: UserRound,
-    total: "12.450",
+    total: "20/07/2010",
     average: 15,
-    title: "Companies created",
-    tooltipText: "See all of the companies created"
+    title: "User Birthday",
+    tooltipText: "G"
   },
   {
     icon: Waypoints,
-    total: "86.5%",
+    total: "14",
     average: 80,
-    title: "Total Revenue",
-    tooltipText: "See all of the summary"
+    title: "Age",
+    tooltipText: "G"
   },
   {
     icon: BookOpenCheck,
-    total: "363,95€",
+    total: "6",
     average: 30,
-    title: "Bounce Rate",
-    tooltipText: "See all of the bounce rate"
+    title: "Recommended Vaccines",
+    tooltipText: "Recommended Vaccines According to Age"
   },
 ]
 

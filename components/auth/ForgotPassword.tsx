@@ -9,61 +9,35 @@ import toast, { Toaster } from 'react-hot-toast';
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState("");
+  const [showToast, setShowToast] = useState(false);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await requestPasswordReset(email);
-      toast.success('Funciono')
+      toast.success('Password reset link sent')
     } catch (error) {
-      toast.error("Something went wrong", {
-        style: {
-          border: '1px solid #F44336',
-          padding: '16px',
-          color: '#F44336',
-        },
-        iconTheme: {
-          primary: '#F44336',
-          secondary: '#FFFAEE',
-        },
-      });
+      if (!showToast) {
+        toast.error("Something went wrong", {
+          style: {
+            border: '1px solid #F44336',
+            padding: '16px',
+            color: '#F44336',
+          },
+          iconTheme: {
+            primary: '#F44336',
+            secondary: '#FFFAEE',
+          },
+        });
+        setShowToast(true);
+      }
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row relative">
       <div className="relative w-full md:w-1/2 flex flex-col items-center justify-center p-6 md:p-12 flex-1 bg-cyan-900 overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden">
-          <svg
-            width="100%"
-            height="100%"
-            viewBox="0 0 1140 106"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            preserveAspectRatio="xMidYMid slice"
-          >
-            <path
-              opacity="0.7"
-              d="M193.307 -273.321L1480.87 1014.24L1121.85 1373.26C1121.85 1373.26 731.745 983.231 478.513 729.927C225.976 477.317 -165.714 85.6993 -165.714 85.6993L193.307 -273.321Z"
-              fill="url(#paint0_linear)"
-            />
-            <defs>
-              <linearGradient
-                id="paint0_linear"
-                x1="1908.65"
-                y1="1642.58"
-                x2="602.827"
-                y2="-418.681"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#FFFFFF" stopOpacity="0.36" />
-                <stop offset="1" stopColor="#FFFFFF" stopOpacity="0.3" />
-                <stop offset="1" stopColor="#FFFFFF" stopOpacity="0.096144" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
         <a
           href="/"
           className="absolute top-4 left-4 text-white hover:underline flex items-center"

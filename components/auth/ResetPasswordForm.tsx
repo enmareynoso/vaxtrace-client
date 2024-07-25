@@ -7,6 +7,7 @@ import { resetPassword } from '@/lib/api/auth';
 import { Eye, EyeOff } from 'lucide-react'; 
 import toast, { Toaster } from 'react-hot-toast';
 
+
 const ResetPasswordForm: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -15,23 +16,28 @@ const ResetPasswordForm: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [showToast, setShowToast] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      toast.error("Passwords do not match", {
-        style: {
-          border: '1px solid #F44336',
-          padding: '16px',
-          color: '#F44336',
-        },
-        iconTheme: {
-          primary: '#F44336',
-          secondary: '#FFFAEE',
-        },
-      });
+      if (!showToast) {
+        toast.error("Passwords do not match", {
+          style: {
+            border: '1px solid #F44336',
+            padding: '16px',
+            color: '#F44336',
+          },
+          iconTheme: {
+            primary: '#F44336',
+            secondary: '#FFFAEE',
+          },
+        });
+        setShowToast(true);
+      }
       return;
     }
+    setShowToast(false);
     try {
       const resetRequest = {
         token: token as string,
@@ -43,6 +49,7 @@ const ResetPasswordForm: React.FC = () => {
       setError(err.message || 'An error occurred during the password reset.');
     }
   };
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };

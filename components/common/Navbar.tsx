@@ -11,7 +11,7 @@ export default function Navbar() {
   return (
     <header
       id="home"
-      className="bg-transparent backdrop-blur-lg p-4 border-b-2 border-cyan-900"
+      className="bg-transparent backdrop-blur-lg p-4 border-b-2 border-cyan-900 dark:border-white"
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-6">
         <div className="flex items-center space-x-8">
