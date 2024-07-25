@@ -1,11 +1,11 @@
-"use client"
+'use client';
 import React, { useState } from 'react';
 import Image from "next/image";
 import logo from "@/public/images/logo.png";
 import { useRouter, useSearchParams } from 'next/navigation';
-import { resetPassword } from '@/lib/api/auth';
 import { Eye, EyeOff } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
+import { resetPassword } from '@/lib/api/auth';
 
 const ResetPasswordForm: React.FC = () => {
   const router = useRouter();
@@ -40,12 +40,16 @@ const ResetPasswordForm: React.FC = () => {
     try {
       const resetRequest = {
         token,
-        newPassword,
+        new_password: newPassword, // Asegúrate de usar el nombre de campo correcto
       };
+      console.log("Sending reset request:", resetRequest); // Log the data being sent
       await resetPassword(resetRequest);
       toast.success('Password reset successful');
+      setTimeout(() => {
+        router.push('/auth/login'); // Redirect after successful reset
+      }, 2000); // 2 seconds delay
     } catch (err: any) {
-      setError(err.message || 'An error occurred during the password reset.');
+      toast.error(err.message || 'Token has expired, Ask For another');
     }
   };
 

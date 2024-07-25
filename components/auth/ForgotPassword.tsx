@@ -19,7 +19,7 @@ const ForgotPassword: React.FC = () => {
       toast.success('Password reset link sent')
     } catch (error) {
       if (!showToast) {
-        toast.error("Something went wrong", {
+        toast.error("Something went wrong - maybe u don't have an account", {
           style: {
             border: '1px solid #F44336',
             padding: '16px',
