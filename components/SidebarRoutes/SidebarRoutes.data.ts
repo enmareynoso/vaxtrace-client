@@ -16,7 +16,7 @@ import {
     },
     {
       icon: Building2,
-      label: "Hospital",
+      label: "Center vaccination",
       href: "/",
     },
     {

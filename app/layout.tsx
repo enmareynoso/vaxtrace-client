@@ -1,21 +1,13 @@
 import type { Metadata } from "next";
-import { Pacifico as FontCursive } from 'next/font/google';
 import './globals.css';
 
-import { Roboto as FontSans } from 'next/font/google';
+import { Inter } from 'next/font/google'
 import { ThemeProvider } from "@/components/theme-provider";
 
-const fontSans = FontSans({
+const fontSans = Inter({
   subsets: ['latin'],
-  weight: ['400', '700'],
+  weight: ['200', '700'],
   variable: '--font-sans',
-});
-
-
-const fontCursive = FontCursive({
-  subsets: ['latin'],
-  weight: ['400'],
-  variable: '--font-cursive',
 });
 
 export const metadata: Metadata = {

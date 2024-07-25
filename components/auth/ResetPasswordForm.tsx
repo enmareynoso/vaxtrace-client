@@ -4,38 +4,43 @@ import Image from "next/image";
 import logo from "@/public/images/logo.png";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { resetPassword } from '@/lib/api/auth';
-import { Eye, EyeOff } from 'lucide-react'; 
+import { Eye, EyeOff } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
 const ResetPasswordForm: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get('token');
+  const token = searchParams.get('token') || '';
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [showToast, setShowToast] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      toast.error("Passwords do not match", {
-        style: {
-          border: '1px solid #F44336',
-          padding: '16px',
-          color: '#F44336',
-        },
-        iconTheme: {
-          primary: '#F44336',
-          secondary: '#FFFAEE',
-        },
-      });
+      if (!showToast) {
+        toast.error("Passwords do not match", {
+          style: {
+            border: '1px solid #F44336',
+            padding: '16px',
+            color: '#F44336',
+          },
+          iconTheme: {
+            primary: '#F44336',
+            secondary: '#FFFAEE',
+          },
+        });
+        setShowToast(true);
+      }
       return;
     }
+    setShowToast(false);
     try {
       const resetRequest = {
-        token: token as string,
-        newPassword: newPassword,
+        token,
+        newPassword,
       };
       await resetPassword(resetRequest);
       toast.success('Password reset successful');
@@ -43,6 +48,7 @@ const ResetPasswordForm: React.FC = () => {
       setError(err.message || 'An error occurred during the password reset.');
     }
   };
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -116,6 +122,7 @@ const ResetPasswordForm: React.FC = () => {
               </button>
             </div>
           </div>
+          <input type="hidden" name="token" value={token} />
           <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600">Set Password</button>
           <Toaster position="bottom-center" reverseOrder={false} />
         </form>
