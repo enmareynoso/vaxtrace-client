@@ -38,18 +38,30 @@ export const requestPasswordReset = async (email: string): Promise<any> => {
     const response = await axios.post(`${API_BASE_URL}/request_password_reset`, { email });
     return response.data;
   } catch (error: any) {
-    throw error.response.data || "An error occurred while requesting the password reset.";
+    if (error.response && error.response.data) {
+      throw error.response.data; // Lanzar el error específico del backend
+    } else {
+      throw new Error("An error occurred while requesting the password reset.");
+    }
   }
 };
 
-export const resetPassword = async (resetRequest: PasswordResetRequest): Promise<any> => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/set_password`, resetRequest);
-    return response.data;
-  } catch (error: any) {
-    throw error.response.data || "An error occurred during the password reset.";
+export async function resetPassword(data: { token: string, new_password: string }) {
+  const response = await fetch('http://127.0.0.1:8000/api/set_password', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to reset password');
   }
-};
+
+  return await response.json();
+}
 
 export const createUser = async (userRequest: CreateUserRequest): Promise<any> => {
   try {
@@ -59,3 +71,4 @@ export const createUser = async (userRequest: CreateUserRequest): Promise<any> =
     throw error.response.data || "An error occurred during user creation.";
   }
 };
+

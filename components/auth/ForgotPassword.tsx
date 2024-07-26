@@ -3,34 +3,25 @@ import Image from "next/image";
 import logo from "../../Public/images/logo.png";
 import MainImage from "../../Public/images/heroImage.png";
 import { Button } from "@/components/ui/button";
-import { requestPasswordReset } from "@/lib/api/auth"; // Ensure the path is correct
+import { requestPasswordReset } from "@/lib/api/auth"; 
 import toast, { Toaster } from 'react-hot-toast';
-
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState("");
   const [showToast, setShowToast] = useState(false);
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await requestPasswordReset(email);
-      toast.success('Password reset link sent')
-    } catch (error) {
-      if (!showToast) {
-        toast.error("Something went wrong - maybe u don't have an account", {
-          style: {
-            border: '1px solid #F44336',
-            padding: '16px',
-            color: '#F44336',
-          },
-          iconTheme: {
-            primary: '#F44336',
-            secondary: '#FFFAEE',
-          },
-        });
-        setShowToast(true);
+      toast.success('Password reset link sent');
+    } catch (error: any) {
+      if (error.error) {
+        // Backend returned an error response with specific message
+        toast.error(error.error);
+      } else {
+        // General error
+        toast.error("An unexpected error occurred.");
       }
     }
   };
@@ -162,4 +153,7 @@ const ForgotPassword: React.FC = () => {
 };
 
 export default ForgotPassword;
+
+
+
 
