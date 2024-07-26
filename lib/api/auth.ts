@@ -25,7 +25,8 @@ interface CreateUserRequest {
 export const loginUser = async (credentials: LoginCredentials): Promise<any> => {
   try {
     const response = await axios.post(`${API_BASE_URL}/login`, credentials);
-    cookies.set("token", response.data.access_token);
+    cookies.set("access_token", response.data.access_token, { httpOnly: true });
+    cookies.set("refresh_token", response.data.refresh_token, { httpOnly: true });
     return response.data;
   } catch (error: any) {
     throw error.response.data || "An error occurred during login.";
@@ -34,25 +35,16 @@ export const loginUser = async (credentials: LoginCredentials): Promise<any> => 
 
 export const requestPasswordReset = async (email: string): Promise<any> => {
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/request_password_reset`,
-      { email }
-    );
+    const response = await axios.post(`${API_BASE_URL}/request_password_reset`, { email });
     return response.data;
   } catch (error: any) {
-    throw (
-      error.response.data ||
-      "An error occurred while requesting the password reset."
-    );
+    throw error.response.data || "An error occurred while requesting the password reset.";
   }
 };
 
 export const resetPassword = async (resetRequest: PasswordResetRequest): Promise<any> => {
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/set_password`,
-      resetRequest
-    );
+    const response = await axios.post(`${API_BASE_URL}/set_password`, resetRequest);
     return response.data;
   } catch (error: any) {
     throw error.response.data || "An error occurred during the password reset.";

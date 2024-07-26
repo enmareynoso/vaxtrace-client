@@ -22,20 +22,29 @@ const SignIn: React.FC = () => {
       setError("");
       const data = await loginUser({ email, password });
 
-      if (data.token) {
-        localStorage.setItem("token", data.token);
+      if (data.access_token) {
+        localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("refresh_token", data.refresh_token);
         router.push("/dashboard");
       } else {
         setError("Login failed: Invalid response from server.");
       }
     } catch (error: any) {
       if (error.response && error.response.data) {
-        setError(error.response.data.message);
+        const message = error.response.data.error || "";
+        if (message.includes("Invalid password")) {
+          setError("The password you entered is incorrect. Please try again.");
+        } else if (message.includes("User with this email does not exist")) {
+          setError("No account found with this email. Please sign up.");
+        } else {
+          setError(message);
+        }
       } else {
         setError("Login failed: An unexpected error occurred.");
       }
     }
   };
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
