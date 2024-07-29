@@ -1,11 +1,11 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from "next/image";
 import logo from "@/public/images/logo.png";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
-import { resetPassword } from '@/lib/api/auth';
+import { resetPassword, validateToken } from '@/lib/api/auth';
 import { Button } from "@/components/ui/button";
 
 const ResetPasswordForm: React.FC = () => {
@@ -15,9 +15,28 @@ const ResetPasswordForm: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false); // Estado de carga
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showToast, setShowToast] = useState(false);
+
+  useEffect(() => {
+    const checkToken = async () => {
+      try {
+        const response = await validateToken(token);
+        if (response.message !== 'Token is valid') {
+          router.push('/auth/reset_password_failure');
+        }
+      } catch (err) {
+        router.push('/auth/reset_password_failure');
+      }
+    };
+
+    if (token) {
+      checkToken();
+    } else {
+      router.push('/auth/reset_password_failure');
+    }
+  }, [token, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,17 +58,17 @@ const ResetPasswordForm: React.FC = () => {
       return;
     }
     setShowToast(false);
-    setLoading(true); 
+    setLoading(true);
     try {
       const resetRequest = {
         token,
-        new_password: newPassword, 
+        new_password: newPassword,
       };
       console.log("Sending reset request:", resetRequest); // Log the data being sent
       await resetPassword(resetRequest);
       toast.success('Password reset successful');
       setTimeout(() => {
-        router.push('/auth/login'); // Redirect after successful reset
+        router.push('/auth/reset_password_success'); // Redirect after successful reset
       }, 1000); // 1 seconds delay
     } catch (err: any) {
       toast.error(err.message || 'Token has expired, Ask For another');
@@ -110,7 +129,7 @@ const ResetPasswordForm: React.FC = () => {
                 className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                disabled={loading} // Deshabilitar input mientras se carga
+                disabled={loading}
               />
               <button type="button" onClick={togglePasswordVisibility} className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-700 dark:text-gray-200" disabled={loading}>
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}

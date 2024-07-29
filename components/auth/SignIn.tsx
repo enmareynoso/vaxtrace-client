@@ -6,7 +6,6 @@ import MainImage from "@/public/images/heroImage.png";
 import { Button } from "@/components/ui/button";
 import { loginUser } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from 'lucide-react';
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState<string>("");
@@ -144,9 +143,6 @@ const SignIn: React.FC = () => {
                 placeholder="Password"
                 required
               />
-              <button type="button" onClick={togglePasswordVisibility} className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-700 dark:text-gray-200">
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
             </div>
             {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
             <Button

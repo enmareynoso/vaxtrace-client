@@ -72,3 +72,15 @@ export const createUser = async (userRequest: CreateUserRequest): Promise<any> =
   }
 };
 
+export const validateToken = async (token: string): Promise<any> => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/refresh_token`, { token });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      throw error.response.data; // Lanzar el error específico del backend
+    } else {
+      throw new Error("An error occurred while validating the token.");
+    }
+  }
+};
