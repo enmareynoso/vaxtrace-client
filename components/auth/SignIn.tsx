@@ -1,41 +1,51 @@
+"use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import logo from "../../images/logo.png";
-import MainImage from "../../images/heroImage.png";
+import logo from "@/public/images/logo.png";
+import MainImage from "@/public/images/heroImage.png";
 import { Button } from "@/components/ui/button";
-import { login } from "@/lib/api/auth";
-import { useRouter } from "next/router";
+import { loginUser } from "@/lib/api/auth";
+import { useRouter } from "next/navigation";
 
 const SignIn: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string>("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // -------------------------------------------------  Este log es temporal para realizar pruebas
-    console.log("Email:", email);
-    console.log("Password:", password);
-    // -------------------------------------------------
+
     try {
       setError("");
+      const data = await loginUser({ email, password });
 
-      const data = await login(email, password);
-
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-        router.push("/back-office/dashboard");
+      if (data.access_token) {
+        localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("refresh_token", data.refresh_token);
+        router.push("/dashboard");
       } else {
         setError("Login failed: Invalid response from server.");
       }
     } catch (error: any) {
       if (error.response && error.response.data) {
-        setError(error.response.data.message);
+        const message = error.response.data.error || "";
+        if (message.includes("Invalid password")) {
+          setError("The password you entered is incorrect. Please try again.");
+        } else if (message.includes("User with this email does not exist")) {
+          setError("No account found with this email. Please sign up.");
+        } else {
+          setError(message);
+        }
       } else {
         setError("Login failed: An unexpected error occurred.");
       }
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -118,7 +128,7 @@ const SignIn: React.FC = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white"
                 placeholder="Email"
                 required
               />
@@ -129,20 +139,21 @@ const SignIn: React.FC = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded dark:bg-gray-500"
                 placeholder="Password"
                 required
               />
             </div>
+            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
             <Button
               variant="outline"
-              className="w-full bg-slate-900 text-white py-2 rounded hover:bg-gray-800 transition duration-200"
+              className="w-full bg-slate-900 text-white py-2 rounded hover:bg-gray-800 transition duration-200 dark:bg-gray-700 dark:hover:bg-slate-900"
             >
               Login
             </Button>
             <div className="mt-4 text-center">
               <a
-                href="/auth/forgot-password"
+                href="/auth/forgot_password"
                 className="text-white hover:underline"
               >
                 Forgot Password?
