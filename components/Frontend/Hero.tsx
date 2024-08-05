@@ -9,11 +9,11 @@ const Hero = () => {
         <div className="mx-auto flex flex-wrap items-center">
           <div className="w-full lg:w-1/2 px-4">
             <div>
-              <h1 className="text-4xl font-bold text-cyan-900 mb-4">
+              <h1 className="text-4xl font-bold text-cyan-900 mb-4 dark:text-white">
                 Sistema Web para el registro de vacunación en la República
                 Dominicana
               </h1>
-              <p className="text-lg text-gray-600 mb-6">
+              <p className="text-lg text-gray-600 mb-6 dark:text-gray-200">
                 Obtén información de vacunas, recordatorios de vacunas y el
                 historial de vacunación para tu protección y la de tus hijos.
               </p>
@@ -34,7 +34,7 @@ const Hero = () => {
                 height={400}
                 layout="intrinsic"
               />
-              <span className="absolute -bottom-2 -left-2">
+              <span className="absolute -bottom-2 -left-2 text-primary dark:text-white">
                 <svg
                   width="93"
                   height="93"
@@ -42,31 +42,31 @@ const Hero = () => {
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
-                  <circle cx="2.5" cy="2.5" r="2.5" fill="#09475F" />
-                  <circle cx="2.5" cy="24.5" r="2.5" fill="#09475F" />
-                  <circle cx="2.5" cy="46.5" r="2.5" fill="#09475F" />
-                  <circle cx="2.5" cy="68.5" r="2.5" fill="#09475F" />
-                  <circle cx="2.5" cy="90.5" r="2.5" fill="#09475F" />
-                  <circle cx="24.5" cy="2.5" r="2.5" fill="#09475F" />
-                  <circle cx="24.5" cy="24.5" r="2.5" fill="#09475F" />
-                  <circle cx="24.5" cy="46.5" r="2.5" fill="#09475F" />
-                  <circle cx="24.5" cy="68.5" r="2.5" fill="#09475F" />
-                  <circle cx="24.5" cy="90.5" r="2.5" fill="#09475F" />
-                  <circle cx="46.5" cy="2.5" r="2.5" fill="#09475F" />
-                  <circle cx="46.5" cy="24.5" r="2.5" fill="#09475F" />
-                  <circle cx="46.5" cy="46.5" r="2.5" fill="#09475F" />
-                  <circle cx="46.5" cy="68.5" r="2.5" fill="#09475F" />
-                  <circle cx="46.5" cy="90.5" r="2.5" fill="#09475F" />
-                  <circle cx="68.5" cy="2.5" r="2.5" fill="#09475F" />
-                  <circle cx="68.5" cy="24.5" r="2.5" fill="#09475F" />
-                  <circle cx="68.5" cy="46.5" r="2.5" fill="#09475F" />
-                  <circle cx="68.5" cy="68.5" r="2.5" fill="#09475F" />
-                  <circle cx="68.5" cy="90.5" r="2.5" fill="#09475F" />
-                  <circle cx="90.5" cy="2.5" r="2.5" fill="#09475F" />
-                  <circle cx="90.5" cy="24.5" r="2.5" fill="#09475F" />
-                  <circle cx="90.5" cy="46.5" r="2.5" fill="#09475F" />
-                  <circle cx="90.5" cy="68.5" r="2.5" fill="#09475F" />
-                  <circle cx="90.5" cy="90.5" r="2.5" fill="#09475F" />
+                  <circle cx="2.5" cy="2.5" r="2.5" fill="currentColor" />
+                  <circle cx="2.5" cy="24.5" r="2.5" fill="currentColor" />
+                  <circle cx="2.5" cy="46.5" r="2.5" fill="currentColor" />
+                  <circle cx="2.5" cy="68.5" r="2.5" fill="currentColor" />
+                  <circle cx="2.5" cy="90.5" r="2.5" fill="currentColor" />
+                  <circle cx="24.5" cy="2.5" r="2.5" fill="currentColor" />
+                  <circle cx="24.5" cy="24.5" r="2.5" fill="currentColor" />
+                  <circle cx="24.5" cy="46.5" r="2.5" fill="currentColor" />
+                  <circle cx="24.5" cy="68.5" r="2.5" fill="currentColor" />
+                  <circle cx="24.5" cy="90.5" r="2.5" fill="currentColor" />
+                  <circle cx="46.5" cy="2.5" r="2.5" fill="currentColor" />
+                  <circle cx="46.5" cy="24.5" r="2.5" fill="currentColor" />
+                  <circle cx="46.5" cy="46.5" r="2.5" fill="currentColor" />
+                  <circle cx="46.5" cy="68.5" r="2.5" fill="currentColor" />
+                  <circle cx="46.5" cy="90.5" r="2.5" fill="currentColor" />
+                  <circle cx="68.5" cy="2.5" r="2.5" fill="currentColor" />
+                  <circle cx="68.5" cy="24.5" r="2.5" fill="currentColor" />
+                  <circle cx="68.5" cy="46.5" r="2.5" fill="currentColor" />
+                  <circle cx="68.5" cy="68.5" r="2.5" fill="currentColor" />
+                  <circle cx="68.5" cy="90.5" r="2.5" fill="currentColor" />
+                  <circle cx="90.5" cy="2.5" r="2.5" fill="currentColor" />
+                  <circle cx="90.5" cy="24.5" r="2.5" fill="currentColor" />
+                  <circle cx="90.5" cy="46.5" r="2.5" fill="currentColor" />
+                  <circle cx="90.5" cy="68.5" r="2.5" fill="currentColor" />
+                  <circle cx="90.5" cy="90.5" r="2.5" fill="currentColor" />
                 </svg>
               </span>
             </div>
