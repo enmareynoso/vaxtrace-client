@@ -15,7 +15,7 @@ export default function Navbar() {
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-6">
         <div className="flex items-center space-x-8">
-          <a href="#home" className="flex items-center -m-1.5 p-1.5">
+          <a href="/" className="flex items-center -m-1.5 p-1.5">
             <Image src={logo} alt="Vaxtrace Logo" width={50} height={50} />
             <span className="ml-4 text-4xl font-bold text-gray-900 dark:text-white">
               Vaxtrace
@@ -24,19 +24,19 @@ export default function Navbar() {
         </div>
         <div className="hidden lg:flex space-x-8 px-10">
           <a
-            href="#"
+            href="/about"
             className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
           >
             About us
           </a>
           <a
-            href="#"
+            href="/info"
             className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
           >
             Vaccine Information
           </a>
           <a
-            href="#faqs"
+            href="/#faqs"
             className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
           >
             FAQs
@@ -74,7 +74,7 @@ export default function Navbar() {
       >
         <Dialog.Panel className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white dark:bg-gray-900 px-6 py-6">
           <div className="flex items-center justify-between">
-            <a href="#" className="flex items-center -m-1.5 p-1.5">
+            <a href="/" className="flex items-center -m-1.5 p-1.5">
               <Image src={logo} alt="Vaxtrace Logo" width={50} height={50} />
               <span className="ml-2 text-xl font-semibold text-gray-900 dark:text-white">
                 Vaxtrace
@@ -92,19 +92,19 @@ export default function Navbar() {
             <div className="-my-6 divide-y divide-gray-200 dark:divide-gray-700">
               <div className="space-y-2 py-6">
                 <a
-                  href="#"
+                  href="/about"
                   className="block px-3 py-2 text-base font-semibold text-gray-900 dark:text-white"
                 >
                   About Us
                 </a>
                 <a
-                  href="#"
+                  href="/info"
                   className="block px-3 py-2 text-base font-semibold text-gray-900 dark:text-white"
                 >
                   Vaccine Information
                 </a>
                 <a
-                  href="#faqs"
+                  href="/#faqs"
                   className="block px-3 py-2 text-base font-semibold text-gray-900 dark:text-white"
                   onClick={() => setMobileMenuOpen(false)}
                 >

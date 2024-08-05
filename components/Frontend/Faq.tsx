@@ -90,11 +90,10 @@ const Accordion = () => {
 
 export default Accordion;
 
-
 const AccordionItem = ({ header, text }: { header: string; text: string }) => {
   const [active, setActive] = useState(false);
 
-  const handleToggle = (event:React.MouseEvent<HTMLButtonElement>) => {
+  const handleToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     setActive(!active);
   };
@@ -141,4 +140,3 @@ const AccordionItem = ({ header, text }: { header: string; text: string }) => {
     </div>
   );
 };
-

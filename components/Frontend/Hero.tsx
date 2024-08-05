@@ -35,41 +35,40 @@ const Hero = () => {
                 layout="intrinsic"
               />
               <span className="absolute -bottom-2 -left-2 text-primary dark:text-white">
-              <svg
-                width="93"
-                height="93"
-                viewBox="0 0 93 93"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <circle cx="2.5" cy="2.5" r="2.5" fill="currentColor" />
-                <circle cx="2.5" cy="24.5" r="2.5" fill="currentColor" />
-                <circle cx="2.5" cy="46.5" r="2.5" fill="currentColor" />
-                <circle cx="2.5" cy="68.5" r="2.5" fill="currentColor" />
-                <circle cx="2.5" cy="90.5" r="2.5" fill="currentColor" />
-                <circle cx="24.5" cy="2.5" r="2.5" fill="currentColor" />
-                <circle cx="24.5" cy="24.5" r="2.5" fill="currentColor" />
-                <circle cx="24.5" cy="46.5" r="2.5" fill="currentColor" />
-                <circle cx="24.5" cy="68.5" r="2.5" fill="currentColor" />
-                <circle cx="24.5" cy="90.5" r="2.5" fill="currentColor" />
-                <circle cx="46.5" cy="2.5" r="2.5" fill="currentColor" />
-                <circle cx="46.5" cy="24.5" r="2.5" fill="currentColor" />
-                <circle cx="46.5" cy="46.5" r="2.5" fill="currentColor" />
-                <circle cx="46.5" cy="68.5" r="2.5" fill="currentColor" />
-                <circle cx="46.5" cy="90.5" r="2.5" fill="currentColor" />
-                <circle cx="68.5" cy="2.5" r="2.5" fill="currentColor" />
-                <circle cx="68.5" cy="24.5" r="2.5" fill="currentColor" />
-                <circle cx="68.5" cy="46.5" r="2.5" fill="currentColor" />
-                <circle cx="68.5" cy="68.5" r="2.5" fill="currentColor" />
-                <circle cx="68.5" cy="90.5" r="2.5" fill="currentColor" />
-                <circle cx="90.5" cy="2.5" r="2.5" fill="currentColor" />
-                <circle cx="90.5" cy="24.5" r="2.5" fill="currentColor" />
-                <circle cx="90.5" cy="46.5" r="2.5" fill="currentColor" />
-                <circle cx="90.5" cy="68.5" r="2.5" fill="currentColor" />
-                <circle cx="90.5" cy="90.5" r="2.5" fill="currentColor" />
-              </svg>
-            </span>
-
+                <svg
+                  width="93"
+                  height="93"
+                  viewBox="0 0 93 93"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle cx="2.5" cy="2.5" r="2.5" fill="currentColor" />
+                  <circle cx="2.5" cy="24.5" r="2.5" fill="currentColor" />
+                  <circle cx="2.5" cy="46.5" r="2.5" fill="currentColor" />
+                  <circle cx="2.5" cy="68.5" r="2.5" fill="currentColor" />
+                  <circle cx="2.5" cy="90.5" r="2.5" fill="currentColor" />
+                  <circle cx="24.5" cy="2.5" r="2.5" fill="currentColor" />
+                  <circle cx="24.5" cy="24.5" r="2.5" fill="currentColor" />
+                  <circle cx="24.5" cy="46.5" r="2.5" fill="currentColor" />
+                  <circle cx="24.5" cy="68.5" r="2.5" fill="currentColor" />
+                  <circle cx="24.5" cy="90.5" r="2.5" fill="currentColor" />
+                  <circle cx="46.5" cy="2.5" r="2.5" fill="currentColor" />
+                  <circle cx="46.5" cy="24.5" r="2.5" fill="currentColor" />
+                  <circle cx="46.5" cy="46.5" r="2.5" fill="currentColor" />
+                  <circle cx="46.5" cy="68.5" r="2.5" fill="currentColor" />
+                  <circle cx="46.5" cy="90.5" r="2.5" fill="currentColor" />
+                  <circle cx="68.5" cy="2.5" r="2.5" fill="currentColor" />
+                  <circle cx="68.5" cy="24.5" r="2.5" fill="currentColor" />
+                  <circle cx="68.5" cy="46.5" r="2.5" fill="currentColor" />
+                  <circle cx="68.5" cy="68.5" r="2.5" fill="currentColor" />
+                  <circle cx="68.5" cy="90.5" r="2.5" fill="currentColor" />
+                  <circle cx="90.5" cy="2.5" r="2.5" fill="currentColor" />
+                  <circle cx="90.5" cy="24.5" r="2.5" fill="currentColor" />
+                  <circle cx="90.5" cy="46.5" r="2.5" fill="currentColor" />
+                  <circle cx="90.5" cy="68.5" r="2.5" fill="currentColor" />
+                  <circle cx="90.5" cy="90.5" r="2.5" fill="currentColor" />
+                </svg>
+              </span>
             </div>
           </div>
         </div>

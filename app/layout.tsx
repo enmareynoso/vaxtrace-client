@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
-import './globals.css';
-
-import { Inter } from 'next/font/google'
+import "./globals.css";
+import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const fontSans = Inter({
-  subsets: ['latin'],
-  weight: ['200', '700'],
-  variable: '--font-sans',
+  subsets: ["latin"],
+  weight: ["200", "700"],
+  variable: "--font-sans",
 });
 
 export const metadata: Metadata = {
@@ -23,13 +22,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={fontSans.className}>
-      <ThemeProvider
-            attribute="class"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
+        <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -45,7 +45,6 @@ const Feature = () => {
             Icon={BellAlertIcon}
             title="Nunca más olvides una vacuna"
             description="Recibirás una notificación automática en tu correo electrónico 10 días antes para mantenerte actualizado sobre próximas vacunas, nuevas dosis y disponibilidad."
-          
           />
           <ServiceCard
             Icon={ClipboardDocumentIcon}

@@ -1,23 +1,27 @@
-import { FC } from "react";
+import React from "react";
 
 interface CheckboxProps {
   label: string;
   checked: boolean;
-  onChange: () => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  className?: string;
 }
 
-const Checkbox: FC<CheckboxProps> = ({ label, checked, onChange }) => {
+export const Checkbox: React.FC<CheckboxProps> = ({
+  label,
+  checked,
+  onChange,
+  className,
+}) => {
   return (
-    <label className="text-white">
+    <label className={`flex items-center ${className}`}>
       <input
         type="checkbox"
         checked={checked}
         onChange={onChange}
-        className="mr-2"
+        className="form-checkbox text-blue-500"
       />
-      {label}
+      <span className="ml-2">{label}</span>
     </label>
   );
 };
-
-export default Checkbox;

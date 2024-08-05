@@ -3,8 +3,8 @@ import Image from "next/image";
 import logo from "../../Public/images/logo.png";
 import MainImage from "../../Public/images/heroImage.png";
 import { Button } from "@/components/ui/button";
-import { requestPasswordReset } from "@/lib/api/auth"; 
-import toast, { Toaster } from 'react-hot-toast';
+import { requestPasswordReset } from "@/lib/api/auth";
+import toast, { Toaster } from "react-hot-toast";
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -14,7 +14,7 @@ const ForgotPassword: React.FC = () => {
     e.preventDefault();
     try {
       const response = await requestPasswordReset(email);
-      toast.success('Password reset link sent');
+      toast.success("Password reset link sent");
     } catch (error: any) {
       if (error.error) {
         // Backend returned an error response with specific message
@@ -86,9 +86,7 @@ const ForgotPassword: React.FC = () => {
               className="w-full bg-slate-900 text-white py-2 rounded hover:text-white hover:bg-gray-800 transition duration-200"
             >
               Reset password
-              <Toaster  
-              position="bottom-center"
-              reverseOrder={false}/>
+              <Toaster position="bottom-center" reverseOrder={false} />
             </Button>
             <div className="mt-6 text-center">
               <a
@@ -153,7 +151,3 @@ const ForgotPassword: React.FC = () => {
 };
 
 export default ForgotPassword;
-
-
-
-

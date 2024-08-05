@@ -22,63 +22,122 @@ interface CreateUserRequest {
   gender: string;
 }
 
-export const loginUser = async (credentials: LoginCredentials): Promise<any> => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/login`, credentials);
-    cookies.set("access_token", response.data.access_token, { httpOnly: true });
-    cookies.set("refresh_token", response.data.refresh_token, { httpOnly: true });
-    return response.data;
-  } catch (error: any) {
-    throw error.response.data || "An error occurred during login.";
-  }
-};
+interface AuthResponse {
+  access_token: string;
+  refresh_token: string;
+}
 
-export const requestPasswordReset = async (email: string): Promise<any> => {
+interface PasswordResetResponse {
+  message: string;
+}
+
+interface CreateUserResponse {
+  id: string;
+  email: string;
+}
+
+export const loginUser = async (
+  credentials: LoginCredentials
+): Promise<AuthResponse> => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/request_password_reset`, { email });
+    const response = await axios.post<AuthResponse>(
+      `${API_BASE_URL}/login`,
+      credentials
+    );
+    cookies.set("access_token", response.data.access_token, { httpOnly: true });
+    cookies.set("refresh_token", response.data.refresh_token, {
+      httpOnly: true,
+    });
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
-      throw error.response.data; // Lanzar el error específico del backend
+      throw new Error(
+        error.response.data.message || "An error occurred during login."
+      );
+    } else {
+      throw new Error("An error occurred during login.");
+    }
+  }
+};
+
+export const requestPasswordReset = async (
+  email: string
+): Promise<PasswordResetResponse> => {
+  try {
+    const response = await axios.post<PasswordResetResponse>(
+      `${API_BASE_URL}/request_password_reset`,
+      { email }
+    );
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      throw new Error(
+        error.response.data.message ||
+          "An error occurred while requesting the password reset."
+      );
     } else {
       throw new Error("An error occurred while requesting the password reset.");
     }
   }
 };
 
-export async function resetPassword(data: { token: string, new_password: string }) {
-  const response = await fetch('http://127.0.0.1:8000/api/set_password', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || 'Failed to reset password');
-  }
-
-  return await response.json();
-}
-
-export const createUser = async (userRequest: CreateUserRequest): Promise<any> => {
+export const resetPassword = async (
+  data: PasswordResetRequest
+): Promise<any> => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/create_user`, userRequest);
+    const response = await fetch(`${API_BASE_URL}/set_password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to reset password");
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    throw new Error(
+      error.message || "An error occurred while resetting the password."
+    );
+  }
+};
+
+export const createUser = async (
+  userRequest: CreateUserRequest
+): Promise<CreateUserResponse> => {
+  try {
+    const response = await axios.post<CreateUserResponse>(
+      `${API_BASE_URL}/create_user`,
+      userRequest
+    );
     return response.data;
   } catch (error: any) {
-    throw error.response.data || "An error occurred during user creation.";
+    if (error.response && error.response.data) {
+      throw new Error(
+        error.response.data.message || "An error occurred during user creation."
+      );
+    } else {
+      throw new Error("An error occurred during user creation.");
+    }
   }
 };
 
 export const validateToken = async (token: string): Promise<any> => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/refresh_token`, { token });
+    const response = await axios.post(`${API_BASE_URL}/refresh_token`, {
+      token,
+    });
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
-      throw error.response.data; // Lanzar el error específico del backend
+      throw new Error(
+        error.response.data.message ||
+          "An error occurred while validating the token."
+      );
     } else {
       throw new Error("An error occurred while validating the token.");
     }

@@ -1,7 +1,7 @@
-'use client'; // Asegúrate de agregar esta línea al principio
+"use client"; // Asegúrate de agregar esta línea al principio
 
-import React from 'react';
-import { useRouter } from 'next/navigation';
+import React from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import logo from "@/public/images/logo.png";
 
@@ -9,12 +9,12 @@ const ResetPasswordFormFailure: React.FC = () => {
   const router = useRouter();
 
   const handleRequestNewToken = () => {
-    router.push('/auth/forgot_password');
+    router.push("/auth/forgot_password");
   };
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-         <div className="absolute inset-0 overflow-hidden z-0">
+      <div className="absolute inset-0 overflow-hidden z-0">
         <svg
           width="100%"
           height="100%"
@@ -45,16 +45,28 @@ const ResetPasswordFormFailure: React.FC = () => {
         </svg>
       </div>
       <div className="relative bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md text-center">
-      <div className="text-center mb-6">
-          <Image className="mx-auto" src={logo} alt="Vaxtrace Logo" width={80} height={80} />
+        <div className="text-center mb-6">
+          <Image
+            className="mx-auto"
+            src={logo}
+            alt="Vaxtrace Logo"
+            width={80}
+            height={80}
+          />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Invalid Password Reset Token</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          Invalid Password Reset Token
+        </h1>
         <p className="mt-4 text-gray-600 dark:text-gray-300">
-          The password reset token you have provided is not valid. Tokens are only valid for a single use, and they expire after a 30 minut.
+          The password reset token you have provided is not valid. Tokens are
+          only valid for a single use, and they expire after a 30 minut.
         </p>
         <p className="mt-4 text-gray-600 dark:text-gray-300">
-          Don't worry, it's easy to{' '}
-          <button onClick={handleRequestNewToken} className="text-blue-600 hover:underline">
+          Don't worry, it's easy to{" "}
+          <button
+            onClick={handleRequestNewToken}
+            className="text-blue-600 hover:underline"
+          >
             request a new token
           </button>
           !
