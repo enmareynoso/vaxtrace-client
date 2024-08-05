@@ -8,21 +8,19 @@ import toast, { Toaster } from "react-hot-toast";
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState("");
-  const [showToast, setShowToast] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true); // Indicar que la petición está en curso
     try {
-      const response = await requestPasswordReset(email);
+      await requestPasswordReset(email);
       toast.success("Password reset link sent");
     } catch (error: any) {
-      if (error.error) {
-        // Backend returned an error response with specific message
-        toast.error(error.error);
-      } else {
-        // General error
-        toast.error("An unexpected error occurred.");
-      }
+      // Mostrar el mensaje de error específico
+      toast.error(error.message || "An unexpected error occurred.");
+    } finally {
+      setLoading(false); // Finalizar el indicador de carga
     }
   };
 
@@ -84,10 +82,11 @@ const ForgotPassword: React.FC = () => {
             <Button
               variant="outline"
               className="w-full bg-slate-900 text-white py-2 rounded hover:text-white hover:bg-gray-800 transition duration-200"
+              disabled={loading} // Deshabilitar botón durante la carga
             >
-              Reset password
-              <Toaster position="bottom-center" reverseOrder={false} />
+              {loading ? "Sending..." : "Reset password"} {/* Cambiar texto del botón durante la carga */}
             </Button>
+            <Toaster position="bottom-center" reverseOrder={false} />
             <div className="mt-6 text-center">
               <a
                 href="/auth/signup"
@@ -151,3 +150,4 @@ const ForgotPassword: React.FC = () => {
 };
 
 export default ForgotPassword;
+
