@@ -6,43 +6,44 @@ import MainImage from "@/public/images/heroImage.png";
 import { Button } from "@/components/ui/button";
 import { loginUser } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
+import toast, { Toaster } from 'react-hot-toast';
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState(false);  // Estado de carga
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
+    setLoading(true);  // Iniciar el estado de carga
+  
     try {
-      setError("");
       const data = await loginUser({ email, password });
-
+  
       if (data.access_token) {
         localStorage.setItem("access_token", data.access_token);
         localStorage.setItem("refresh_token", data.refresh_token);
-        router.push("/dashboard");
+        router.push("/admin/dashboard");
       } else {
-        setError("Login failed: Invalid response from server.");
+        toast.error("Login failed: Invalid response from server.");
       }
     } catch (error: any) {
-      if (error.response && error.response.data) {
-        const message = error.response.data.error || "";
-        if (message.includes("Invalid password")) {
-          setError("The password you entered is incorrect. Please try again.");
-        } else if (message.includes("User with this email does not exist")) {
-          setError("No account found with this email. Please sign up.");
-        } else {
-          setError(message);
-        }
+      console.log('Error:', error.message);
+      if (error.message.includes("Invalid password")) {
+        toast.error("The password you entered is incorrect. Please try again.");
+      } else if (error.message.includes("User with this email does not exist")) {
+        toast.error("No account found with this email. Please sign up.");
       } else {
-        setError("Login failed: An unexpected error occurred.");
+        toast.error(error.message);
       }
+    } finally {
+      setLoading(false);  // Finalizar el estado de carga
     }
   };
+  
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -135,31 +136,33 @@ const SignIn: React.FC = () => {
             </div>
             <div className="mb-6">
               <label className="block text-white">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border rounded dark:bg-gray-500"
-                placeholder="Password"
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white"
+                  placeholder="Password"
+                  required
+                />
+              </div>
             </div>
-            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
             <Button
               variant="outline"
               className="w-full bg-slate-900 text-white py-2 rounded hover:bg-gray-800 transition duration-200 dark:bg-gray-700 dark:hover:bg-slate-900"
+              disabled={loading}  // Deshabilitar el botón mientras se carga
             >
-              Login
+              {loading ? 'Loading...' : 'Login'}
             </Button>
             <div className="mt-4 text-center">
-              <a
-                href="/auth/forgot_password"
+              <a href="/auth/forgot_password"
                 className="text-white hover:underline"
               >
                 Forgot Password?
               </a>
             </div>
           </form>
+          <Toaster position="bottom-center" reverseOrder={false} />
         </div>
       </div>
     </div>
