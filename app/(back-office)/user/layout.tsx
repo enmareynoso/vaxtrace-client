@@ -1,15 +1,16 @@
-import React, { ReactNode } from "react";
-import { UserRole } from "@/lib/types/UserRoles";
-import { Layout } from "../layout";
+import { Navbar, Sidebar } from "@/components/dashboard";
+import { ReactNode } from "react";
 
-interface UserLayoutProps {
-  children: ReactNode;
+export default function Layout({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex w-full h-full">
+      <div className="hidden xl:block w-80 h-full xl:fixed">
+        <Sidebar userRole={"user"} />
+      </div>
+      <div className="w-full xl:ml-80">
+        <Navbar />
+        <div className="p-6 bg-[#fafbfc] dark:bg-secondary">{children}</div>
+      </div>
+    </div>
+  );
 }
-
-const UserLayout = ({ children }: UserLayoutProps) => {
-  const userRole: UserRole = "user"; // Role should be determined dynamically
-
-  return <Layout userRole={userRole}>{children}</Layout>;
-};
-
-export default UserLayout;

@@ -5,7 +5,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="flex w-full h-full">
       <div className="hidden xl:block w-80 h-full xl:fixed">
-        <Sidebar />
+        <Sidebar userRole={"admin"} />
       </div>
       <div className="w-full xl:ml-80">
         <Navbar />

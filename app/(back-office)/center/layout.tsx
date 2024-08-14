@@ -1,15 +1,16 @@
-import React, { ReactNode } from "react";
-import { UserRole } from "@/lib/types/UserRoles";
-import { Layout } from "../layout";
+import { Navbar, Sidebar } from "@/components/dashboard";
+import { ReactNode } from "react";
 
-interface CenterLayoutProps {
-  children: ReactNode;
+export default function Layout({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex w-full h-full">
+      <div className="hidden xl:block w-80 h-full xl:fixed">
+        <Sidebar userRole={"center"} />
+      </div>
+      <div className="w-full xl:ml-80">
+        <Navbar />
+        <div className="p-6 bg-[#fafbfc] dark:bg-secondary">{children}</div>
+      </div>
+    </div>
+  );
 }
-
-const CenterLayout = ({ children }: CenterLayoutProps) => {
-  const userRole: UserRole = "center"; // Role should be determined dynamically
-
-  return <Layout userRole={userRole}>{children}</Layout>;
-};
-
-export default CenterLayout;

@@ -5,17 +5,26 @@ import MainImage from "../../public/images/heroImage.png";
 import { Button } from "@/components/ui/button";
 import Checkbox from "../ui/checkbox";
 
-const SignIn: React.FC = () => {
+const CenterSignUp: React.FC = () => {
+  const [rnc, setRnc] = useState("");
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
+  const [municipality, setMunicipality] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("RNC:", rnc);
+    console.log("Name:", name);
+    console.log("Address:", address);
+    console.log("Phone Number:", phoneNumber);
     console.log("Email:", email);
+    console.log("Municipality:", municipality);
     console.log("Password:", password);
     console.log("Confirm Password:", confirmPassword);
-    // Lógica para el inicio de sesión
   };
 
   const [isChecked, setIsChecked] = useState<boolean>(false);
@@ -89,44 +98,109 @@ const SignIn: React.FC = () => {
           />
         </div>
       </div>
-      <div className="w-full md:w-1/2 bg-cyan-900 flex items-center justify-center p-4 md:p-10 flex-1">
-        <div className="bg-transparent p-4 md:p-8 rounded w-full max-w-md">
-          <h1 className="text-2xl md:text-3xl font-bold mb-8 text-center text-white">
-            Vaxtrace
+      <div className="w-full md:w-1/2 bg-cyan-900 flex items-center justify-center p-6 md:p-12 flex-1">
+        <div className="bg-gray-100 p-6 md:p-8 rounded-lg shadow-lg w-full max-w-md">
+          <h1 className="text-2xl md:text-3xl font-bold mb-8 text-center text-cyan-900">
+            Center Sign Up
           </h1>
-          <h2 className="text-xl md:text-2xl font-bold mb-6 text-left text-white">
-            Sign Up
-          </h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label className="block text-white">Email</label>
+              <label className="block text-cyan-900 font-semibold">RNC</label>
+              <input
+                type="text"
+                value={rnc}
+                onChange={(e) => setRnc(e.target.value)}
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
+                placeholder="RNC"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-cyan-900 font-semibold">Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
+                placeholder="Center Name"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-cyan-900 font-semibold">
+                Address
+              </label>
+              <input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
+                placeholder="Address"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-cyan-900 font-semibold">
+                Phone Number
+              </label>
+              <input
+                type="text"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
+                placeholder="Phone Number"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-cyan-900 font-semibold">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
                 placeholder="Email"
                 required
               />
             </div>
             <div className="mb-4">
-              <label className="block text-white">Password</label>
+              <label className="block text-cyan-900 font-semibold">
+                Municipality
+              </label>
+              <select
+                value={municipality}
+                onChange={(e) => setMunicipality(e.target.value)}
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
+                required
+              >
+                <option value="">Select Municipality</option>
+                <option value="Municipality1">Municipality 1</option>
+                <option value="Municipality2">Municipality 2</option>
+                <option value="Municipality3">Municipality 3</option>
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block text-cyan-900 font-semibold">
+                Password
+              </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
                 placeholder="Password"
                 required
               />
             </div>
             <div className="mb-6">
-              <label className="block text-white">Confirm Password</label>
+              <label className="block text-cyan-900 font-semibold">
+                Confirm Password
+              </label>
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
                 placeholder="Confirm Password"
                 required
               />
@@ -140,12 +214,12 @@ const SignIn: React.FC = () => {
             </div>
             <Button
               variant="outline"
-              className="w-full bg-slate-900 text-white py-2 rounded hover:text-white hover:bg-gray-800 transition duration-200"
+              className="w-full bg-cyan-800 text-white py-2 rounded hover:text-white hover:bg-cyan-900 transition duration-200"
             >
               Register
             </Button>
             <div className="mt-4 text-center">
-              <a href="/auth/login" className="text-white hover:underline">
+              <a href="/auth/login" className="text-cyan-900 hover:underline">
                 Already have an account?{" "}
                 <span className="font-semibold">Login</span>
               </a>
@@ -157,4 +231,4 @@ const SignIn: React.FC = () => {
   );
 };
 
-export default SignIn;
+export default CenterSignUp;
