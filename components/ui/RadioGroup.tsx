@@ -22,10 +22,15 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
 }) => {
   return (
     <div className={`space-y-2 ${className}`}>
-      <span className="block text-sm font-medium text-gray-700">{title}</span>
+      <span className="block text-sm font-medium text-gray-700 dark:text-white">
+        {title}
+      </span>
       <div className="flex space-x-4">
         {options.map((option) => (
-          <label key={option.value} className="inline-flex items-center">
+          <label
+            key={option.value}
+            className="inline-flex items-center dark:text-white"
+          >
             <input
               type="radio"
               name={title}

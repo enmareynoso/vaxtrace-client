@@ -5,7 +5,6 @@ import RadioButton from "../ui/RadioButton";
 import CustomDatePicker from "../ui/DatePicker";
 import { Checkbox } from "../ui/checkbox";
 import { CalendarIcon } from "lucide-react";
-import { Separator } from "../ui/separator";
 
 export default function PatientInformation() {
   const [formData, setFormData] = useState({
@@ -108,14 +107,14 @@ export default function PatientInformation() {
             value="M"
             checked={formData.gender === "M"}
             onChange={() => handleGenderChange("M")}
-            className="py-2 px-4 border rounded-md text-center bg-blue-500 hover:bg-gray-300"
+            className="py-2 px-4 border rounded-md text-center bg-blue-500"
           />
           <RadioButton
             label="F"
             value="F"
             checked={formData.gender === "F"}
             onChange={() => handleGenderChange("F")}
-            className="py-2 px-4 border rounded-md text-center bg-blue-500 hover:bg-gray-300"
+            className="py-2 px-4 border rounded-md text-center bg-blue-500"
           />
         </div>
       </div>
