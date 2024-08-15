@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Input } from "../ui/Input";
 import { RadioGroup } from "../ui/RadioGroup";
 import CustomDatePicker from "../ui/DatePicker";
+import { Input } from "../ui/input";
 
 export default function DependentInformation() {
   const [firstName, setFirstName] = useState("");

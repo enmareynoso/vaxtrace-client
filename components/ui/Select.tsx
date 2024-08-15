@@ -22,7 +22,9 @@ const Select: React.FC<SelectProps> = ({
 }) => {
   return (
     <div className={className}>
-      <label className="block text-sm font-medium text-gray-700">{title}</label>
+      <label className="block text-sm font-medium text-gray-700 dark:text-white">
+        {title}
+      </label>
       <select
         value={value}
         onChange={onChange}

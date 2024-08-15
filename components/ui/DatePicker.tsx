@@ -3,21 +3,18 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 interface DatePickerProps {
-  label: string;
   selectedDate: Date | null;
   onDateChange: (date: Date | null) => void;
   className?: string;
 }
 
 const CustomDatePicker: React.FC<DatePickerProps> = ({
-  label,
   selectedDate,
   onDateChange,
   className,
 }) => {
   return (
     <div className={`relative ${className}`}>
-      <label className="block text-sm font-medium text-gray-700">{label}</label>
       <DatePicker
         selected={selectedDate}
         onChange={(date) => onDateChange(date ?? new Date())}

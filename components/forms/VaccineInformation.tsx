@@ -41,7 +41,7 @@ export default function VaccineInformation() {
               <Select
                 title="Vaccine"
                 options={vaccines.map((v) => ({ value: v.id, label: v.name }))}
-                className="w-full md:w-1/3"
+                className="w-full mt-4 md:w-1/3"
               />
               <Select
                 title="Dose"
@@ -61,13 +61,17 @@ export default function VaccineInformation() {
             </div>
             <div className="flex flex-col space-y-4 md:flex-row md:space-x-4">
               <div className="relative w-full md:w-1/2">
+                <label
+                  htmlFor="vaccinationDate"
+                  className="block text-gray-700 dark:text-white"
+                >
+                  Date of Vaccination
+                </label>
                 <DatePicker
-                  label="Date of Vaccination"
                   selectedDate={vaccinationDate ?? new Date()} // Default to today if null
                   onDateChange={(date) => setVaccinationDate(date)}
                   className="h-12"
                 />
-                <CalendarIcon className="absolute top-1/2 right-3 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               </div>
               <RadioGroup
                 title="New Dose Required?"
