@@ -115,16 +115,14 @@ const SignIn: React.FC = () => {
         </div>
       </div>
       <div className="w-full md:w-1/2 bg-cyan-900 flex items-center justify-center p-4 md:p-10 flex-1">
-        <div className="bg-transparent p-4 md:p-8 rounded w-full max-w-md">
-          <h1 className="text-2xl md:text-3xl font-bold mb-8 text-center text-white">
-            Vaxtrace
+        <div className="bg-gray-100 dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-lg w-full max-w-md">
+          <h1 className="text-2xl md:text-3xl font-bold mb-8 text-center text-cyan-900 dark:text-white border-b border-cyan-900 dark:border-white pb-4">
+          Iniciar Sesión
           </h1>
-          <h2 className="text-xl md:text-2xl font-bold mb-6 text-left text-white">
-            Sign In
-          </h2>
+
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label className="block text-white">Email</label>
+              <label className="block text-cyan-900 dark:text-gray-100 font-semibold">Correo Electrónico</label>
               <input
                 type="email"
                 value={email}
@@ -135,7 +133,7 @@ const SignIn: React.FC = () => {
               />
             </div>
             <div className="mb-6">
-              <label className="block text-white">Password</label>
+              <label className="block text-cyan-900 dark:text-gray-100 font-semibold">Contraseña</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -149,16 +147,16 @@ const SignIn: React.FC = () => {
             </div>
             <Button
               variant="outline"
-              className="w-full bg-slate-900 text-white py-2 rounded hover:bg-gray-800 transition duration-200 dark:bg-gray-700 dark:hover:bg-slate-900"
+              className="w-full bg-cyan-800 text-white py-2 rounded hover:text-white hover:bg-cyan-900 transition duration-200"
               disabled={loading}  // Deshabilitar el botón mientras se carga
             >
-              {loading ? 'Loading...' : 'Login'}
+              {loading ? 'Cargando...' : 'Iniciar Sesión'}
             </Button>
             <div className="mt-4 text-center">
               <a href="/auth/forgot_password"
-                className="text-white hover:underline"
+                className="text-cyan-900 dark:text-white hover:underline"
               >
-                Forgot Password?
+                ¿Olvidaste tu contraseña?
               </a>
             </div>
           </form>

@@ -27,19 +27,19 @@ export default function Navbar() {
             href="/about"
             className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
           >
-            About us
+            Acerca de nosotros
           </a>
           <a
             href="/info"
             className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
           >
-            Vaccine Information
+            Información de vacunas
           </a>
           <a
             href="/#faqs"
             className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
           >
-            FAQs
+            Preguntas frecuentes
           </a>
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end items-center space-x-4">
@@ -47,13 +47,13 @@ export default function Navbar() {
             href="/auth/login"
             className="px-4 py-2 text-sm font-medium text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-md dark:text-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
           >
-            Login
+            Iniciar sesión
           </a>
           <a
             href="/auth/signup"
             className="px-4 py-2 text-sm font-medium text-white bg-cyan-900 rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-cyan-900"
           >
-            Center Sign Up
+            Registro de centro
           </a>
         </div>
         <div className="flex lg:hidden">
@@ -95,20 +95,20 @@ export default function Navbar() {
                   href="/about"
                   className="block px-3 py-2 text-base font-semibold text-gray-900 dark:text-white"
                 >
-                  About Us
+                  Acerca de nosotros
                 </a>
                 <a
                   href="/info"
                   className="block px-3 py-2 text-base font-semibold text-gray-900 dark:text-white"
                 >
-                  Vaccine Information
+                  Información de vacunas
                 </a>
                 <a
                   href="/#faqs"
                   className="block px-3 py-2 text-base font-semibold text-gray-900 dark:text-white"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  FAQs
+                  Preguntas frecuentes
                 </a>
               </div>
               <div className="py-6">
@@ -116,13 +116,13 @@ export default function Navbar() {
                   href="/auth/login"
                   className="block px-3 py-2.5 text-base font-semibold text-gray-900 bg-gray-100 rounded-md dark:text-gray-200 dark:bg-gray-800"
                 >
-                  Login
+                  Iniciar sesión
                 </a>
                 <a
                   href="/auth/signup"
                   className="block px-3 py-2.5 text-base font-semibold text-white bg-cyan-900 rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-cyan-900"
                 >
-                  Center Sign Up
+                  Registro de centro
                 </a>
               </div>
             </div>

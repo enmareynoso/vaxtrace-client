@@ -45,10 +45,10 @@ const ForgotPassword: React.FC = () => {
               d="M15 19l-7-7 7-7"
             ></path>
           </svg>
-          Go to home page
+          Ir a la página principal
         </a>
-        <div className="relative bg-transparent p-7 md:p-7 rounded w-full max-w-md z-10">
-          <h1 className="text-4xl md:text-4xl font-bold mb-8 text-center text-white">
+        <div className="relative bg-gray-100 dark:bg-gray-800  p-7 md:p-7 rounded w-full max-w-md z-10">
+          <h1 className="text-4xl md:text-4xl font-bold mb-4 text-center text-cyan-900 dark:text-white border-b border-cyan-900 dark:border-white pb-4">
             Vaxtrace
           </h1>
           <div className="flex justify-center mb-6">
@@ -58,16 +58,16 @@ const ForgotPassword: React.FC = () => {
               alt="Vaxtrace Logo"
             />
           </div>
-          <h2 className="text-2xl md:text-3xl font-semibold mb-6 text-left text-white">
-            Forgot your password?
+          <h2 className="text-2xl md:text-3xl font-semibold mb-6 text-left text-cyan-900 dark:text-white">
+          ¿Olvidaste tu contraseña?
           </h2>
-          <p className="text-lg text-white text-left mb-6">
-            Enter your email below to receive a password reset link.
+          <p className="text-lg text-cyan-900 dark:text-white text-left mb-4 ">
+          Introduce tu correo electrónico a continuación para recibir un enlace de restablecimiento de contraseña.
           </p>
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
-              <label className="block text-white mb-2" htmlFor="email">
-                Email
+              <label className="block text-cyan-900 dark:text-white mb-2 font-semibold" htmlFor="email">
+              Correo electrónico:
               </label>
               <input
                 type="email"
@@ -81,19 +81,19 @@ const ForgotPassword: React.FC = () => {
             </div>
             <Button
               variant="outline"
-              className="w-full bg-slate-900 text-white py-2 rounded hover:text-white hover:bg-gray-800 transition duration-200"
+              className="w-full bg-cyan-800 text-white py-2 rounded hover:text-white hover:bg-cyan-900 transition duration-200"
               disabled={loading} // Deshabilitar botón durante la carga
             >
-              {loading ? "Sending..." : "Reset password"} {/* Cambiar texto del botón durante la carga */}
+              {loading ? "Enviando..." : "Restablecer contraseña"} {/* Cambiar texto del botón durante la carga */}
             </Button>
             <Toaster position="bottom-center" reverseOrder={false} />
             <div className="mt-6 text-center">
               <a
                 href="/auth/signup"
-                className="text-white hover:underline block"
+                className="text-cyan-900 dark:text-white hover:underline block"
               >
-                Don’t have an account?{" "}
-                <span className="font-semibold">SIGN UP</span>
+                ¿No tienes una cuenta?{" "}
+                <span className="font-semibold">REGISTRATE</span>
               </a>
             </div>
           </form>

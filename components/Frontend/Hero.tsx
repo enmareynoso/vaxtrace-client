@@ -21,7 +21,7 @@ const Hero = () => {
                 href="#"
                 className="bg-cyan-900 text-white font-medium rounded-md px-6 py-3 hover:bg-blue-700 transition-colors"
               >
-                Get Started
+                Comenzar
               </a>
             </div>
           </div>

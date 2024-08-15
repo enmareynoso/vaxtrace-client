@@ -10,9 +10,6 @@ const Accordion = () => {
         <div className="flex flex-wrap">
           <div className="w-full px-8">
             <div className="mx-auto mb-[60px] max-w-[520px] text-center lg:mb-20">
-              <span className="mb-2 block text-lg font-semibold text-primary dark:text-primary-light">
-                FAQ
-              </span>
               <h2 className="mb-4 text-3xl font-bold text-dark dark:text-white sm:text-[40px]/[48px]">
                 Preguntas Frecuentes?
               </h2>
@@ -45,11 +42,11 @@ const Accordion = () => {
               text="Infooooo."
             />
             <AccordionItem
-              header="How do I access my child’s full vaccination record?"
+              header="¿Cómo accedo al historial completo de vacunación de mi hijo?"
               text="Infooooo."
             />
             <AccordionItem
-              header="Can I download my child’s vaccination record?"
+              header="¿Puedo descargar el registro de vacunación de mi hijo?"
               text="Infoooooooo."
             />
           </div>

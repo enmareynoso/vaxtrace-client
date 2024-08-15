@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
+import RadioButton from "../ui/RadioButton";
 import CustomDatePicker from "../ui/DatePicker";
 import { CalendarIcon } from "lucide-react";
 
@@ -14,7 +15,7 @@ export default function PatientInformation() {
     dependentFirstName: "",
     dependentLastName: "",
     dependentGender: "M",
-    parentDateOfBirth: new Date(),
+    parentDateOfBirth: new Date(), 
     occupation: "",
     address: "",
   });
@@ -62,7 +63,7 @@ export default function PatientInformation() {
 
   const handleVerifyPatient = () => {
     if (documentInput) {
-      setPatientExists(true); //Lo puse como true
+      setPatientExists(true);//Lo puse como true
       setShowForm(true);
     } else {
       alert("Please enter a document number to verify.");
@@ -70,36 +71,46 @@ export default function PatientInformation() {
   };
 
   return (
-    <div className="border p-6 rounded-md shadow-md space-y-2 dark:bg-gray-800">
-      <div className="flex items-center justify-center p-4 rounded-xl dark:bg-gray-800 max-w-md mx-auto gap-5">
-        <input
-          type="text"
-          value={documentInput}
-          onChange={(e) => setDocumentInput(e.target.value)}
-          className="w-3/4 px-4 py-3 border rounded border-gray-300 rounded-l-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-400 dark:focus:border-blue-400 transition duration-150"
-          placeholder="Enter document"
-        />
-        <Button
-          onClick={handleVerifyPatient}
-          className="w-1/4 py-3 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
-        >
-          Verify
-        </Button>
-      </div>
+    <div className="border p-6 rounded-md shadow-md space-y-2 bg-white dark:bg-gray-800">
+      <div className="flex items-center justify-center bg-white p-4 rounded-xl shadow-lg dark:bg-gray-800 max-w-md mx-auto gap-5">
+  <input
+    type="text"
+    value={documentInput}
+    onChange={(e) => setDocumentInput(e.target.value)}
+    className="w-3/4 px-4 py-3 border rounded border-gray-300 rounded-l-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-400 dark:focus:border-blue-400 transition duration-150"
+    placeholder="Enter document"
+  />
+  <Button
+    onClick={handleVerifyPatient}
+    className="w-1/4 py-3 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
+  >
+    Verify
+  </Button>
+</div>
+
 
       {patientExists && (
         <>
-          {/* Title */}
           <h2 className="text-lg font-bold text-gray-800 dark:text-white">
             Patient Information
           </h2>
-          {/* Patient Informatin Fields */}
+
+          <div className="grid gap-4">
+            <div className="relative flex items-center">
+              <CustomDatePicker
+                selectedDate={formData.dateOfBirth}
+                onDateChange={handleDateOfBirthChange}
+                className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+              <CalendarIcon className="absolute right-3 h-5 w-5 text-gray-400 dark:text-white" />
+            </div>
+          </div>
+
           {showForm && (
             <>
               {isDependent && (
                 <div className="pt-0 pb-8">
-                  {/* First row */}
-                  <div className="grid gap-4 mt-4 md:grid-cols-2">
+                  <div className="grid gap-4 md:grid-cols-2">
                     <div>
                       <label
                         htmlFor="dependentFirstName"
@@ -145,24 +156,7 @@ export default function PatientInformation() {
                       />
                     </div>
                   </div>
-                  {/* Second row */}
-                  <div className="grid gap-4 md:grid-cols-2 mt-2">
-                    <div className="grid gap-4">
-                      <div className="relative flex items-center">
-                        <label
-                          htmlFor="parentDateOfBirth"
-                          className="block text-gray-700 dark:text-white"
-                        >
-                          Date of Birth
-                        </label>
-                        <CustomDatePicker
-                          selectedDate={formData.dateOfBirth}
-                          onDateChange={handleDateOfBirthChange}
-                          className="w-full py-2 rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-                    </div>{" "}
-                    {/* Ajuste para reducir el espacio vertical */}
+                  <div className="grid gap-4 md:grid-cols-2 mt-2"> 
                     <div className="flex items-center space-x-4 pt-4">
                       <h4 className="block text-gray-700 dark:text-white">
                         Gender
@@ -193,14 +187,31 @@ export default function PatientInformation() {
                   </div>
                 </div>
               )}
-              {/* Parent / Tutor Information */}
-              <div className="border-t pt-2">
-                {/* Title */}
-                <h2 className="text-lg font-bold mb-0 mt-3 text-gray-800 dark:text-white">
+
+              <div className="border-t pt-2"> 
+                <h2 className="text-lg font-bold mb-0 text-gray-800 dark:text-white">
                   {isDependent ? "Parent / Tutor Information" : ""}
                 </h2>
-                {/* First row */}
+
                 <div className="grid pt-4 gap-4 md:grid-cols-1 lg:grid-cols-3">
+                {isDependent && (
+                    <div className="md:col-span-1">
+                      <label
+                        htmlFor="parentDateOfBirth"
+                        className="block text-gray-700 dark:text-white"
+                      >
+                        Date of Birth
+                      </label>
+                      <div className="relative flex items-center">
+                        <CustomDatePicker
+                          selectedDate={formData.parentDateOfBirth}
+                          onDateChange={handleParentDateOfBirthChange}
+                          className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                        <CalendarIcon className="absolute right-3 h-5 w-5 text-gray-400 dark:text-white" />
+                      </div>
+                    </div>
+                  )}
                   <div>
                     <label
                       htmlFor="document"
@@ -245,53 +256,35 @@ export default function PatientInformation() {
                       className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
+                  <div className="flex items-center space-x-4 pt-4">
+                    <h4 className="block text-gray-700 dark:text-white">
+                      Gender
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={() => handleGenderChange("M")}
+                      className={`py-2 px-4 border rounded-md text-center ${
+                        formData.gender === "M"
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-300 text-black"
+                      }`}
+                    >
+                      M
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleGenderChange("F")}
+                      className={`py-2 px-4 border rounded-md text-center ${
+                        formData.gender === "F"
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-300 text-black"
+                      }`}
+                    >
+                      F
+                    </button>
+                  </div>
                 </div>
-                {/* Second row */}
-                <div className="flex items-center space-x-4 pt-4">
-                  {isDependent && (
-                    <div className="md:col-span-1">
-                      <label
-                        htmlFor="parentDateOfBirth"
-                        className="block text-gray-700 dark:text-white"
-                      >
-                        Date of Birth
-                      </label>
-                      <div className="relative flex items-center">
-                        <CustomDatePicker
-                          selectedDate={formData.parentDateOfBirth}
-                          onDateChange={handleParentDateOfBirthChange}
-                          className="w-full py-2 rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-                    </div>
-                  )}
-                  <h4 className="block text-gray-700 dark:text-white">
-                    Gender
-                  </h4>
-                  <button
-                    type="button"
-                    onClick={() => handleGenderChange("M")}
-                    className={`py-2 px-4 border rounded-md text-center ${
-                      formData.gender === "M"
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-300 text-black"
-                    }`}
-                  >
-                    M
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleGenderChange("F")}
-                    className={`py-2 px-4 border rounded-md text-center ${
-                      formData.gender === "F"
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-300 text-black"
-                    }`}
-                  >
-                    F
-                  </button>
-                </div>
-                {/* Third row */}
+
                 <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 mt-4">
                   <div>
                     <label
