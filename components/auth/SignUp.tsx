@@ -1,9 +1,20 @@
-import React, { useState } from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import logo from "../../public/images/logo.png";
 import MainImage from "../../public/images/heroImage.png";
 import { Button } from "@/components/ui/button";
 import Checkbox from "../ui/checkbox";
+import { supabase } from "@/lib/supabaseClient";
+import { registerCenter } from "@/lib/api/auth";
+import { useRouter } from "next/navigation";
+import toast, { Toaster } from 'react-hot-toast';
+
+interface Municipality {
+  municipality_id: number;
+  name: string;
+}
 
 const CenterSignUp: React.FC = () => {
   const [rnc, setRnc] = useState("");
@@ -12,22 +23,64 @@ const CenterSignUp: React.FC = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [municipality, setMunicipality] = useState("");
+  const [municipalities, setMunicipalities] = useState<Municipality[]>([]);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("RNC:", rnc);
-    console.log("Name:", name);
-    console.log("Address:", address);
-    console.log("Phone Number:", phoneNumber);
-    console.log("Email:", email);
-    console.log("Municipality:", municipality);
-    console.log("Password:", password);
-    console.log("Confirm Password:", confirmPassword);
-  };
-
   const [isChecked, setIsChecked] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchMunicipalities = async () => {
+      const { data, error } = await supabase
+        .from("vaxtraceapi_municipality")
+        .select("municipality_id, name");
+
+      if (error) {
+        console.error("Error fetching municipalities:", error);
+      } else {
+        setMunicipalities(data || []);
+      }
+    };
+
+    fetchMunicipalities();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const payload = {
+        RNC: rnc,
+        name,
+        address,
+        phone_number: phoneNumber,
+        email,
+        municipality_id: parseInt(municipality),
+        account: {
+          email,
+          password,
+          role: "vaccination_center",
+        },
+      };
+
+      const data = await registerCenter(payload);
+
+      toast.success("Center registered successfully.");
+      router.push("/auth/login");
+    } catch (error: any) {
+      toast.error(error.message || "Registration failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
@@ -127,9 +180,7 @@ const CenterSignUp: React.FC = () => {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-cyan-900 font-semibold">
-                Address
-              </label>
+              <label className="block text-cyan-900 font-semibold">Address</label>
               <input
                 type="text"
                 value={address}
@@ -140,9 +191,7 @@ const CenterSignUp: React.FC = () => {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-cyan-900 font-semibold">
-                Phone Number
-              </label>
+              <label className="block text-cyan-900 font-semibold">Phone Number</label>
               <input
                 type="text"
                 value={phoneNumber}
@@ -164,9 +213,7 @@ const CenterSignUp: React.FC = () => {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-cyan-900 font-semibold">
-                Municipality
-              </label>
+              <label className="block text-cyan-900 font-semibold">Municipality</label>
               <select
                 value={municipality}
                 onChange={(e) => setMunicipality(e.target.value)}
@@ -174,15 +221,15 @@ const CenterSignUp: React.FC = () => {
                 required
               >
                 <option value="">Select Municipality</option>
-                <option value="Municipality1">Municipality 1</option>
-                <option value="Municipality2">Municipality 2</option>
-                <option value="Municipality3">Municipality 3</option>
+                {municipalities.map((muni) => (
+                  <option key={muni.municipality_id} value={muni.municipality_id}>
+                    {muni.name}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="mb-4">
-              <label className="block text-cyan-900 font-semibold">
-                Password
-              </label>
+              <label className="block text-cyan-900 font-semibold">Password</label>
               <input
                 type="password"
                 value={password}
@@ -193,9 +240,7 @@ const CenterSignUp: React.FC = () => {
               />
             </div>
             <div className="mb-6">
-              <label className="block text-cyan-900 font-semibold">
-                Confirm Password
-              </label>
+              <label className="block text-cyan-900 font-semibold">Confirm Password</label>
               <input
                 type="password"
                 value={confirmPassword}
@@ -215,8 +260,9 @@ const CenterSignUp: React.FC = () => {
             <Button
               variant="outline"
               className="w-full bg-cyan-800 text-white py-2 rounded hover:text-white hover:bg-cyan-900 transition duration-200"
+              disabled={loading}  // Deshabilitar el botón mientras se carga
             >
-              Register
+              {loading ? 'Cargando...' : 'Register'}
             </Button>
             <div className="mt-4 text-center">
               <a href="/auth/login" className="text-cyan-900 hover:underline">
@@ -225,6 +271,7 @@ const CenterSignUp: React.FC = () => {
               </a>
             </div>
           </form>
+          <Toaster position="bottom-center" reverseOrder={false} />
         </div>
       </div>
     </div>
@@ -232,3 +279,4 @@ const CenterSignUp: React.FC = () => {
 };
 
 export default CenterSignUp;
+

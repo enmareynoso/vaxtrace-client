@@ -36,6 +36,35 @@ interface CreateUserResponse {
   email: string;
 }
 
+interface RegisterCenterCredentials {
+  RNC: string;
+  name: string;
+  address: string;
+  phone_number: string;
+  email: string;
+  municipality_id: number;
+  account: {
+    email: string;
+    password: string;
+    role: string;
+  };
+}
+export const registerCenter = async (credentials: RegisterCenterCredentials): Promise<any> => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/create_center`, credentials);
+    cookies.set("access_token", response.data.access_token, { httpOnly: true });
+    cookies.set("refresh_token", response.data.refresh_token, { httpOnly: true });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      throw new Error(
+        error.response.data.error || "An error occurred during center registration."
+      );
+    } else {
+      throw new Error("An error occurred during center registration.");
+    }
+  }
+};
 export const loginUser = async (credentials: LoginCredentials): Promise<any> => {
   try {
     const response = await axios.post(`${API_BASE_URL}/login`, credentials);
