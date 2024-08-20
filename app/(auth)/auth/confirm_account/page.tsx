@@ -1,20 +1,49 @@
-"use client"; // Asegúrate de agregar esta línea al principio
+"use client";
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import logo from "@/public/images/logo.png";
-import { Button } from "@headlessui/react";
+import React, { useEffect, useState, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import toast, { Toaster } from "react-hot-toast";
+import { confirmAccount } from "@/lib/api/auth";
 
-const ConfirmAccountSuccess: React.FC = () => {
+const ConfirmAccount: React.FC = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") || "";
+  const [loading, setLoading] = useState(false);
+  const toastShownRef = useRef(false);  // Usando useRef para rastrear si el toast ha sido mostrado
 
-  const handleLogin = () => {
-    router.push("/auth/login"); // Redirige al usuario a la página de inicio de sesión
-  };
+  useEffect(() => {
+    const handleAccountConfirmation = async () => {
+      if (!token || toastShownRef.current) return; // No hacer nada si no hay token o ya se mostró un toast
+
+      setLoading(true);
+      toastShownRef.current = true; // Marcar como que el toast se ha mostrado
+
+      try {
+        const response = await confirmAccount(token);
+        toast.success("Account confirmed successfully.");
+        setTimeout(() => {
+          router.push("/auth/confirm_account_success");
+        }, 1000); // Redirigir después de 1 segundo
+      } catch (error: any) {
+        if (error.message.includes("Token has already been used")) {
+          toast.error("This token has already been activated.");
+        } else {
+          toast.error(error.message || "Failed to confirm account.");
+        }
+        setTimeout(() => {
+          router.push("/auth/login");
+        }, 1000); // Redirigir después de 1 segundo
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    handleAccountConfirmation();
+  }, [token, router]);
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="absolute inset-0 overflow-hidden z-0">
         <svg
           width="100%"
@@ -45,31 +74,17 @@ const ConfirmAccountSuccess: React.FC = () => {
           </defs>
         </svg>
       </div>
-      <div className="relative bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md text-center">
-        <div className="text-center mb-6">
-          <Image
-            className="mx-auto"
-            src={logo}
-            alt="Vaxtrace Logo"
-            width={80}
-            height={80}
-          />
-        </div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-        ¡Cuenta Confirmada!
-        </h1>
-        <p className="mt-4 text-gray-600 dark:text-gray-300">
-        Tu cuenta ha sido confirmada exitosamente. Ahora puedes iniciar sesión y comenzar a usar nuestros servicios.
-        </p>
-        <Button
-          onClick={handleLogin}
-          className="mt-6 px-6 py-2 bg-cyan-800 text-white rounded-lg hover:bg-cyan-900 transition duration-150"
-        >
-          Ir a Iniciar Sesión
-        </Button>
+      <div className="relative bg-white p-8 rounded-lg shadow-lg text-center">
+        <h1 className="text-2xl font-bold mb-4">Confirmando cuenta...</h1>
+        <p className="mb-4">Por favor espera mientras confirmamos tu cuenta.</p>
+        <Toaster position="bottom-center" reverseOrder={false} />
       </div>
     </div>
   );
 };
 
-export default ConfirmAccountSuccess;
+export default ConfirmAccount;
+
+
+
+

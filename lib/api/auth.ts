@@ -167,3 +167,13 @@ export const validateToken = async (token: string): Promise<any> => {
     }
   }
 };
+export const confirmAccount = async (token: string): Promise<any> => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/confirm_account`, { token });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.error || "An error occurred while confirming the account."
+    );
+  }
+};

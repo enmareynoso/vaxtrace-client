@@ -11,6 +11,11 @@ import { registerCenter } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from 'react-hot-toast';
 
+interface Province {
+  province_id: number;
+  name: string;
+}
+
 interface Municipality {
   municipality_id: number;
   name: string;
@@ -22,6 +27,8 @@ const CenterSignUp: React.FC = () => {
   const [address, setAddress] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [province, setProvince] = useState<string>("");
   const [municipality, setMunicipality] = useState("");
   const [municipalities, setMunicipalities] = useState<Municipality[]>([]);
   const [password, setPassword] = useState("");
@@ -31,20 +38,31 @@ const CenterSignUp: React.FC = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchMunicipalities = async () => {
-      const { data, error } = await supabase
+    const fetchProvincesAndMunicipalities = async () => {
+      const { data: provinceData, error: provinceError } = await supabase
+        .from("vaxtraceapi_province")
+        .select("province_id, name");
+  
+      const { data: municipalityData, error: municipalityError } = await supabase
         .from("vaxtraceapi_municipality")
-        .select("municipality_id, name");
-
-      if (error) {
-        console.error("Error fetching municipalities:", error);
+        .select("municipality_id, name, province_id");
+  
+      if (provinceError || municipalityError) {
+        console.error("Error fetching data:", provinceError || municipalityError);
       } else {
-        setMunicipalities(data || []);
+        setProvinces(provinceData || []);
+        setMunicipalities(municipalityData || []);
       }
     };
-
-    fetchMunicipalities();
+  
+    fetchProvincesAndMunicipalities();
   }, []);
+
+  const filteredMunicipalities = municipalities.filter(
+    (muni) => muni.province_id === parseInt(province)
+  );
+  
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -213,6 +231,23 @@ const CenterSignUp: React.FC = () => {
               />
             </div>
             <div className="mb-4">
+              <label className="block text-cyan-900 font-semibold">Province</label>
+              <select
+                value={province}
+                onChange={(e) => setProvince(e.target.value)}
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
+                required
+              >
+                <option value="">Select Province</option>
+                {provinces.map((prov) => (
+                  <option key={prov.province_id} value={prov.province_id}>
+                    {prov.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mb-4">
               <label className="block text-cyan-900 font-semibold">Municipality</label>
               <select
                 value={municipality}
@@ -221,13 +256,14 @@ const CenterSignUp: React.FC = () => {
                 required
               >
                 <option value="">Select Municipality</option>
-                {municipalities.map((muni) => (
+                {filteredMunicipalities.map((muni) => (
                   <option key={muni.municipality_id} value={muni.municipality_id}>
                     {muni.name}
                   </option>
                 ))}
               </select>
             </div>
+
             <div className="mb-4">
               <label className="block text-cyan-900 font-semibold">Password</label>
               <input
