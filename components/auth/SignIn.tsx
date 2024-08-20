@@ -7,43 +7,61 @@ import { Button } from "@/components/ui/button";
 import { loginUser } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from 'react-hot-toast';
+// Import jwt_decode correctly
+import { jwtDecode } from "jwt-decode";
+
+
+interface CustomJwtPayload {
+  user_id: number;
+  user_type: string;
+  role: string;  
+  type: string;
+  exp: number;
+  iat: number;
+}
 
 const SignIn: React.FC = () => {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);  // Estado de carga
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
-    setLoading(true);  // Iniciar el estado de carga
-  
+    setLoading(true);
+
     try {
       const data = await loginUser({ email, password });
-  
       if (data.access_token) {
         localStorage.setItem("access_token", data.access_token);
         localStorage.setItem("refresh_token", data.refresh_token);
-        router.push("/admin/dashboard");
+
+        const decoded: CustomJwtPayload = jwtDecode(data.access_token);
+        if (decoded.role) {
+          switch (decoded.role) {
+            case 'patient':
+              router.push('/user/dashboard');
+              break;
+            case 'vaccination_center':
+              router.push('/center/dashboard');
+              break;
+            default:
+              throw new Error('Unauthorized: No valid role found.');
+          }
+        } else {
+          throw new Error('Invalid token: Cannot decode');
+        }
       } else {
         toast.error("Login failed: Invalid response from server.");
       }
     } catch (error: any) {
-      console.log('Error:', error.message);
-      if (error.message.includes("Invalid password")) {
-        toast.error("The password you entered is incorrect. Please try again.");
-      } else if (error.message.includes("User with this email does not exist")) {
-        toast.error("No account found with this email. Please sign up.");
-      } else {
-        toast.error(error.message);
-      }
+      console.error('Login Error:', error);
+      toast.error(error.message || "An unexpected error occurred");
     } finally {
-      setLoading(false);  // Finalizar el estado de carga
+      setLoading(false);
     }
   };
-  
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);

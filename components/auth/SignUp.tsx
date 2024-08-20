@@ -19,6 +19,7 @@ interface Province {
 interface Municipality {
   municipality_id: number;
   name: string;
+  province_id: number;
 }
 
 const CenterSignUp: React.FC = () => {
