@@ -177,3 +177,14 @@ export const confirmAccount = async (token: string): Promise<any> => {
     );
   }
 };
+
+export const getPatientByDocument = async (document: string): Promise<any> => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/get_patient_by_document/${document}/`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.error || "An error occurred while fetching the patient information."
+    );
+  }
+};

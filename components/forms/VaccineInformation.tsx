@@ -92,7 +92,7 @@ export default function VaccineInformation() {
           onClick={addVaccine}
           disabled={vaccineCount >= 5}
           className={`px-4 py-2 rounded ${
-            vaccineCount < 5 ? "bg-blue-500" : "bg-gray-500"
+            vaccineCount < 5 ? "bg-cyan-800 hover:bg-cyan-900" : "bg-gray-500"
           } text-white`}
         >
           Add one more vaccine
@@ -100,7 +100,7 @@ export default function VaccineInformation() {
         {vaccineCount > 1 && (
           <button
             onClick={removeVaccine}
-            className="px-4 py-2 rounded bg-red-500 text-white"
+            className="px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white"
           >
             Remove
           </button>

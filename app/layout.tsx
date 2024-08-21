@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 const fontSans = Inter({
   subsets: ["latin"],
-  weight: ["200", "700"],
+  weight: ["500", "800"],
   variable: "--font-sans",
 });
 
