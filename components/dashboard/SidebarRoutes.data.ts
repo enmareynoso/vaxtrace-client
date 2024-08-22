@@ -1,5 +1,3 @@
-"use client";
-
 import {
   BarChart4,
   Building2,
@@ -39,6 +37,12 @@ export const adminRoutes: SidebarItemType[] = [
     label: "Profile",
     href: "/admin/profile",
   },
+  {
+    icon: LogOut,
+    label: "Log out",
+    href: "#", // Usaremos '#' y agregaremos la funcionalidad de logout
+    action: "logout",
+  },
 ];
 
 // Rutas para el usuario
@@ -62,6 +66,12 @@ export const userRoutes: SidebarItemType[] = [
     icon: User,
     label: "Profile",
     href: "/user/profile",
+  },
+  {
+    icon: LogOut,
+    label: "Log out",
+    href: "#", // Usaremos '#' y agregaremos la funcionalidad de logout
+    action: "logout",
   },
 ];
 
@@ -87,6 +97,12 @@ export const centerRoutes: SidebarItemType[] = [
     label: "Profile",
     href: "/center/profile",
   },
+  {
+    icon: LogOut,
+    label: "Log out",
+    href: "#", // Usaremos '#' y agregaremos la funcionalidad de logout
+    action: "logout",
+  },
 ];
 
 // Rutas comunes de soporte (pueden ser opcionales y compartidas)
@@ -100,10 +116,5 @@ export const supportRoutes: SidebarItemType[] = [
     icon: ShieldCheck,
     label: "Security",
     href: "/",
-  },
-  {
-    icon: LogOut,
-    label: "Log out",
-    href: "/auth/login",
   },
 ];
