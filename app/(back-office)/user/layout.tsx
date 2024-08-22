@@ -8,7 +8,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         <Sidebar userRole={"user"} />
       </div>
       <div className="w-full xl:ml-80">
-        <Navbar />
+        <Navbar userRole={"user"} />
         <div className="p-6 bg-[#fafbfc] dark:bg-secondary">{children}</div>
       </div>
     </div>

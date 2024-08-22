@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
 import { getPatientByDocument } from "@/lib/api/auth"; // Importa la función de búsqueda
 import CustomDatePicker from "../ui/DatePicker";
 import toast, { Toaster } from "react-hot-toast";
@@ -107,50 +106,38 @@ export default function PatientInformation() {
   return (
     <div className="border p-6 rounded-md shadow-md space-y-2 bg-white dark:bg-gray-800">
       <Toaster position="top-center" reverseOrder={false} />
-      <div className="flex flex-col md:flex-row items-center justify-center bg-white p-6 rounded-lg shadow-lg dark:bg-gray-800 max-w-2xl mx-auto space-y-4 md:space-y-0 md:space-x-4">
-  <label className="text-lg font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap mb-2 md:mb-0">
-    Digite la cédula:
-  </label>
-  <div className="flex flex-col space-x-4 md:flex-row items-center w-full space-y-4 md:space-y-0">
-    <input
-      type="text"
-      value={documentInput}
-      onChange={(e) => setDocumentInput(e.target.value)}
-      className="flex-grow w-full md:w-auto px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-400 dark:focus:border-blue-400 transition duration-150"
-      placeholder="Document"
-    />
-    <Button
-      onClick={handleVerifyPatient}
-      className="px-6 py-2 w-full md:w-auto bg-cyan-800 text-white font-semibold rounded-lg hover:bg-cyan-900 focus:outline-none focus:ring-2 focus:ring-white transition duration-150"
-    >
-      Verificar
-    </Button>
-  </div>
-</div>
-
-
-
+      <div className="flex flex-col md:flex-row items-center justify-center bg-white p-6 rounded-lg border shadow-sm dark:bg-gray-800 max-w-2xl mx-auto space-y-4 md:space-y-0 md:space-x-4">
+        <label className="text-lg font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap mb-2 md:mb-0">
+          Digite la cédula:
+        </label>
+        <div className="flex flex-col space-x-4 md:flex-row items-center w-full space-y-4 md:space-y-0">
+          <input
+            type="text"
+            value={documentInput}
+            onChange={(e) => setDocumentInput(e.target.value)}
+            className="flex-grow w-full md:w-auto px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-400 dark:focus:border-blue-400 transition duration-150"
+            placeholder="Document"
+          />
+          <Button
+            onClick={handleVerifyPatient}
+            className="px-6 py-2 w-full md:w-auto bg-cyan-800 text-white font-semibold rounded-lg hover:bg-cyan-900 focus:outline-none focus:ring-2 focus:ring-white transition duration-150"
+          >
+            Verificar
+          </Button>
+        </div>
+      </div>
 
       {showForm && (
         <>
+          {/* Title */}
           <h2 className="text-lg pt-4 font-bold text-gray-800 dark:text-white">
-          Información del Paciente
+            Información del Paciente
           </h2>
-
-          <div className="grid gap-4">
-            <div className="relative flex items-center">
-              <CustomDatePicker
-                selectedDate={formData.dateOfBirth}
-                onDateChange={handleDateOfBirthChange}
-                className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-              <CalendarIcon className="absolute right-3 h-5 w-5 text-gray-400 dark:text-white" />
-            </div>
-          </div>
-
           {isDependent && (
             <div className="pt-0 pb-8">
+              {/* First row */}
               <div className="grid gap-4 md:grid-cols-2">
+                {/* Dependant first name field */}
                 <div>
                   <label
                     htmlFor="dependentFirstName"
@@ -173,6 +160,7 @@ export default function PatientInformation() {
                     className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
+                {/* Dependant last name field */}
                 <div>
                   <label
                     htmlFor="dependentLastName"
@@ -196,10 +184,28 @@ export default function PatientInformation() {
                   />
                 </div>
               </div>
+              {/* Second row */}
               <div className="grid gap-4 md:grid-cols-2 mt-2">
+                {/* Date of birth */}
+                <div className="grid">
+                  <label
+                    htmlFor="dateOfBirth"
+                    className="block text-gray-700 dark:text-white"
+                  >
+                    Fecha de nacimiento
+                  </label>
+                  <div className="relative flex items-center">
+                    <CustomDatePicker
+                      selectedDate={formData.dateOfBirth}
+                      onDateChange={handleDateOfBirthChange}
+                      className="w-1/2 py-2 rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+                {/* Gender */}
                 <div className="flex items-center space-x-4 pt-4">
                   <h4 className="block text-gray-700 dark:text-white">
-                  Género
+                    Género
                   </h4>
                   <button
                     type="button"
@@ -227,31 +233,15 @@ export default function PatientInformation() {
               </div>
             </div>
           )}
-
+          {/* Información del Padre / Tutor Section */}
           <div className="border-t pt-2">
+            {/* Title */}
             <h2 className="text-lg font-bold mb-0 text-gray-800 dark:text-white">
               {isDependent ? "Información del Padre / Tutor" : ""}
             </h2>
-
-            <div className="grid pt-4 gap-4 md:grid-cols-1 lg:grid-cols-3">
-              {isDependent && (
-                <div className="md:col-span-1">
-                  <label
-                    htmlFor="parentDateOfBirth"
-                    className="block text-gray-700 dark:text-white"
-                  >
-                    Fecha de nacimiento
-                  </label>
-                  <div className="relative flex items-center">
-                    <CustomDatePicker
-                      selectedDate={formData.parentDateOfBirth}
-                      onDateChange={handleParentDateOfBirthChange}
-                      className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                    <CalendarIcon className="absolute right-3 h-5 w-5 text-gray-400 dark:text-white" />
-                  </div>
-                </div>
-              )}
+            {/* First row */}
+            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3 mt-4">
+              {/* Document field */}
               <div>
                 <label
                   htmlFor="document"
@@ -274,6 +264,7 @@ export default function PatientInformation() {
                   className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
+              {/* Email field */}
               <div>
                 <label
                   htmlFor="email"
@@ -296,6 +287,123 @@ export default function PatientInformation() {
                   className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
+              {/* Occupation field */}
+              <div>
+                <label
+                  htmlFor="occupation"
+                  className="block text-gray-700 dark:text-white"
+                >
+                  Ocupación
+                </label>
+                <input
+                  type="text"
+                  id="occupation"
+                  name="occupation"
+                  placeholder="Occupation"
+                  value={formData.occupation}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      occupation: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+            {/* Second row */}
+            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 mt-4">
+              {/* First name field */}
+              <div>
+                <label
+                  htmlFor="firstName"
+                  className="block text-gray-700 dark:text-white"
+                >
+                  Nombre
+                </label>
+                <input
+                  type="text"
+                  id="firstName"
+                  name="firstName"
+                  placeholder="Name"
+                  value={formData.firstName}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      firstName: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              {/* Last name field */}
+              <div>
+                <label
+                  htmlFor="lastName"
+                  className="block text-gray-700 dark:text-white"
+                >
+                  Apellido
+                </label>
+                <input
+                  type="text"
+                  id="lastName"
+                  name="lastName"
+                  placeholder="Last name"
+                  value={formData.lastName}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      lastName: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+            {/* Third row */}
+            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3 mt-4">
+              {/* Address field */}
+              <div>
+                <label
+                  htmlFor="address"
+                  className="block text-gray-700 dark:text-white"
+                >
+                  Dirección
+                </label>
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  placeholder="Address"
+                  value={formData.address}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      address: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              {/* Parent Birth day */}
+              {isDependent && (
+                <div className="grid">
+                  <label
+                    htmlFor="parentDateOfBirth"
+                    className="block text-gray-700 dark:text-white"
+                  >
+                    Fecha de nacimiento
+                  </label>
+                  <div className="relative flex items-center">
+                    <CustomDatePicker
+                      selectedDate={formData.parentDateOfBirth}
+                      onDateChange={handleParentDateOfBirthChange}
+                      className="w-3/4 rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+              )}
+              {/* Gender */}
               <div className="flex items-center space-x-4 pt-4">
                 <h4 className="block text-gray-700 dark:text-white">Género</h4>
                 <button
@@ -322,104 +430,9 @@ export default function PatientInformation() {
                 </button>
               </div>
             </div>
-
-            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2 mt-4">
-              <div>
-                <label
-                  htmlFor="firstName"
-                  className="block text-gray-700 dark:text-white"
-                >
-                  Nombre
-                </label>
-                <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  placeholder="Name"
-                  value={formData.firstName}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      firstName: e.target.value,
-                    }))
-                  }
-                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="lastName"
-                  className="block text-gray-700 dark:text-white"
-                >
-                  Apellido
-                </label>
-                <input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  placeholder="Last name"
-                  value={formData.lastName}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      lastName: e.target.value,
-                    }))
-                  }
-                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-            </div>
-            {/* Four row */}
-            <div className="grid gap-4 md:grid-cols-2 mt-3">
-              <div>
-                <label
-                  htmlFor="occupation"
-                  className="block text-gray-700 dark:text-white"
-                >
-                  Ocupación
-                </label>
-                <input
-                  type="text"
-                  id="occupation"
-                  name="occupation"
-                  placeholder="Occupation"
-                  value={formData.occupation}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      occupation: e.target.value,
-                    }))
-                  }
-                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="address"
-                  className="block text-gray-700 dark:text-white"
-                >
-                  Dirección
-                </label>
-                <input
-                  type="text"
-                  id="address"
-                  name="address"
-                  placeholder="Address"
-                  value={formData.address}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      address: e.target.value,
-                    }))
-                  }
-                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-            </div>
           </div>
         </>
       )}
     </div>
   );
 }
-

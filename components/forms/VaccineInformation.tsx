@@ -29,7 +29,7 @@ export default function VaccineInformation() {
   };
 
   return (
-    <div className="border p-6 rounded-md shadow-lg space-y-6">
+    <div className="border p-6 rounded-md bg-white shadow-lg space-y-6">
       <h2 className="text-lg font-bold mb-4">Vaccine Information</h2>
       {[...Array(vaccineCount)].map((_, index) => (
         <div key={index} className="space-y-4 border p-4 rounded-md shadow-sm">
@@ -67,11 +67,13 @@ export default function VaccineInformation() {
                 >
                   Date of Vaccination
                 </label>
-                <DatePicker
-                  selectedDate={vaccinationDate ?? new Date()} // Default to today if null
-                  onDateChange={(date) => setVaccinationDate(date)}
-                  className="h-12"
-                />
+                <div className="relative flex items-center">
+                  <DatePicker
+                    selectedDate={vaccinationDate ?? new Date()} // Default to today if null
+                    onDateChange={(date) => setVaccinationDate(date)}
+                    className="w-1/2 py-2 rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
               </div>
               <RadioGroup
                 title="New Dose Required?"
@@ -87,12 +89,12 @@ export default function VaccineInformation() {
           </div>
         </div>
       ))}
-      <div className="flex flex-col space-y-4 mt-4 md:flex-row md:space-x-4">
+      <div className="flex flex-col md:flex-row md:space-x-4">
         <button
           onClick={addVaccine}
           disabled={vaccineCount >= 5}
-          className={`px-4 py-2 rounded ${
-            vaccineCount < 5 ? "bg-cyan-800 hover:bg-cyan-900" : "bg-gray-500"
+          className={`px-4 py-2 h-10 rounded ${
+            vaccineCount < 5 ? " bg-cyan-800 hover:bg-cyan-900" : "bg-gray-500"
           } text-white`}
         >
           Add one more vaccine
@@ -100,7 +102,7 @@ export default function VaccineInformation() {
         {vaccineCount > 1 && (
           <button
             onClick={removeVaccine}
-            className="px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white"
+            className="px-4 py-2 h-10 rounded bg-red-500 hover:bg-red-600 text-white"
           >
             Remove
           </button>
