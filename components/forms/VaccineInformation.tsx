@@ -1,20 +1,26 @@
+"use client";
+
 import React, { useState } from "react";
 import { RadioGroup } from "../ui/RadioGroup";
 import DatePicker from "../ui/DatePicker";
 import { Input } from "../ui/input";
-import { CalendarIcon } from "@radix-ui/react-icons";
 import Select from "../ui/Select";
 
-const vaccines = [
+const availableVaccines = [
   { id: "1", name: "Vaccine A", doses: ["Dose 1", "Dose 2"] },
   { id: "2", name: "Vaccine B", doses: ["Dose 1", "Dose 2", "Dose 3"] },
 ];
 
-export default function VaccineInformation() {
+export default function VaccineInformation({
+  setVaccineInfo,
+}: Readonly<{
+  setVaccineInfo: (vaccines: any[]) => void;
+}>) {
   const [vaccineCount, setVaccineCount] = useState(1);
   const [newDoseRequired, setNewDoseRequired] = useState<"Yes" | "No">("No");
   const [batchLotNumber, setBatchLotNumber] = useState("");
   const [vaccinationDate, setVaccinationDate] = useState<Date | null>(null);
+  const [vaccines, setVaccines] = useState<any[]>([]);
 
   const addVaccine = () => {
     if (vaccineCount < 5) {
@@ -28,6 +34,23 @@ export default function VaccineInformation() {
     }
   };
 
+  const handleVaccineChange = (
+    index: number,
+    field: string,
+    value: string | boolean | Date
+  ) => {
+    const updatedVaccines = [...vaccines];
+    updatedVaccines[index] = { ...updatedVaccines[index], [field]: value };
+    setVaccines(updatedVaccines);
+    setVaccineInfo(updatedVaccines); // Actualizar el estado de las vacunas
+  };
+
+  const handleSelectChange =
+    (index: number, field: string) =>
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      handleVaccineChange(index, field, event.target.value);
+    };
+
   return (
     <div className="border p-6 rounded-md bg-white shadow-lg space-y-6">
       <h2 className="text-lg font-bold mb-4">Vaccine Information</h2>
@@ -40,16 +63,25 @@ export default function VaccineInformation() {
             <div className="flex flex-col space-y-4 md:flex-row md:space-x-4">
               <Select
                 title="Vaccine"
-                options={vaccines.map((v) => ({ value: v.id, label: v.name }))}
+                options={availableVaccines.map((v) => ({
+                  value: v.id,
+                  label: v.name,
+                }))}
                 className="w-full mt-4 md:w-1/3"
+                onChange={handleSelectChange(index, "vaccine_id")}
               />
               <Select
                 title="Dose"
-                options={vaccines[0].doses.map((dose) => ({
+                options={(
+                  availableVaccines.find(
+                    (v) => v.id === vaccines[index]?.vaccine_id
+                  )?.doses || []
+                ).map((dose) => ({
                   value: dose,
                   label: dose,
                 }))}
                 className="w-full md:w-1/3"
+                onChange={handleSelectChange(index, "dose")}
               />
               <Input
                 label="Batch Lot Number"
@@ -94,7 +126,7 @@ export default function VaccineInformation() {
           onClick={addVaccine}
           disabled={vaccineCount >= 5}
           className={`px-4 py-2 h-10 rounded ${
-            vaccineCount < 5 ? " bg-cyan-800 hover:bg-cyan-900" : "bg-gray-500"
+            vaccineCount < 5 ? "bg-cyan-800 hover:bg-cyan-900" : "bg-gray-500"
           } text-white`}
         >
           Add one more vaccine
