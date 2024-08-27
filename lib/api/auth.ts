@@ -260,3 +260,28 @@ export const registerVaccinationRecord = async (
     }
   }
 };
+
+// Nueva función para manejar la aprobación o rechazo de la solicitud de centro
+export const handleApplicationResponse = async (
+  email: string,
+  status: string
+): Promise<any> => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/approve_application`,
+      {
+        params: { email, status },
+      }
+    );
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      throw new Error(
+        error.response.data.error || "An error occurred while handling the application response."
+      );
+    } else {
+      throw new Error("An error occurred while handling the application response.");
+    }
+  }
+};
