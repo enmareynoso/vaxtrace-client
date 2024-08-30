@@ -1,5 +1,6 @@
 import axios from "axios";
 import cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL as string;
 
@@ -53,7 +54,6 @@ interface RegisterCenterCredentials {
 interface RegisterCenterResponse {
   access_token: string;
   refresh_token: string;
-  center_id: string; // Asegurarse de que el backend envíe este campo!!
 }
 
 interface VaccinationRecordRequest {
@@ -77,6 +77,15 @@ interface VaccinationRecordRequest {
   center_id?: string; // ID del centro que realiza el registro
 }
 
+interface CustomJwtPayload {
+  user_id: number;
+  user_type: string;
+  role: string;
+  type: string;
+  exp: number;
+  iat: number;
+}
+
 export const registerCenter = async (
   credentials: RegisterCenterCredentials
 ): Promise<any> => {
@@ -91,7 +100,6 @@ export const registerCenter = async (
     cookies.set("refresh_token", response.data.refresh_token, {
       httpOnly: true,
     });
-    cookies.set("center_id", response.data.center_id, { httpOnly: true });
 
     return response.data;
   } catch (error: any) {
@@ -111,10 +119,22 @@ export const loginUser = async (
 ): Promise<any> => {
   try {
     const response = await axios.post(`${API_BASE_URL}/login`, credentials);
-    cookies.set("access_token", response.data.access_token, { httpOnly: true });
-    cookies.set("refresh_token", response.data.refresh_token, {
-      httpOnly: true,
-    });
+
+    // Almacenamos los valores del token
+    const accessToken = response.data.access_token;
+    const refreshToken = response.data.refresh_token;
+
+    // Decodificar el token para obtener el user_id
+    const decodedToken: CustomJwtPayload = jwtDecode(accessToken);
+    const userId = decodedToken.user_id;
+
+    // Guardar el token en las cookies
+    cookies.set("access_token", accessToken, { httpOnly: true });
+    cookies.set("refresh_token", refreshToken, { httpOnly: true });
+
+    // Guardar el user_id en localStorage
+    localStorage.setItem("center_id", userId.toString());
+
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
@@ -267,21 +287,24 @@ export const handleApplicationResponse = async (
   status: string
 ): Promise<any> => {
   try {
-    const response = await axios.get(
-      `${API_BASE_URL}/approve_application`,
-      {
-        params: { email, status },
-      }
-    );
+    const response = await axios.get(`${API_BASE_URL}/approve_application`, {
+      params: { email, status },
+    });
 
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
       throw new Error(
-        error.response.data.error || "An error occurred while handling the application response."
+        error.response.data.error ||
+          "An error occurred while handling the application response."
       );
     } else {
-      throw new Error("An error occurred while handling the application response.");
+      throw new Error(
+        "An error occurred while handling the application response."
+      );
     }
   }
 };
+function jwt_decode(accessToken: any): any {
+  throw new Error("Function not implemented.");
+}
