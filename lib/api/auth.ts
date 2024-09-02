@@ -70,9 +70,6 @@ interface VaccinationRecordRequest {
   vaccinations: {
     vaccine_id: string;
     dose: string;
-    batch_lot_number: string;
-    vaccination_date: string;
-    new_dose_required: boolean;
   }[];
   center_id?: string; // ID del centro que realiza el registro
 }
