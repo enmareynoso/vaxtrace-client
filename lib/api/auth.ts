@@ -222,25 +222,6 @@ export const createUser = async (
     }
   }
 };
-
-export const validateToken = async (token: string, userType: string): Promise<any> => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/refresh_token`, {
-      token,
-      user_type: userType,  // Se envía el tipo de usuario correcto
-    });
-    return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.data) {
-      throw new Error(
-        error.response.data.message ||
-          "An error occurred while validating the token."
-      );
-    } else {
-      throw new Error("An error occurred while validating the token.");
-    }
-  }
-};
 // Nuevo servicio de validación de token en el frontend que utiliza el endpoint de validate_token
 export const validate_Token = async (token: string): Promise<any> => {
   try {

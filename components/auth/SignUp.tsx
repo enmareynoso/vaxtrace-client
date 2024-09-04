@@ -94,7 +94,7 @@ const CenterSignUp: React.FC = () => {
 
       const data = await registerCenter(payload);
 
-      toast.success("Center registered successfully.");
+      toast.success("Center aplicado satisfactoriamente");
       router.push("/auth/login");
     } catch (error: any) {
       toast.error(error.message || "Registration failed.");

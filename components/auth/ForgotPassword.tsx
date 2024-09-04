@@ -9,15 +9,27 @@ import toast, { Toaster } from "react-hot-toast";
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showToast, setShowToast] = useState(false); // Nuevo estado para manejar el toast
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true); // Indicar que la petición está en curso
+
     try {
-      await requestPasswordReset(email);
-      toast.success("Password reset link sent");
+      const response = await requestPasswordReset(email);
+
+      // Verificar si ya existe un token válido
+      if (response.message === "A valid reset token already exists. Please check your email.") {
+        toast.error("A valid reset token already exists. Please check your email", {
+          id: "reset-link-exists-toast",
+        });
+      } else {
+        toast.success("Password reset link sent", {
+          id: "reset-link-toast",
+        });
+      }
+
     } catch (error: any) {
-      // Mostrar el mensaje de error específico
       toast.error(error.message || "An unexpected error occurred.");
     } finally {
       setLoading(false); // Finalizar el indicador de carga
@@ -59,15 +71,15 @@ const ForgotPassword: React.FC = () => {
             />
           </div>
           <h2 className="text-2xl md:text-3xl font-semibold mb-6 text-left text-cyan-900 dark:text-white">
-          ¿Olvidaste tu contraseña?
+            ¿Olvidaste tu contraseña?
           </h2>
           <p className="text-lg text-cyan-900 dark:text-white text-left mb-4 ">
-          Introduce tu correo electrónico a continuación para recibir un enlace de restablecimiento de contraseña.
+            Introduce tu correo electrónico a continuación para recibir un enlace de restablecimiento de contraseña.
           </p>
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
               <label className="block text-cyan-900 dark:text-white mb-2 font-semibold" htmlFor="email">
-              Correo electrónico:
+                Correo electrónico:
               </label>
               <input
                 type="email"
