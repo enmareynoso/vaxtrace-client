@@ -11,7 +11,8 @@ interface LoginCredentials {
 
 interface PasswordResetRequest {
   token: string;
-  newPassword: string;
+  new_password: string;
+  user_type: string;
 }
 
 interface CreateUserRequest {
@@ -175,21 +176,32 @@ export const resetPassword = async (
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        token: data.token,
+        new_password: data.new_password,
+      }),
     });
 
+    // Si la respuesta no es OK (200), manejamos el error
     if (!response.ok) {
+      // Intentar obtener el JSON de la respuesta
       const errorData = await response.json();
       throw new Error(errorData.error || "Failed to reset password");
     }
 
+    // Si la respuesta es exitosa, devolver los datos
     return await response.json();
   } catch (error: any) {
+    // Agregar log de la respuesta para depurar
+    console.error("Error resetting password:", error);
+
+    // Lanzar el error al manejarlo
     throw new Error(
       error.message || "An error occurred while resetting the password."
     );
   }
 };
+
 
 export const createUser = async (
   userRequest: CreateUserRequest
@@ -211,10 +223,11 @@ export const createUser = async (
   }
 };
 
-export const validateToken = async (token: string): Promise<any> => {
+export const validateToken = async (token: string, userType: string): Promise<any> => {
   try {
     const response = await axios.post(`${API_BASE_URL}/refresh_token`, {
       token,
+      user_type: userType,  // Se envía el tipo de usuario correcto
     });
     return response.data;
   } catch (error: any) {
@@ -228,6 +241,26 @@ export const validateToken = async (token: string): Promise<any> => {
     }
   }
 };
+// Nuevo servicio de validación de token en el frontend que utiliza el endpoint de validate_token
+export const validate_Token = async (token: string): Promise<any> => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/validate_token`, {
+      token,
+    });
+    return response.data; // Devuelve email y user_type
+  } catch (error: any) {
+    if (error.response && error.response.data) {
+      throw new Error(
+        error.response.data.message ||
+          "An error occurred while validating the token."
+      );
+    } else {
+      throw new Error("An error occurred while validating the token.");
+    }
+  }
+};
+
+
 
 export const confirmAccount = async (token: string): Promise<any> => {
   try {
