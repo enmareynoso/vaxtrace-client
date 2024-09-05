@@ -7,10 +7,11 @@ import { Eye, EyeOff } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { resetPassword, validate_Token } from "@/lib/api/auth";  // Asegúrate de tener este archivo configurado correctamente
 
-const ResetPasswordForm: React.FC = () => {
+const SetPasswordForm: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get("token") || "";  
+  const token = searchParams.get("token") || "";
+  
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -24,10 +25,10 @@ const ResetPasswordForm: React.FC = () => {
         const response = await validate_Token(token);  // Validar el token en el backend
 
         if (response.message !== "Token is valid") {
-          router.push("/auth/reset_password_failure");
+          router.push("/auth/set_password_failure");
         }
       } catch (err) {
-        router.push("/auth/reset_password_failure");
+        router.push("/auth/set_password_failure");
       }
     };
     
@@ -35,7 +36,7 @@ const ResetPasswordForm: React.FC = () => {
     if (token) {
       checkToken();
     } else {
-      router.push("/auth/reset_password_failure");
+      router.push("/auth/set_password_failure");
     }
   }, [token, router]);
 
@@ -70,16 +71,16 @@ const ResetPasswordForm: React.FC = () => {
         new_password: newPassword,    // Nueva contraseña ingresada
       };
 
-      console.log("Sending reset request:", resetRequest); // Verificar los datos enviados
+      console.log("Sending set password request:", resetRequest); // Verificar los datos enviados
 
-      // Llamada a la función de resetPassword (sin user_type)
+      // Llamada a la función de setPassword (sin user_type)
       await resetPassword(resetRequest);  
       
-      toast.success("Restablecimiento de contraseña exitoso.");
+      toast.success("Contraseña Guardada");
 
       // Redirigir a la página de éxito después del cambio de contraseña
       setTimeout(() => {
-        router.push("/auth/reset_password_success");
+        router.push("/auth/set_password_success");
       }, 1000);  // 1 segundo de retraso antes de redirigir
     } catch (err: any) {
       toast.error(err.message || "Token has expired, Ask For another");
@@ -134,10 +135,10 @@ const ResetPasswordForm: React.FC = () => {
             height={80}
           />
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-4">
-          ¡Bienvenido a Vaxtrace!
+           ¡Bienvenido a Vaxtrace!
           </h2>
           <p className="text-gray-600 dark:text-gray-300">
-          Para comenzar con tu nueva cuenta, por favor, configura tu contraseña.
+           Para comenzar con tu nueva cuenta, por favor, configura tu contraseña.
           </p>
         </div>
         <form onSubmit={handleSubmit}>
@@ -146,7 +147,7 @@ const ResetPasswordForm: React.FC = () => {
               htmlFor="newPassword"
               className="block text-gray-700 dark:text-gray-300"
             >
-              Contraseña:
+               Contraseña:
             </label>
             <div className="password-wrapper relative">
               <input
@@ -199,7 +200,7 @@ const ResetPasswordForm: React.FC = () => {
             className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
             disabled={loading}
           >
-            {loading ? "Actualizando..." : "Actualizar contraseña"}
+            {loading ? "Procesando..." : "Establecer Contraseña"}
           </button>
           <Toaster position="bottom-center" reverseOrder={false} />
         </form>
@@ -211,5 +212,4 @@ const ResetPasswordForm: React.FC = () => {
   );
 };
 
-export default ResetPasswordForm;
-
+export default SetPasswordForm;

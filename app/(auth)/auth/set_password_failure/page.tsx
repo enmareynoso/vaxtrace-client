@@ -1,11 +1,11 @@
-"use client"; // Asegúrate de agregar esta línea al principio
+"use client";
 
 import React from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import logo from "@/public/images/logo.png";
 
-const ResetPasswordFormFailure: React.FC = () => {
+const SetPasswordFailure: React.FC = () => {
   const router = useRouter();
 
   const handleRequestNewToken = () => {
@@ -55,10 +55,10 @@ const ResetPasswordFormFailure: React.FC = () => {
           />
         </div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Token Invalido
+          Token Inválido
         </h1>
         <p className="mt-4 text-gray-600 dark:text-gray-300">
-        El token que proporcionaste para restablecer tu contraseña no es válido o ha expirado. 
+        El token que proporcionaste para establecer tu contraseña no es válido o ha expirado. 
         Los tokens solo son válidos para un solo uso y expiran después de un cierto período.
         </p>
         <p className="mt-4 text-gray-600 dark:text-gray-300">
@@ -76,4 +76,4 @@ const ResetPasswordFormFailure: React.FC = () => {
   );
 };
 
-export default ResetPasswordFormFailure;
+export default SetPasswordFailure;
