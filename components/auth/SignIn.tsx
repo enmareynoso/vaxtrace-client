@@ -6,15 +6,13 @@ import MainImage from "@/public/images/heroImage.png";
 import { Button } from "@/components/ui/button";
 import { loginUser } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
-import toast, { Toaster } from 'react-hot-toast';
-// Import jwt_decode correctly
+import toast, { Toaster } from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
-
 
 interface CustomJwtPayload {
   user_id: number;
   user_type: string;
-  role: string;  
+  role: string;
   type: string;
   exp: number;
   iat: number;
@@ -40,23 +38,24 @@ const SignIn: React.FC = () => {
         const decoded: CustomJwtPayload = jwtDecode(data.access_token);
         if (decoded.role) {
           switch (decoded.role) {
-            case 'patient':
-              router.push('/user/dashboard');
+            case "patient":
+              router.push("/user/dashboard");
               break;
-            case 'vaccination_center':
-              router.push('/center/dashboard');
+            case "vaccination_center":
+              localStorage.setItem("center_id", decoded.user_id.toString());
+              router.push("/center/dashboard");
               break;
             default:
-              throw new Error('Unauthorized: No valid role found.');
+              throw new Error("Unauthorized: No valid role found.");
           }
         } else {
-          throw new Error('Invalid token: Cannot decode');
+          throw new Error("Invalid token: Cannot decode");
         }
       } else {
         toast.error("Login failed: Invalid response from server.");
       }
     } catch (error: any) {
-      console.error('Login Error:', error);
+      console.error("Login Error:", error);
       toast.error(error.message || "An unexpected error occurred");
     } finally {
       setLoading(false);
@@ -135,12 +134,14 @@ const SignIn: React.FC = () => {
       <div className="w-full md:w-1/2 bg-cyan-900 flex items-center justify-center p-4 md:p-10 flex-1">
         <div className="bg-gray-100 dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-lg w-full max-w-md">
           <h1 className="text-2xl md:text-3xl font-bold mb-8 text-center text-cyan-900 dark:text-white border-b border-cyan-900 dark:border-white pb-4">
-          Iniciar Sesión
+            Iniciar Sesión
           </h1>
 
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label className="block text-cyan-900 dark:text-gray-100 font-semibold">Correo Electrónico</label>
+              <label className="block text-cyan-900 dark:text-gray-100 font-semibold">
+                Correo Electrónico
+              </label>
               <input
                 type="email"
                 value={email}
@@ -151,7 +152,9 @@ const SignIn: React.FC = () => {
               />
             </div>
             <div className="mb-6">
-              <label className="block text-cyan-900 dark:text-gray-100 font-semibold">Contraseña</label>
+              <label className="block text-cyan-900 dark:text-gray-100 font-semibold">
+                Contraseña
+              </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -166,12 +169,13 @@ const SignIn: React.FC = () => {
             <Button
               variant="outline"
               className="w-full bg-cyan-800 text-white py-2 rounded hover:text-white hover:bg-cyan-900 transition duration-200"
-              disabled={loading}  // Deshabilitar el botón mientras se carga
+              disabled={loading} // Deshabilitar el botón mientras se carga
             >
-              {loading ? 'Cargando...' : 'Iniciar Sesión'}
+              {loading ? "Cargando..." : "Iniciar Sesión"}
             </Button>
             <div className="mt-4 text-center">
-              <a href="/auth/forgot_password"
+              <a
+                href="/auth/forgot_password"
                 className="text-cyan-900 dark:text-white hover:underline"
               >
                 ¿Olvidaste tu contraseña?

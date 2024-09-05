@@ -6,12 +6,11 @@ import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import { registerVaccinationRecord } from "@/lib/api/auth";
 import React, { useState } from "react";
-import Cookie from "js-cookie";
 
 export default function RegisterVaccination() {
   const [patientInfo, setPatientInfo] = useState<any>(null);
   const [vaccineInfo, setVaccineInfo] = useState<any[]>([]);
-  const centerId = Cookie.get("center_id"); // Obtener el ID del centro desde las cookies
+  const centerId = localStorage.getItem("center_id"); // Obtener el ID del centro desde local storage
 
   const handleSaveRecord = async () => {
     if (!centerId) {

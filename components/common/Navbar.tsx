@@ -53,7 +53,7 @@ export default function Navbar() {
             href="/auth/signup"
             className="px-4 py-2 text-sm font-medium text-white bg-cyan-900 rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-cyan-900"
           >
-            Registro de centro
+            Aplicar centro
           </a>
         </div>
         <div className="flex lg:hidden">
@@ -122,7 +122,7 @@ export default function Navbar() {
                   href="/auth/signup"
                   className="block px-3 py-2.5 text-base font-semibold text-white bg-cyan-900 rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-cyan-900"
                 >
-                  Registro de centro
+                  Aplicar centro
                 </a>
               </div>
             </div>

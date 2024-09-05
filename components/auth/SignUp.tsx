@@ -28,6 +28,7 @@ const CenterSignUp: React.FC = () => {
   const [address, setAddress] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
+  const [directorDocument, setDirectorDocument] = useState("");
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [province, setProvince] = useState<string>("");
   const [municipality, setMunicipality] = useState("");
@@ -83,6 +84,7 @@ const CenterSignUp: React.FC = () => {
         phone_number: phoneNumber,
         email,
         municipality_id: parseInt(municipality),
+        director_document: directorDocument,
         account: {
           email,
           password,
@@ -92,7 +94,7 @@ const CenterSignUp: React.FC = () => {
 
       const data = await registerCenter(payload);
 
-      toast.success("Center registered successfully.");
+      toast.success("Center aplicado satisfactoriamente");
       router.push("/auth/login");
     } catch (error: any) {
       toast.error(error.message || "Registration failed.");
@@ -188,7 +190,7 @@ const CenterSignUp: React.FC = () => {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-cyan-900 font-semibold">Name</label>
+              <label className="block text-cyan-900 font-semibold">Nombre</label>
               <input
                 type="text"
                 value={name}
@@ -199,7 +201,18 @@ const CenterSignUp: React.FC = () => {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-cyan-900 font-semibold">Address</label>
+              <label className="block text-cyan-900 font-semibold">Cédula</label>
+              <input
+                type="text"
+                value={directorDocument}
+                onChange={(e) => setDirectorDocument(e.target.value)}
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
+                placeholder="Director Document"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-cyan-900 font-semibold">Dirección</label>
               <input
                 type="text"
                 value={address}

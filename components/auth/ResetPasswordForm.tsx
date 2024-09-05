@@ -5,12 +5,12 @@ import logo from "@/public/images/logo.png";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
-import { resetPassword, validateToken } from "@/lib/api/auth";
+import { resetPassword, validate_Token } from "@/lib/api/auth";  // Asegúrate de tener este archivo configurado correctamente
 
 const ResetPasswordForm: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get("token") || "";
+  const token = searchParams.get("token") || "";  
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -21,7 +21,8 @@ const ResetPasswordForm: React.FC = () => {
   useEffect(() => {
     const checkToken = async () => {
       try {
-        const response = await validateToken(token);
+        const response = await validate_Token(token);  // Validar el token en el backend
+
         if (response.message !== "Token is valid") {
           router.push("/auth/reset_password_failure");
         }
@@ -29,7 +30,8 @@ const ResetPasswordForm: React.FC = () => {
         router.push("/auth/reset_password_failure");
       }
     };
-
+    
+    // Verificar si hay un token en la URL
     if (token) {
       checkToken();
     } else {
@@ -39,6 +41,8 @@ const ResetPasswordForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Verificamos si las contraseñas coinciden
     if (newPassword !== confirmPassword) {
       if (!showToast) {
         toast.error("Passwords do not match", {
@@ -56,26 +60,34 @@ const ResetPasswordForm: React.FC = () => {
       }
       return;
     }
+  
     setShowToast(false);
     setLoading(true);
+  
     try {
       const resetRequest = {
-        token,
-        new_password: newPassword,
+        token,                       // Enviamos solo el token
+        new_password: newPassword,    // Nueva contraseña ingresada
       };
-      console.log("Sending reset request:", resetRequest); // Log the data being sent
-      await resetPassword(resetRequest);
+
+      console.log("Sending reset request:", resetRequest); // Verificar los datos enviados
+
+      // Llamada a la función de resetPassword (sin user_type)
+      await resetPassword(resetRequest);  
+      
       toast.success("Password reset successful");
+
+      // Redirigir a la página de éxito después del cambio de contraseña
       setTimeout(() => {
-        router.push("/auth/reset_password_success"); // Redirect after successful reset
-      }, 1000); // 1 seconds delay
+        router.push("/auth/reset_password_success");
+      }, 1000);  // 1 segundo de retraso antes de redirigir
     } catch (err: any) {
       toast.error(err.message || "Token has expired, Ask For another");
     } finally {
-      setLoading(false); // Establecer el estado de carga en false
+      setLoading(false);
     }
   };
-
+  
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -200,3 +212,4 @@ const ResetPasswordForm: React.FC = () => {
 };
 
 export default ResetPasswordForm;
+

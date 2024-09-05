@@ -1,5 +1,6 @@
 import axios from "axios";
 import cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL as string;
 
@@ -10,7 +11,8 @@ interface LoginCredentials {
 
 interface PasswordResetRequest {
   token: string;
-  newPassword: string;
+  new_password: string;
+  user_type: string;
 }
 
 interface CreateUserRequest {
@@ -53,7 +55,6 @@ interface RegisterCenterCredentials {
 interface RegisterCenterResponse {
   access_token: string;
   refresh_token: string;
-  center_id: string; // Asegurarse de que el backend envíe este campo!!
 }
 
 interface VaccinationRecordRequest {
@@ -70,11 +71,17 @@ interface VaccinationRecordRequest {
   vaccinations: {
     vaccine_id: string;
     dose: string;
-    batch_lot_number: string;
-    vaccination_date: string;
-    new_dose_required: boolean;
   }[];
   center_id?: string; // ID del centro que realiza el registro
+}
+
+interface CustomJwtPayload {
+  user_id: number;
+  user_type: string;
+  role: string;
+  type: string;
+  exp: number;
+  iat: number;
 }
 
 export const registerCenter = async (
@@ -91,7 +98,6 @@ export const registerCenter = async (
     cookies.set("refresh_token", response.data.refresh_token, {
       httpOnly: true,
     });
-    cookies.set("center_id", response.data.center_id, { httpOnly: true });
 
     return response.data;
   } catch (error: any) {
@@ -111,10 +117,22 @@ export const loginUser = async (
 ): Promise<any> => {
   try {
     const response = await axios.post(`${API_BASE_URL}/login`, credentials);
-    cookies.set("access_token", response.data.access_token, { httpOnly: true });
-    cookies.set("refresh_token", response.data.refresh_token, {
-      httpOnly: true,
-    });
+
+    // Almacenamos los valores del token
+    const accessToken = response.data.access_token;
+    const refreshToken = response.data.refresh_token;
+
+    // Decodificar el token para obtener el user_id
+    const decodedToken: CustomJwtPayload = jwtDecode(accessToken);
+    const userId = decodedToken.user_id;
+
+    // Guardar el token en las cookies
+    cookies.set("access_token", accessToken, { httpOnly: true });
+    cookies.set("refresh_token", refreshToken, { httpOnly: true });
+
+    // Guardar el user_id en localStorage
+    localStorage.setItem("center_id", userId.toString());
+
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
@@ -158,21 +176,32 @@ export const resetPassword = async (
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        token: data.token,
+        new_password: data.new_password,
+      }),
     });
 
+    // Si la respuesta no es OK (200), manejamos el error
     if (!response.ok) {
+      // Intentar obtener el JSON de la respuesta
       const errorData = await response.json();
       throw new Error(errorData.error || "Failed to reset password");
     }
 
+    // Si la respuesta es exitosa, devolver los datos
     return await response.json();
   } catch (error: any) {
+    // Agregar log de la respuesta para depurar
+    console.error("Error resetting password:", error);
+
+    // Lanzar el error al manejarlo
     throw new Error(
       error.message || "An error occurred while resetting the password."
     );
   }
 };
+
 
 export const createUser = async (
   userRequest: CreateUserRequest
@@ -193,13 +222,13 @@ export const createUser = async (
     }
   }
 };
-
-export const validateToken = async (token: string): Promise<any> => {
+// Nuevo servicio de validación de token en el frontend que utiliza el endpoint de validate_token
+export const validate_Token = async (token: string): Promise<any> => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/refresh_token`, {
+    const response = await axios.post(`${API_BASE_URL}/validate_token`, {
       token,
     });
-    return response.data;
+    return response.data; // Devuelve email y user_type
   } catch (error: any) {
     if (error.response && error.response.data) {
       throw new Error(
@@ -211,6 +240,8 @@ export const validateToken = async (token: string): Promise<any> => {
     }
   }
 };
+
+
 
 export const confirmAccount = async (token: string): Promise<any> => {
   try {
@@ -267,21 +298,24 @@ export const handleApplicationResponse = async (
   status: string
 ): Promise<any> => {
   try {
-    const response = await axios.get(
-      `${API_BASE_URL}/approve_application`,
-      {
-        params: { email, status },
-      }
-    );
+    const response = await axios.get(`${API_BASE_URL}/approve_application`, {
+      params: { email, status },
+    });
 
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
       throw new Error(
-        error.response.data.error || "An error occurred while handling the application response."
+        error.response.data.error ||
+          "An error occurred while handling the application response."
       );
     } else {
-      throw new Error("An error occurred while handling the application response.");
+      throw new Error(
+        "An error occurred while handling the application response."
+      );
     }
   }
 };
+function jwt_decode(accessToken: any): any {
+  throw new Error("Function not implemented.");
+}
