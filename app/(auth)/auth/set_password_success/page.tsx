@@ -1,19 +1,18 @@
-"use client"; // Asegúrate de agregar esta línea al principio
-
+"use client";
 import React from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import logo from "@/public/images/logo.png";
 
-const ResetPasswordFormFailure: React.FC = () => {
+const SetPasswordSuccess: React.FC = () => {
   const router = useRouter();
 
-  const handleRequestNewToken = () => {
-    router.push("/auth/forgot_password");
+  const handleLoginClick = () => {
+    router.push("/auth/login");
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+    <div className="relative min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900">
       <div className="absolute inset-0 overflow-hidden z-0">
         <svg
           width="100%"
@@ -44,7 +43,7 @@ const ResetPasswordFormFailure: React.FC = () => {
           </defs>
         </svg>
       </div>
-      <div className="relative bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md text-center">
+      <div className="relative bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg text-center">
         <div className="text-center mb-6">
           <Image
             className="mx-auto"
@@ -55,25 +54,20 @@ const ResetPasswordFormFailure: React.FC = () => {
           />
         </div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Token Invalido
+         Establecer Contraseña
         </h1>
         <p className="mt-4 text-gray-600 dark:text-gray-300">
-        El token que proporcionaste para restablecer tu contraseña no es válido o ha expirado. 
-        Los tokens solo son válidos para un solo uso y expiran después de un cierto período.
+        Tu contraseña ha sido configurada exitosamente por primera vez.
         </p>
-        <p className="mt-4 text-gray-600 dark:text-gray-300">
-        ¡No te preocupes, es fácil{" "}
-          <button
-            onClick={handleRequestNewToken}
-            className="text-blue-600 hover:underline"
-          >
-            solicitar un nuevo token!
-          </button>
-          !
-        </p>
+        <button
+          onClick={handleLoginClick}
+          className="mt-4 py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-900 dark:bg-blue-500 dark:hover:bg-blue-600"
+        >
+          Iniciar Sesión
+        </button>
       </div>
     </div>
   );
 };
 
-export default ResetPasswordFormFailure;
+export default SetPasswordSuccess;
