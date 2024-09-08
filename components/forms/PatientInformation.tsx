@@ -1,31 +1,35 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
 import { getPatientByDocument } from "@/lib/api/auth";
 import CustomDatePicker from "../ui/DatePicker";
 import toast, { Toaster } from "react-hot-toast";
+import { FaInfoCircle } from "react-icons/fa";
 
+// Definición de la interfaz Dependent para manejar los dependientes
 interface Dependent {
   id: string;
   first_name: string;
   last_name: string;
-  gender: "male" | "female";
+  gender: string;
 }
 
+// Definición de la interfaz FormData que representa los datos del formulario del paciente
 interface FormData {
   document: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   dateOfBirth: Date;
-  gender: "M" | "F";
-  dependentFirstName: string;
-  dependentLastName: string;
-  dependentGender: "M" | "F";
+  gender: string;
+  dependentfirst_name: string;
+  dependentlast_name: string;
+  dependentGender: string;
   parentDateOfBirth: Date;
   occupation: string;
   address: string;
-  dependents: Dependent[]; // Asegúrate de que dependents sea un array de dependientes
+  dependents: Dependent[]; // Lista de dependientes
+  nationality: string;
+  is_underage: boolean;
 }
 
 export default function PatientInformation({
@@ -33,70 +37,92 @@ export default function PatientInformation({
 }: Readonly<{
   setPatientInfo: any;
 }>) {
+  // Datos iniciales del formulario
   const initialFormData: FormData = {
     document: "",
     email: "",
-    firstName: "",
-    lastName: "",
+    first_name: "",
+    last_name: "",
     dateOfBirth: new Date(),
-    gender: "M",
-    dependentFirstName: "",
-    dependentLastName: "",
-    dependentGender: "M",
+    gender: "",
+    dependentfirst_name: "",
+    dependentlast_name: "",
+    dependentGender: "",
     parentDateOfBirth: new Date(),
     occupation: "",
     address: "",
-    dependents: [], // Almacenará los dependientes
+    dependents: [],
+    nationality: "",
+    is_underage: false,
   };
 
+  // Estados locales
   const [formData, setFormData] = useState<FormData>(initialFormData);
-  const [documentInput, setDocumentInput] = useState("");
-  const [showForm, setShowForm] = useState(false);
-  const [patientExists, setPatientExists] = useState(false);
+  const [documentInput, setDocumentInput] = useState(""); // Almacena el documento ingresado
+  const [showForm, setShowForm] = useState(false); // Controla la visibilidad del formulario
+  const [patientExists, setPatientExists] = useState(false); // Verifica si el paciente ya existe
   const [dependents, setDependents] = useState<Dependent[]>([]); // Dependientes del paciente
 
+  // Calcula la edad a partir de la fecha de nacimiento
   const calculateAge = (dob: Date): number => {
     const diff = Date.now() - dob.getTime();
     const ageDate = new Date(diff);
     return Math.abs(ageDate.getUTCFullYear() - 1970);
   };
 
+  // Maneja el cambio en la fecha de nacimiento del paciente
   const handleDateOfBirthChange = (date: Date | null) => {
     if (date) {
+      const isUnderage = calculateAge(date) < 18; // Determina si es menor de edad
       setFormData((prev) => ({
         ...prev,
         dateOfBirth: date,
+        is_underage: isUnderage,
+      }));
+      setPatientInfo((prev: any) => ({
+        ...prev,
+        dateOfBirth: date,
+        is_underage: isUnderage,
       }));
       setShowForm(true);
     }
   };
 
+  // Verifica si el paciente es dependiente en función de la edad
   const isDependent = formData.dateOfBirth
     ? calculateAge(formData.dateOfBirth) < 18
     : false;
 
+  // Maneja el cambio de género del paciente
   const handleGenderChange = (value: "M" | "F") => {
     setFormData((prev) => ({ ...prev, gender: value }));
+    setPatientInfo((prev: any) => ({ ...prev, gender: value }));
   };
 
+  // Maneja el cambio de género del dependiente
   const handleDependentGenderChange = (value: "M" | "F") => {
     setFormData((prev) => ({ ...prev, dependentGender: value }));
+    setPatientInfo((prev: any) => ({ ...prev, dependentGender: value }));
   };
 
+  // Maneja el cambio en la fecha de nacimiento del padre/tutor
   const handleParentDateOfBirthChange = (date: Date | null) => {
     if (date) {
       setFormData((prev) => ({
         ...prev,
         parentDateOfBirth: date,
       }));
+      setPatientInfo((prev: any) => ({ ...prev, parentDateOfBirth: date }));
     }
   };
 
+  // Limpia el formulario y reinicia los dependientes
   const clearForm = () => {
     setFormData(initialFormData);
-    setDependents([]); // Limpiar los dependientes
+    setDependents([]);
   };
 
+  // Verifica si el paciente existe en la base de datos basado en el documento
   const handleVerifyPatient = async () => {
     if (!documentInput) {
       toast.error("Por favor digite su documento para verificarlo.");
@@ -113,25 +139,34 @@ export default function PatientInformation({
     try {
       const patientData = await getPatientByDocument(documentInput);
       if (patientData) {
+        // Si se encuentra el paciente, actualizar los campos correspondientes
         setFormData({
           document: patientData.document || "",
           email: patientData.email || "",
-          firstName: patientData.first_name || "",
-          lastName: patientData.last_name || "",
+          first_name: patientData.first_name || "",
+          last_name: patientData.last_name || "",
           dateOfBirth: new Date(patientData.birthdate) || new Date(),
-          gender: patientData.gender === "male" ? "M" : "F",
-          dependentFirstName: "",
-          dependentLastName: "",
-          dependentGender: "M",
+          gender: patientData.gender || "",
+          dependentfirst_name: "",
+          dependentlast_name: "",
+          dependentGender: "",
           parentDateOfBirth: new Date(),
           occupation: patientData.occupation || "",
           address: patientData.address || "",
           dependents: patientData.dependents || [],
+          nationality: patientData.nationality || "",
+          is_underage: calculateAge(new Date(patientData.birthdate)) < 18,
         });
 
         if (patientData.dependents && patientData.dependents.length > 0) {
-          setDependents(patientData.dependents);
+          setDependents(patientData.dependents); // Actualiza la lista de dependientes
         }
+
+        // Asegurarse de pasar el document a setPatientInfo
+        setPatientInfo((prev: any) => ({
+          ...prev,
+          document: patientData.document || documentInput,
+        }));
 
         setPatientExists(true);
         setShowForm(true);
@@ -140,41 +175,48 @@ export default function PatientInformation({
         throw new Error("Paciente no encontrado");
       }
     } catch (error) {
-      toast.error(
-        "Paciente nuevo. Por favor, complete el formulario manualmente."
-      );
+      // Si el paciente no existe, permite al usuario completar manualmente
+      setFormData((prev) => ({
+        ...prev,
+        document: documentInput,
+      }));
+
+      // Actualiza también el document en setPatientInfo
+      setPatientInfo((prev: any) => ({ ...prev, document: documentInput }));
+
+      toast("Paciente nuevo. Por favor, complete el formulario manualmente.", {
+        icon: <FaInfoCircle size={24} color="#155e75" />,
+      });
+
       setPatientExists(false);
       setShowForm(true);
     }
   };
 
-  // Adaptar handleFormChange para manejar diferentes tipos de elementos de formulario
+  // Maneja el cambio en cualquier campo del formulario
   const handleFormChange = (
     e:
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    // Si es un campo de tipo select, también actualizamos el estado de formData
-    if (e.target instanceof HTMLSelectElement) {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    // Asegurarse de actualizar el estado global con el document si cambia
     setPatientInfo((prev: any) => ({ ...prev, [name]: value }));
   };
 
+  // Controla la clase de columnas del grid dependiendo de si el paciente es dependiente
   const gridColsClass = isDependent ? "lg:grid-cols-3" : "lg:grid-cols-2";
 
   return (
     <div className="border p-6 rounded-md shadow-md space-y-2 bg-white dark:bg-gray-800">
       <Toaster position="top-center" reverseOrder={false} />
+
+      {/* Input para el documento y botón para verificar al paciente */}
       <div className="flex flex-col md:flex-row items-center justify-center bg-white p-6 rounded-lg shadow-lg dark:bg-gray-800 max-w-2xl mx-auto space-y-4 md:space-y-0 md:space-x-4">
         <label className="text-lg font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap mb-2 md:mb-0">
           Digite la cédula:
@@ -186,7 +228,7 @@ export default function PatientInformation({
             onChange={(e) => {
               const value = e.target.value;
               if (value.length <= 11) {
-                setDocumentInput(value);
+                setDocumentInput(value); // Controla el input del documento
               }
             }}
             className="flex-grow w-full md:w-auto px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-400 dark:focus:border-blue-400 transition duration-150"
@@ -202,16 +244,18 @@ export default function PatientInformation({
         </div>
       </div>
 
+      {/* Lista de dependientes si el paciente no es dependiente */}
       {!isDependent && dependents.length > 0 && (
         <select
           onChange={(e) => {
             const selectedDependent = dependents.find(
               (dep) => dep.id === e.target.value
             );
+            // Actualiza los campos con la información del dependiente seleccionado
             setFormData({
               ...formData,
-              dependentFirstName: selectedDependent?.first_name || "",
-              dependentLastName: selectedDependent?.last_name || "",
+              dependentfirst_name: selectedDependent?.first_name || "",
+              dependentlast_name: selectedDependent?.last_name || "",
               dependentGender: selectedDependent?.gender === "male" ? "M" : "F",
             });
           }}
@@ -227,8 +271,9 @@ export default function PatientInformation({
 
       {showForm && (
         <>
+          {/* Sección de información del paciente */}
           <h2 className="text-lg pt-4 font-bold text-gray-800 dark:text-white">
-            Patient Information
+            Información del Paciente
           </h2>
 
           <div className="md:col-span-1">
@@ -236,7 +281,7 @@ export default function PatientInformation({
               htmlFor="dateOfBirth"
               className="block text-gray-700 dark:text-white"
             >
-              Date of Birth
+              Fecha de Nacimiento
             </label>
             <div className="relative flex items-center">
               <CustomDatePicker
@@ -247,22 +292,23 @@ export default function PatientInformation({
             </div>
           </div>
 
+          {/* Si el paciente es dependiente, muestra campos adicionales */}
           {isDependent && (
             <div className="pt-0 pb-8">
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <label
-                    htmlFor="dependentFirstName"
+                    htmlFor="dependentfirst_name"
                     className="block text-gray-700 dark:text-white"
                   >
-                    First Name
+                    Primer Nombre del Dependiente
                   </label>
                   <input
                     type="text"
-                    id="dependentFirstName"
-                    name="dependentFirstName"
+                    id="dependentfirst_name"
+                    name="dependentfirst_name"
                     placeholder="First Name"
-                    value={formData.dependentFirstName}
+                    value={formData.dependentfirst_name}
                     onChange={handleFormChange}
                     className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
@@ -270,17 +316,17 @@ export default function PatientInformation({
 
                 <div>
                   <label
-                    htmlFor="dependentLastName"
+                    htmlFor="dependentlast_name"
                     className="block text-gray-700 dark:text-white"
                   >
-                    Last name
+                    Apellido del Dependiente
                   </label>
                   <input
                     type="text"
-                    id="dependentLastName"
-                    name="dependentLastName"
-                    placeholder="Last name"
-                    value={formData.dependentLastName}
+                    id="dependentlast_name"
+                    name="dependentlast_name"
+                    placeholder="Last Name"
+                    value={formData.dependentlast_name}
                     onChange={handleFormChange}
                     disabled={patientExists}
                     className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -290,7 +336,7 @@ export default function PatientInformation({
                 <div className="grid gap-4 md:grid-cols-2 mt-2">
                   <div className="flex items-center space-x-4 pt-4">
                     <h4 className="block text-gray-700 dark:text-white">
-                      Gender
+                      Género del Dependiente
                     </h4>
                     <button
                       type="button"
@@ -320,6 +366,7 @@ export default function PatientInformation({
             </div>
           )}
 
+          {/* Información del padre/tutor si es dependiente */}
           <div className="border-t pt-2">
             <h2 className="text-lg font-bold mb-0 text-gray-800 dark:text-white">
               {isDependent ? "Información del Padre / Tutor" : ""}
@@ -328,47 +375,50 @@ export default function PatientInformation({
             <div className={`grid gap-4 md:grid-cols-1 ${gridColsClass} mt-4`}>
               <div>
                 <label
-                  htmlFor="firstName"
+                  htmlFor="first_name"
                   className="block text-gray-700 dark:text-white"
                 >
-                  First Name
+                  Nombre
                 </label>
                 <input
                   type="text"
-                  id="firstName"
-                  name="firstName"
+                  id="first_name"
+                  name="first_name"
                   placeholder="First Name"
-                  value={formData.firstName}
+                  value={formData.first_name}
                   onChange={handleFormChange}
                   className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   disabled={patientExists}
                 />
               </div>
+
               <div>
                 <label
-                  htmlFor="lastName"
+                  htmlFor="last_name"
                   className="block text-gray-700 dark:text-white"
                 >
-                  Last name
+                  Apellido
                 </label>
                 <input
                   type="text"
-                  id="lastName"
-                  name="lastName"
+                  id="last_name"
+                  name="last_name"
                   placeholder="Last name"
-                  value={formData.lastName}
+                  value={formData.last_name}
                   onChange={handleFormChange}
                   className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   disabled={patientExists}
                 />
               </div>
+
+              {/* Fecha de nacimiento del padre/tutor */}
               {isDependent && (
                 <div className="md:col-span-1">
                   <label
                     htmlFor="parentDateOfBirth"
                     className="block text-gray-700 dark:text-white"
                   >
-                    Date of Birth
+                    Fecha de Nacimiento del Padre/Tutor
                   </label>
                   <div className="relative flex items-center">
                     <CustomDatePicker
@@ -381,13 +431,14 @@ export default function PatientInformation({
               )}
             </div>
 
+            {/* Otros campos del formulario */}
             <div className="grid pt-4 gap-4 md:grid-cols-1 lg:grid-cols-3">
               <div>
                 <label
                   htmlFor="document"
                   className="block text-gray-700 dark:text-white"
                 >
-                  Document
+                  Documento
                 </label>
                 <input
                   type="text"
@@ -400,6 +451,7 @@ export default function PatientInformation({
                   disabled={patientExists}
                 />
               </div>
+
               <div>
                 <label
                   htmlFor="email"
@@ -418,6 +470,7 @@ export default function PatientInformation({
                   disabled={patientExists}
                 />
               </div>
+
               <div className="flex items-center space-x-4 pt-4">
                 <h4 className="block text-gray-700 dark:text-white">Género</h4>
                 <button
@@ -446,13 +499,14 @@ export default function PatientInformation({
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 mt-3">
+            {/* Campos adicionales para ocupación y dirección */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-3">
               <div>
                 <label
                   htmlFor="occupation"
                   className="block text-gray-700 dark:text-white"
                 >
-                  Occupation
+                  Ocupación
                 </label>
                 <input
                   type="text"
@@ -465,12 +519,13 @@ export default function PatientInformation({
                   className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
+
               <div>
                 <label
                   htmlFor="address"
                   className="block text-gray-700 dark:text-white"
                 >
-                  Address
+                  Dirección
                 </label>
                 <input
                   type="text"
@@ -482,6 +537,33 @@ export default function PatientInformation({
                   disabled={patientExists}
                   className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="nationality"
+                  className="block text-gray-700 dark:text-white"
+                >
+                  Nacionalidad
+                </label>
+                <select
+                  id="nationality"
+                  name="nationality"
+                  value={formData.nationality}
+                  onChange={handleFormChange}
+                  disabled={patientExists}
+                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Seleccione su nacionalidad</option>
+                  <option value="Dominican Republic">
+                    República Dominicana
+                  </option>
+                  <option value="United States">Estados Unidos</option>
+                  <option value="Mexico">México</option>
+                  <option value="Canada">Canadá</option>
+                  <option value="Spain">España</option>
+                  {/* Agrega más opciones según lo necesario */}
+                </select>
               </div>
             </div>
           </div>

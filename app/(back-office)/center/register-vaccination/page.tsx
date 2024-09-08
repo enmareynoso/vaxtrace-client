@@ -5,12 +5,18 @@ import VaccineInformation from "@/components/forms/VaccineInformation";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import { registerVaccinationRecord } from "@/lib/api/auth";
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
+import { parseCookies } from "nookies";
 
 export default function RegisterVaccination() {
   const [patientInfo, setPatientInfo] = useState<any>(null);
   const [vaccineInfo, setVaccineInfo] = useState<any[]>([]);
-  const centerId = localStorage.getItem("center_id"); // Obtener el ID del centro desde local storage
+  const [centerId, setCenterId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const id = localStorage.getItem("center_id"); // Obtener el ID del centro desde local storage
+    setCenterId(id);
+  }, []);
 
   const handleSaveRecord = async () => {
     if (!centerId) {
@@ -19,6 +25,14 @@ export default function RegisterVaccination() {
     }
 
     try {
+      const cookies = parseCookies();
+      const token = cookies.access_token; // Obtener el token de las cookies
+
+      if (!token) {
+        toast.error("Authorization token is missing.");
+        return;
+      }
+
       // Estructura de datos para el registro
       const vaccinationRecord = {
         patient: patientInfo,
@@ -26,21 +40,20 @@ export default function RegisterVaccination() {
         center_id: centerId, // Añadir el ID del centro para ser tomado en cuenta en el historial
       };
 
-      // Llamar a la API para guardar el registro
-      await registerVaccinationRecord(vaccinationRecord);
+      // Pasar el token al registrar el registro de vacunación
+      await registerVaccinationRecord(vaccinationRecord, token);
 
       toast.success("Record saved successfully.");
     } catch (error) {
+      console.error("Error saving the record:", error);
       toast.error("Failed to save the record.");
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Pasar setPatientInfo */}
-      <PatientInformation setPatientInfo={setPatientInfo} />{" "}
-      {/* Pasar setVaccineInfo */}
-      <VaccineInformation setVaccineInfo={setVaccineInfo} />{" "}
+      <PatientInformation setPatientInfo={setPatientInfo} />
+      <VaccineInformation setVaccineInfo={setVaccineInfo} />
       {/* Botón para guardar el registro */}
       <div className="pt-6">
         <Button

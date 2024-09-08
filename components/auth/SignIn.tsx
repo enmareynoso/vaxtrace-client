@@ -8,6 +8,7 @@ import { loginUser } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
+import Cookies from "js-cookie";
 
 interface CustomJwtPayload {
   user_id: number;
@@ -32,8 +33,14 @@ const SignIn: React.FC = () => {
     try {
       const data = await loginUser({ email, password });
       if (data.access_token) {
-        localStorage.setItem("access_token", data.access_token);
-        localStorage.setItem("refresh_token", data.refresh_token);
+        Cookies.set("access_token", data.access_token, {
+          secure: true,
+          sameSite: "Strict",
+        });
+        Cookies.set("refresh_token", data.refresh_token, {
+          secure: true,
+          sameSite: "Strict",
+        });
 
         const decoded: CustomJwtPayload = jwtDecode(data.access_token);
         if (decoded.role) {
