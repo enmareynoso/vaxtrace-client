@@ -1,6 +1,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, ReactNode, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+import Cookies from "js-cookie";
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -16,7 +17,7 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
 
   useEffect(() => {
     if (isMounted) {
-      const token = localStorage.getItem("access_token");
+      const token = Cookies.get("access_token"); // Obtener el token de la cookie
 
       if (!token) {
         // Si no hay token, redirige a la página de login
@@ -28,9 +29,9 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
           // Verificar si el token es válido y no ha expirado
           const currentTime = Date.now() / 1000;
           if (decoded.exp < currentTime) {
-            // Si el token ha expirado, redirigir al login y eliminar tokens
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("refresh_token");
+            // Si el token ha expirado, redirigir al login y eliminar tokens de las cookies
+            Cookies.remove("access_token");
+            Cookies.remove("refresh_token");
             router.push("/auth/login");
           }
         } catch (error) {

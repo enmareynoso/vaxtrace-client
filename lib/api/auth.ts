@@ -71,6 +71,7 @@ interface VaccinationRecordRequest {
   vaccinations: {
     vaccine_id: string;
     dose: string;
+    batch_lot_number: string;
   }[];
   center_id?: string; // ID del centro que realiza el registro
 }
@@ -127,8 +128,16 @@ export const loginUser = async (
     const userId = decodedToken.user_id;
 
     // Guardar el token en las cookies
-    cookies.set("access_token", accessToken, { httpOnly: true });
-    cookies.set("refresh_token", refreshToken, { httpOnly: true });
+    cookies.set("access_token", accessToken, {
+      secure: true,
+      sameSite: "Strict",
+      httpOnly: true,
+    });
+    cookies.set("refresh_token", refreshToken, {
+      secure: true,
+      sameSite: "Strict",
+      httpOnly: true,
+    });
 
     // Guardar el user_id en localStorage
     localStorage.setItem("center_id", userId.toString());
@@ -202,7 +211,6 @@ export const resetPassword = async (
   }
 };
 
-
 export const createUser = async (
   userRequest: CreateUserRequest
 ): Promise<CreateUserResponse> => {
@@ -222,6 +230,7 @@ export const createUser = async (
     }
   }
 };
+
 // Nuevo servicio de validación de token en el frontend que utiliza el endpoint de validate_token
 export const validate_Token = async (token: string): Promise<any> => {
   try {
@@ -240,8 +249,6 @@ export const validate_Token = async (token: string): Promise<any> => {
     }
   }
 };
-
-
 
 export const confirmAccount = async (token: string): Promise<any> => {
   try {
@@ -272,15 +279,28 @@ export const getPatientByDocument = async (document: string): Promise<any> => {
 };
 
 export const registerVaccinationRecord = async (
-  record: VaccinationRecordRequest
+  record: VaccinationRecordRequest,
+  token: string
 ): Promise<any> => {
   try {
+    console.log("Enviando datos de vacunación:", record);
+
     const response = await axios.post(
       `${API_BASE_URL}/register_vaccination`,
-      record
+      record,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
+
+    console.log("Respuesta recibida:", response.data);
+
     return response.data;
   } catch (error: any) {
+    console.error("Error al registrar la vacunación:", error);
+
     if (error.response && error.response.data) {
       throw new Error(
         error.response.data.error ||
@@ -316,6 +336,7 @@ export const handleApplicationResponse = async (
     }
   }
 };
+
 function jwt_decode(accessToken: any): any {
   throw new Error("Function not implemented.");
 }

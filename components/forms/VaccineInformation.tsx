@@ -9,6 +9,7 @@ import Select from "../ui/Select";
 const availableVaccines = [
   { id: "1", name: "Vaccine A", doses: ["Dose 1", "Dose 2"] },
   { id: "2", name: "Vaccine B", doses: ["Dose 1", "Dose 2", "Dose 3"] },
+  { id: "3", name: "Vaccine 1", doses: ["Dose 1", "Dose 2", "Dose 3"] },
 ];
 
 export default function VaccineInformation({
