@@ -29,20 +29,34 @@ const SignIn: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
       const data = await loginUser({ email, password });
+      console.log("Login response data:", data); // Depuración de los datos recibidos
+  
       if (data.access_token) {
+        // Verificar la configuración de las cookies
+        const isProduction = process.env.NODE_ENV === 'production';
+  
         Cookies.set("access_token", data.access_token, {
-          secure: true,
+          secure: isProduction, // True en producción, false en desarrollo
           sameSite: "Strict",
         });
         Cookies.set("refresh_token", data.refresh_token, {
-          secure: true,
+          secure: isProduction, // True en producción, false en desarrollo
           sameSite: "Strict",
         });
 
+        // También almacenar en localStorage
+        localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("refresh_token", data.refresh_token);
+        console.log("Token saved to cookies and localStorage:", data.access_token);
+  
+        console.log("Access token cookie:", Cookies.get("access_token")); // Verificar si la cookie se establece correctamente
+  
         const decoded: CustomJwtPayload = jwtDecode(data.access_token);
+        console.log("Decoded JWT:", decoded); // Depuración del token decodificado
+  
         if (decoded.role) {
           switch (decoded.role) {
             case "patient":
@@ -68,6 +82,7 @@ const SignIn: React.FC = () => {
       setLoading(false);
     }
   };
+  
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -178,7 +193,33 @@ const SignIn: React.FC = () => {
               className="w-full bg-cyan-800 text-white py-2 rounded hover:text-white hover:bg-cyan-900 transition duration-200"
               disabled={loading} // Deshabilitar el botón mientras se carga
             >
-              {loading ? "Cargando..." : "Iniciar Sesión"}
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin mr-2 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    ></path>
+                  </svg>
+                  Cargando...
+                </span>
+              ) : (
+                "Iniciar Sesión"
+              )}
             </Button>
             <div className="mt-4 text-center">
               <a
@@ -197,3 +238,4 @@ const SignIn: React.FC = () => {
 };
 
 export default SignIn;
+

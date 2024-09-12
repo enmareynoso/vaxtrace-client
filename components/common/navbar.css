@@ -1,0 +1,26 @@
+/* Añade esto en tu archivo navbar.css */
+.link-94 {
+    color: #000000;  
+    font-size: 14px;  
+    text-decoration: none;  
+    padding: 10px 20px;  
+    margin: 0 5px;  
+    position: relative;
+    display: inline-block;
+    border-radius: 12%;
+    background: linear-gradient(160deg, rgba(84, 200, 241, 0.2) 60%, rgba(0, 96, 100, 0.9) 100%); 
+    background-repeat: no-repeat;
+    background-size: 100% 0.2em;  
+    background-position: 0 100%;  
+    transition: background-size 0.25s ease-in;  
+}
+
+.link-94:hover {
+    background-size: 100% 100%;  
+    border-radius: 15%;  
+}
+
+.custom-signup-button:hover {
+    background: linear-gradient(160deg, rgba(84, 200, 241, 0.9) 10%, rgba(0, 96, 100, 0.9) 100%);
+  }
+  

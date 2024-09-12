@@ -4,6 +4,8 @@ import { Dialog } from "@headlessui/react";
 import Image from "next/image";
 import logo from "../../public/images/logo.png";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import "./navbar.css";
+
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -25,19 +27,19 @@ export default function Navbar() {
         <div className="hidden lg:flex space-x-8 px-10">
           <a
             href="/about"
-            className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
+            className="link-94"
           >
             Acerca de nosotros
           </a>
           <a
             href="/info"
-            className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
+            className="link-94"
           >
             Información de vacunas
           </a>
           <a
             href="/#faqs"
-            className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
+            className="link-94"
           >
             Preguntas frecuentes
           </a>
@@ -51,7 +53,7 @@ export default function Navbar() {
           </a>
           <a
             href="/auth/signup"
-            className="px-4 py-2 text-sm font-medium text-white bg-cyan-900 rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-cyan-900"
+            className="custom-signup-button px-4 py-2 text-sm font-medium text-white bg-cyan-900 rounded-md dark:bg-blue-700"
           >
             Aplicar centro
           </a>

@@ -15,45 +15,49 @@ const UserDashboardPage: React.FC = () => {
     const fetchUserInfo = async () => {
       try {
         const token = localStorage.getItem("access_token");
-
+  
         if (!token) {
-          console.error("No token found");
+          console.error("No token found in localStorage");
           return;
         }
-
+  
+        console.log("Token found in localStorage:", token); // <-- Añadir
+  
         const decodedToken: any = jwtDecode(token);
-        console.log("Decoded Token:", decodedToken);
-
+        console.log("Decoded Token:", decodedToken); // Verificar que el token se decodifique correctamente
+  
         const userId = decodedToken.user_id;
-
+  
         if (!userId) {
           console.error("No user_id found in token");
           return;
         }
-
+  
         // Obtener el `first_name`, `last_name` y `birthdate` utilizando el `user_id`
         const { data: user, error } = await supabase
           .from("vaxtraceapi_patientuser")
           .select("first_name, last_name, birthdate")
           .eq("id", userId)
           .single();
-
+  
         if (error || !user) {
           console.error("Error fetching user information:", error);
           return;
         }
-
+  
+        console.log("User info fetched:", user); // <-- Añadir
+  
         // Calcular la edad a partir de la fecha de nacimiento
         const birthDate = new Date(user.birthdate);
         const age = new Date().getFullYear() - birthDate.getFullYear();
         const monthDiff = new Date().getMonth() - birthDate.getMonth();
-
+  
         if (monthDiff < 0 || (monthDiff === 0 && new Date().getDate() < birthDate.getDate())) {
           setAge(age - 1);
         } else {
           setAge(age);
         }
-
+  
         setFullName(`${user.first_name} ${user.last_name}`);
       } catch (error) {
         console.error("Error during fetching process:", error);
@@ -61,9 +65,10 @@ const UserDashboardPage: React.FC = () => {
         setLoading(false);
       }
     };
-
+  
     fetchUserInfo();
   }, []);
+  
 
   const dataCardsSummary = [
     {

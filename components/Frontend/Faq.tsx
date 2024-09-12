@@ -29,7 +29,7 @@ const Accordion = () => {
             />
             <AccordionItem
               header="¿Es seguro usar VaxTrace para almacenar mi información de vacunación?"
-              text="Sí, la seguridad es nuestra máxima prioridad. Utilizamos encriptación de datos avanzada y autenticación multifactor para proteger tu información y garantizar que solo tú puedas acceder a ella."
+              text="Sí, VaxTrace está diseñado con altos estándares de seguridad. Utiliza cifrado para proteger los datos personales y de vacunación. Solo el personal autorizado y los usuarios tienen acceso a la información, lo que garantiza que tus datos se mantengan privados y seguros."
             />
             <AccordionItem
               header="¿Cómo recibo notificaciones sobre mis vacunas?"
@@ -39,7 +39,7 @@ const Accordion = () => {
           <div className="w-full px-4 lg:w-1/2">
             <AccordionItem
               header="¿Qué hago si pierdo acceso a mi cuenta de VaxTrace?"
-              text="Infooooo."
+              text="Si pierdes el acceso a tu cuenta, puedes usar la opción de recuperación de cuenta en la página de inicio de sesión. Deberás ingresar tu dirección de correo electrónico asociada a la cuenta y seguir las instrucciones enviadas para restablecer tu contraseña. Si tienes problemas adicionales, puedes contactar con el soporte técnico de VaxTrace."
             />
             <AccordionItem
               header="¿Cómo accedo al historial completo de vacunación de mi hijo?"
@@ -47,7 +47,7 @@ const Accordion = () => {
             />
             <AccordionItem
               header="¿Puedo descargar el registro de vacunación de mi hijo?"
-              text="Infoooooooo."
+              text="Sí, VaxTrace te permite descargar e imprimir el registro de vacunación de tu hijo. Solo necesitas acceder a su perfil desde tu cuenta, buscar la opción de descarga en formato PDF y guardarlo en tu dispositivo."
             />
           </div>
         </div>
