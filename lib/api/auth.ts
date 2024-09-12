@@ -47,7 +47,6 @@ interface RegisterCenterCredentials {
   municipality_id: number;
   account: {
     email: string;
-    password: string;
     role: string;
   };
 }
