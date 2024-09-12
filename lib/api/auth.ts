@@ -47,7 +47,6 @@ interface RegisterCenterCredentials {
   municipality_id: number;
   account: {
     email: string;
-    password: string;
     role: string;
   };
 }
@@ -283,32 +282,20 @@ export const registerVaccinationRecord = async (
   token: string
 ): Promise<any> => {
   try {
-    console.log("Enviando datos de vacunación:", record);
-
     const response = await axios.post(
       `${API_BASE_URL}/register_vaccination`,
       record,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,  // Token en el encabezado
         },
+        withCredentials: true  // Asegúrate de enviar las cookies
       }
     );
-
-    console.log("Respuesta recibida:", response.data);
-
     return response.data;
   } catch (error: any) {
     console.error("Error al registrar la vacunación:", error);
-
-    if (error.response && error.response.data) {
-      throw new Error(
-        error.response.data.error ||
-          "An error occurred while registering the vaccination."
-      );
-    } else {
-      throw new Error("An error occurred while registering the vaccination.");
-    }
+    throw error;
   }
 };
 

@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { RadioGroup } from "../ui/RadioGroup";
 import DatePicker from "../ui/DatePicker";
 import { Input } from "../ui/input";
 import Select from "../ui/Select";
+import { supabase } from "@/lib/supabaseClient";
 
-const availableVaccines = [
-  { id: "1", name: "Vaccine A", doses: ["Dose 1", "Dose 2"] },
-  { id: "2", name: "Vaccine B", doses: ["Dose 1", "Dose 2", "Dose 3"] },
-  { id: "3", name: "Vaccine 1", doses: ["Dose 1", "Dose 2", "Dose 3"] },
-];
+interface Vaccine {
+  vaccine_id: number;  // Usar 'vaccine_id' en lugar de 'id'
+  commercial_name: string;
+}
 
 export default function VaccineInformation({
   setVaccineInfo,
@@ -22,6 +22,31 @@ export default function VaccineInformation({
   const [batchLotNumber, setBatchLotNumber] = useState("");
   const [vaccinationDate, setVaccinationDate] = useState<Date | null>(null);
   const [vaccines, setVaccines] = useState<any[]>([]);
+  const [availableVaccines, setAvailableVaccines] = useState<Vaccine[]>([]);
+
+  // Obtener los IDs y nombres comerciales de las vacunas desde la base de datos
+  useEffect(() => {
+    const fetchVaccines = async () => {
+      try {
+        const { data: vaccineData, error } = await supabase
+          .from("vaxtraceapi_vaccine")
+          .select("vaccine_id, commercial_name");  // Usar 'vaccine_id' en lugar de 'id'
+
+        if (error) {
+          console.error("Error fetching vaccines:", error);
+        } else if (vaccineData && vaccineData.length > 0) {
+          console.log("Fetched vaccines:", vaccineData);
+          setAvailableVaccines(vaccineData);
+        } else {
+          console.log("No vaccines found.");
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+      }
+    };
+
+    fetchVaccines();
+  }, []);
 
   const addVaccine = () => {
     if (vaccineCount < 5) {
@@ -43,7 +68,7 @@ export default function VaccineInformation({
     const updatedVaccines = [...vaccines];
     updatedVaccines[index] = { ...updatedVaccines[index], [field]: value };
     setVaccines(updatedVaccines);
-    setVaccineInfo(updatedVaccines); // Actualizar el estado de las vacunas
+    setVaccineInfo(updatedVaccines);
   };
 
   const handleSelectChange =
@@ -57,33 +82,31 @@ export default function VaccineInformation({
       <h2 className="text-lg font-bold mb-4">Vaccine Information</h2>
       {[...Array(vaccineCount)].map((_, index) => (
         <div key={index} className="space-y-4 border p-4 rounded-md shadow-sm">
-          <h3 className="font-semibold text-lg">
-            Vaccine Applied #{index + 1}
-          </h3>
+          <h3 className="font-semibold text-lg">Vaccine Applied #{index + 1}</h3>
           <div className="flex flex-col space-y-4">
             <div className="flex flex-col space-y-4 md:flex-row md:space-x-4">
+              {/* Select para las vacunas */}
               <Select
                 title="Vaccine"
-                options={availableVaccines.map((v) => ({
-                  value: v.id,
-                  label: v.name,
+                options={availableVaccines.map((vaccine) => ({
+                  value: vaccine.vaccine_id.toString(),  // Convertir el 'vaccine_id' (number) a string
+                  label: vaccine.commercial_name,
                 }))}
                 className="w-full mt-4 md:w-1/3"
                 onChange={handleSelectChange(index, "vaccine_id")}
               />
+
+              {/* Select para Doses */}
               <Select
                 title="Dose"
-                options={(
-                  availableVaccines.find(
-                    (v) => v.id === vaccines[index]?.vaccine_id
-                  )?.doses || []
-                ).map((dose) => ({
+                options={["Dose 1", "Dose 2", "Dose 3"].map((dose) => ({
                   value: dose,
                   label: dose,
                 }))}
                 className="w-full md:w-1/3"
                 onChange={handleSelectChange(index, "dose")}
               />
+
               <Input
                 label="Batch Lot Number"
                 placeholder="Enter batch lot number"
@@ -92,6 +115,7 @@ export default function VaccineInformation({
                 className="w-full md:w-1/3"
               />
             </div>
+
             <div className="flex flex-col space-y-4 md:flex-row md:space-x-4">
               <div className="relative w-full md:w-1/2">
                 <label
@@ -102,7 +126,7 @@ export default function VaccineInformation({
                 </label>
                 <div className="relative flex items-center">
                   <DatePicker
-                    selectedDate={vaccinationDate ?? new Date()} // Default to today if null
+                    selectedDate={vaccinationDate ?? new Date()}
                     onDateChange={(date) => setVaccinationDate(date)}
                     className="w-1/2 py-2 rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
@@ -144,3 +168,4 @@ export default function VaccineInformation({
     </div>
   );
 }
+

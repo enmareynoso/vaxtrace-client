@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { registerVaccinationRecord } from "@/lib/api/auth";
 import { useEffect, useState } from "react";
 import { parseCookies } from "nookies";
+import Cookies from "js-cookie";
 
 export default function RegisterVaccination() {
   const [patientInfo, setPatientInfo] = useState<any>(null);
@@ -19,34 +20,54 @@ export default function RegisterVaccination() {
   }, []);
 
   const handleSaveRecord = async () => {
-    if (!centerId) {
-      toast.error("Center ID is required");
+    const token = Cookies.get('access_token');  // Obtener el token de las cookies
+    console.log("Token:", token);  // Verifica si el token está presente
+  
+    if (!token) {
+      toast.error("Authorization token is missing.");
       return;
     }
-
+  
     try {
-      const cookies = parseCookies();
-      const token = cookies.access_token; // Obtener el token de las cookies
-
-      if (!token) {
-        toast.error("Authorization token is missing.");
-        return;
-      }
-
-      // Estructura de datos para el registro
+      const formattedBirthdate = patientInfo.birthdate 
+        ? new Date(patientInfo.birthdate).toISOString().split('T')[0]
+        : null;  // Convertir birthdate a 'YYYY-MM-DD'
+  
       const vaccinationRecord = {
-        patient: patientInfo,
-        vaccinations: vaccineInfo,
-        center_id: centerId, // Añadir el ID del centro para ser tomado en cuenta en el historial
+        patient: {
+          document: patientInfo.document,  // Asegúrate de que estos campos existan en patientInfo
+          first_name: patientInfo.first_name,
+          last_name: patientInfo.last_name,
+          birthdate: formattedBirthdate??"", // Usar la fecha formateada
+          gender: patientInfo.gender,
+          email: patientInfo.email,
+          occupation: patientInfo.occupation,
+          address: patientInfo.address
+        },
+        vaccinations: vaccineInfo.map(v => ({
+          vaccine_id: v.vaccine_id,
+          dose: v.dose,
+          batch_lot_number: v.batch_lot_number
+        }))
       };
-
-      // Pasar el token al registrar el registro de vacunación
+  
+      console.log("Sending vaccination record:", vaccinationRecord);  // Depuración
+  
       await registerVaccinationRecord(vaccinationRecord, token);
-
       toast.success("Record saved successfully.");
-    } catch (error) {
-      console.error("Error saving the record:", error);
-      toast.error("Failed to save the record.");
+    } catch (error: unknown) {
+      // Usar "type assertion" para manejar diferentes tipos de error
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const typedError = error as { response: { data: any } };
+        console.error("Error response:", typedError.response.data);
+        toast.error(typedError.response.data.detail || "Failed to save the record.");
+      } else if (error instanceof Error) {
+        console.error("Error:", error.message);
+        toast.error("Failed to save the record: " + error.message);
+      } else {
+        console.error("Unknown error:", error);
+        toast.error("An unknown error occurred.");
+      }
     }
   };
 

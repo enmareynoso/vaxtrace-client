@@ -18,8 +18,8 @@ const Hero = () => {
                 historial de vacunación para tu protección y la de tus hijos.
               </p>
               <a
-                href="#"
-                className="bg-cyan-900 text-white font-medium rounded-md px-6 py-3 hover:bg-blue-700 transition-colors"
+                href="/auth/login"
+                className="bg-cyan-900 text-white font-medium rounded-md px-6 py-3 hover:bg-blue-500 transition-colors"
               >
                 Comenzar
               </a>

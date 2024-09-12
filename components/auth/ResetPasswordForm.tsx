@@ -136,8 +136,8 @@ const ResetPasswordForm: React.FC = () => {
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-4">
           ¡Bienvenido a Vaxtrace!
           </h2>
-          <p className="text-gray-600 dark:text-gray-300">
-          Para comenzar con tu nueva cuenta, por favor, configura tu contraseña.
+          <p className="text-gray-600 dark:text-gray-300 mt-2">
+          Establece tu nueva contraseña:
           </p>
         </div>
         <form onSubmit={handleSubmit}>

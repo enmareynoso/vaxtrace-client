@@ -19,12 +19,12 @@ interface FormData {
   email: string;
   first_name: string;
   last_name: string;
-  dateOfBirth: Date;
+  birthdate: Date;
   gender: string;
   dependentfirst_name: string;
   dependentlast_name: string;
   dependentGender: string;
-  parentDateOfBirth: Date;
+  parentBirthdate: Date;
   occupation: string;
   address: string;
   dependents: Dependent[]; // Lista de dependientes
@@ -43,12 +43,12 @@ export default function PatientInformation({
     email: "",
     first_name: "",
     last_name: "",
-    dateOfBirth: new Date(),
+    birthdate: new Date(),
     gender: "",
     dependentfirst_name: "",
     dependentlast_name: "",
     dependentGender: "",
-    parentDateOfBirth: new Date(),
+    parentBirthdate: new Date(),
     occupation: "",
     address: "",
     dependents: [],
@@ -71,17 +71,17 @@ export default function PatientInformation({
   };
 
   // Maneja el cambio en la fecha de nacimiento del paciente
-  const handleDateOfBirthChange = (date: Date | null) => {
+  const handlebirthdateChange = (date: Date | null) => {
     if (date) {
       const isUnderage = calculateAge(date) < 18; // Determina si es menor de edad
       setFormData((prev) => ({
         ...prev,
-        dateOfBirth: date,
+        birthdate: date,
         is_underage: isUnderage,
       }));
       setPatientInfo((prev: any) => ({
         ...prev,
-        dateOfBirth: date,
+        birthdate: date,
         is_underage: isUnderage,
       }));
       setShowForm(true);
@@ -89,8 +89,8 @@ export default function PatientInformation({
   };
 
   // Verifica si el paciente es dependiente en función de la edad
-  const isDependent = formData.dateOfBirth
-    ? calculateAge(formData.dateOfBirth) < 18
+  const isDependent = formData.birthdate
+    ? calculateAge(formData.birthdate) < 18
     : false;
 
   // Maneja el cambio de género del paciente
@@ -106,13 +106,13 @@ export default function PatientInformation({
   };
 
   // Maneja el cambio en la fecha de nacimiento del padre/tutor
-  const handleParentDateOfBirthChange = (date: Date | null) => {
+  const handleparentBirthdateChange = (date: Date | null) => {
     if (date) {
       setFormData((prev) => ({
         ...prev,
-        parentDateOfBirth: date,
+        parentBirthdate: date,
       }));
-      setPatientInfo((prev: any) => ({ ...prev, parentDateOfBirth: date }));
+      setPatientInfo((prev: any) => ({ ...prev, parentBirthdate: date }));
     }
   };
 
@@ -145,12 +145,12 @@ export default function PatientInformation({
           email: patientData.email || "",
           first_name: patientData.first_name || "",
           last_name: patientData.last_name || "",
-          dateOfBirth: new Date(patientData.birthdate) || new Date(),
+          birthdate: new Date(patientData.birthdate) || new Date(),
           gender: patientData.gender || "",
           dependentfirst_name: "",
           dependentlast_name: "",
           dependentGender: "",
-          parentDateOfBirth: new Date(),
+          parentBirthdate: new Date(),
           occupation: patientData.occupation || "",
           address: patientData.address || "",
           dependents: patientData.dependents || [],
@@ -278,15 +278,15 @@ export default function PatientInformation({
 
           <div className="md:col-span-1">
             <label
-              htmlFor="dateOfBirth"
+              htmlFor="birthdate"
               className="block text-gray-700 dark:text-white"
             >
               Fecha de Nacimiento
             </label>
             <div className="relative flex items-center">
               <CustomDatePicker
-                selectedDate={formData.dateOfBirth}
-                onDateChange={handleDateOfBirthChange}
+                selectedDate={formData.birthdate}
+                onDateChange={handlebirthdateChange}
                 className="w-full py-2 rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -415,15 +415,15 @@ export default function PatientInformation({
               {isDependent && (
                 <div className="md:col-span-1">
                   <label
-                    htmlFor="parentDateOfBirth"
+                    htmlFor="parentBirthdate"
                     className="block text-gray-700 dark:text-white"
                   >
                     Fecha de Nacimiento del Padre/Tutor
                   </label>
                   <div className="relative flex items-center">
                     <CustomDatePicker
-                      selectedDate={formData.parentDateOfBirth}
-                      onDateChange={handleParentDateOfBirthChange}
+                      selectedDate={formData.parentBirthdate}
+                      onDateChange={handleparentBirthdateChange}
                       className="w-full rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>

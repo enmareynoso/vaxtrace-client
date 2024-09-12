@@ -33,8 +33,6 @@ const CenterSignUp: React.FC = () => {
   const [province, setProvince] = useState<string>("");
   const [municipality, setMunicipality] = useState("");
   const [municipalities, setMunicipalities] = useState<Municipality[]>([]);
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -68,14 +66,8 @@ const CenterSignUp: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match.");
-      return;
-    }
-
-    setLoading(true);
-
+    setLoading(true); // Activar loading
+    
     try {
       const payload = {
         RNC: rnc,
@@ -87,7 +79,6 @@ const CenterSignUp: React.FC = () => {
         director_document: directorDocument,
         account: {
           email,
-          password,
           role: "vaccination_center",
         },
       };
@@ -99,12 +90,19 @@ const CenterSignUp: React.FC = () => {
     } catch (error: any) {
       toast.error(error.message || "Registration failed.");
     } finally {
-      setLoading(false);
+      setLoading(false); // Desactivar loading después del registro
     }
   };
-
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
+  };
+
+  const handleRNCChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Limitar a 11 caracteres y solo permitir números
+    const value = e.target.value;
+    if (/^\d*$/.test(value) && value.length <= 11) {
+      setRnc(value);
+    }
   };
 
   return (
@@ -183,7 +181,9 @@ const CenterSignUp: React.FC = () => {
               <input
                 type="text"
                 value={rnc}
-                onChange={(e) => setRnc(e.target.value)}
+                onChange={handleRNCChange}
+                inputMode="numeric"
+                maxLength={11}
                 className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
                 placeholder="RNC"
                 required
@@ -277,29 +277,6 @@ const CenterSignUp: React.FC = () => {
                 ))}
               </select>
             </div>
-
-            <div className="mb-4">
-              <label className="block text-cyan-900 font-semibold">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
-                placeholder="Password"
-                required
-              />
-            </div>
-            <div className="mb-6">
-              <label className="block text-cyan-900 font-semibold">Confirm Password</label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
-                placeholder="Confirm Password"
-                required
-              />
-            </div>
             <div className="mb-6">
               <Checkbox
                 label="Accept Terms and Conditions"
@@ -307,12 +284,39 @@ const CenterSignUp: React.FC = () => {
                 onChange={handleCheckboxChange}
               />
             </div>
+            
             <Button
               variant="outline"
               className="w-full bg-cyan-800 text-white py-2 rounded hover:text-white hover:bg-cyan-900 transition duration-200"
-              disabled={loading}  // Deshabilitar el botón mientras se carga
+              disabled={loading} // Deshabilitar el botón mientras se carga
             >
-              {loading ? 'Cargando...' : 'Register'}
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin mr-2 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    ></path>
+                  </svg>
+                  Cargando...
+                </span>
+              ) : (
+                "Aplicar"
+              )}
             </Button>
             <div className="mt-4 text-center">
               <a href="/auth/login" className="text-cyan-900 hover:underline">
@@ -329,4 +333,3 @@ const CenterSignUp: React.FC = () => {
 };
 
 export default CenterSignUp;
-
