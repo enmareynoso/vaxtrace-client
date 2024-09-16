@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
+import html2pdf from "html2pdf.js";
 
 interface VaccinationRecord {
   id: number;
@@ -11,41 +12,51 @@ interface VaccinationRecord {
   dose: string;
   date: string;
   esavi_status: string;
-  vaccine: { commercial_name: string;
-    diseases_covered: string;
-  };
+  vaccine: { commercial_name: string; diseases_covered: string };
 }
 
 const VaccinationRecordPage: React.FC = () => {
   const [vaccinationRecords, setVaccinationRecords] = useState<VaccinationRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userInfo, setUserInfo] = useState<any>(null);
+  const certificateRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchVaccinationRecords = async () => {
+    const fetchUserInfo = async () => {
       try {
-        // Obtener el token de las cookies
         const token = Cookies.get("access_token");
         if (!token) {
-          console.error("No token found");
           setError("Authorization token is missing.");
           setLoading(false);
           return;
         }
 
-        // Decodificar el token para obtener el user_id
         const decodedToken: any = jwtDecode(token);
         const userId = decodedToken.user_id;
 
         if (!userId) {
-          console.error("No user_id found in token");
           setError("No user ID found in token.");
           setLoading(false);
           return;
         }
 
-        // Consultar los registros de vacunación del usuario logueado
-        const { data: vaccinationRecords, error } = await supabase
+        // Obtener información del usuario (nombre, document, gender, nacionalidad, fecha de nacimiento)
+        const { data: user, error: userError } = await supabase
+          .from("vaxtraceapi_patientuser")
+          .select("first_name, last_name, document, birthdate, gender, nationality")
+          .eq("id", userId)
+          .single();
+
+        if (userError) {
+          setError("Error fetching user information.");
+          return;
+        }
+
+        setUserInfo(user);
+
+        // Obtener los registros de vacunación
+        const { data: vaccinationRecords, error: vaccinationError } = await supabase
           .from("vaxtraceapi_vaccinationrecord")
           .select(`
             id,
@@ -58,23 +69,27 @@ const VaccinationRecordPage: React.FC = () => {
           `)
           .eq("patient_id", userId);
 
-        if (error) {
-          console.error("Error fetching vaccination records:", error);
+        if (vaccinationError) {
           setError("Error fetching vaccination records.");
         } else {
           setVaccinationRecords(vaccinationRecords || []);
-          console.log("Vaccination records:", vaccinationRecords);
         }
       } catch (err) {
-        console.error("Error during fetching process:", err);
         setError("An unexpected error occurred.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchVaccinationRecords();
+    fetchUserInfo();
   }, []);
+
+  const downloadPDF = () => {
+    const element = certificateRef.current;
+    if (element) {
+      html2pdf().from(element).save("vaccination_certificate.pdf");
+    }
+  };
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
@@ -87,37 +102,76 @@ const VaccinationRecordPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-grow p-8">
-        <h2 className="text-3xl font-bold mb-4">Vaccination Record</h2>
+        {/* Certificado de vacunación */}
+        <div ref={certificateRef} className="bg-white p-8 shadow-lg rounded-lg max-w-4xl mx-auto">
+          <div className="border-b-2 pb-4 mb-6">
+            <h3 className="text-2xl font-semibold mb-4 text-center">CERTIFICADO DE VACUNACIÓN</h3>
+            <div className="grid grid-cols-2 gap-4 text-lg">
+              <div>
+                <strong>Nombre:</strong> {userInfo?.first_name} {userInfo?.last_name}
+              </div>
+              <div>
+                <strong>Fecha de Nacimiento:</strong>{" "}
+                {new Date(userInfo?.birthdate).toLocaleDateString()}
+              </div>
+              <div>
+                <strong>Nacionalidad:</strong> {userInfo?.nationality}
+              </div>
+              <div>
+                <strong>Género:</strong> {userInfo?.gender}
+              </div>
+              <div>
+                <strong>Documento de Identidad:</strong> {userInfo?.document}
+              </div>
+              <div>
+                <strong>Vacunado:</strong> {vaccinationRecords.length} de {vaccinationRecords.length}
+              </div>
+            </div>
+          </div>
 
-        {vaccinationRecords.length > 0 ? (
-          <table className="table-auto w-full bg-white shadow-md rounded-md overflow-hidden">
+          {/* Tabla de vacunación */}
+          <table className="w-full table-auto border-collapse border border-gray-300">
             <thead>
-              <tr className="bg-gray-200 text-gray-700">
-                <th className="px-4 py-2">Vaccine</th>
-                <th className="px-4 py-2">Diseases Covered</th> 
-                <th className="px-4 py-2">Dose</th>
-                <th className="px-4 py-2">ESAVI Status</th>
-                <th className="px-4 py-2">Date</th>
+              <tr className="bg-gray-200">
+                <th className="border border-gray-300 px-4 py-2 text-left">Fecha de Vacunación</th>
+                <th className="border border-gray-300 px-4 py-2 text-left">Vacuna</th>
+                <th className="border border-gray-300 px-4 py-2 text-left">Dosis</th>
+                <th className="border border-gray-300 px-4 py-2 text-left">Lugar de Vacunación</th>
               </tr>
             </thead>
             <tbody>
-              {vaccinationRecords.map((record) => (
-                <tr key={record.id} className="border-t">
-                  <td className="px-4 py-2 text-center">{record.vaccine.commercial_name}</td>
-                  <td className="px-4 py-2 text-center">{record.vaccine.diseases_covered}</td>
-                  <td className="px-4 py-2 text-center">{record.dose}</td>
-                  <td className="px-4 py-2 text-center">{record.esavi_status}</td>
-                  <td className="px-4 py-2 text-center">{new Date(record.date).toLocaleDateString()}</td>
+              {vaccinationRecords.map((record, idx) => (
+                <tr
+                  key={record.id}
+                  className={idx % 2 === 0 ? "bg-gray-50" : "bg-white hover:bg-gray-100"}
+                >
+                  <td className="border border-gray-300 px-4 py-2">
+                    {new Date(record.date).toLocaleDateString()}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">{record.vaccine.commercial_name}</td>
+                  <td className="border border-gray-300 px-4 py-2">{record.dose}</td>
+                  <td className="border border-gray-300 px-4 py-2">LIMA SUR - Complejo Del Ipd</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        ) : (
-          <div className="text-center text-gray-600">No vaccination records found.</div>
-        )}
+        </div>
+
+        {/* Botón para descargar el PDF */}
+        <div className="mt-8 text-center">
+          <button
+            onClick={downloadPDF}
+            className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700"
+          >
+            Descargar Certificado
+          </button>
+        </div>
       </main>
     </div>
   );
 };
 
 export default VaccinationRecordPage;
+
+
+

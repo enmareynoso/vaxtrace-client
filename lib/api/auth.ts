@@ -1,6 +1,7 @@
 import axios from "axios";
 import cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import passwordValidator from 'password-validator';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL as string;
 
@@ -8,6 +9,32 @@ interface LoginCredentials {
   email: string;
   password: string;
 }
+// Crear el esquema de validación de la contraseña
+const schema = new passwordValidator();
+schema
+  .is().min(8)                                     // Mínimo 8 caracteres
+  .is().max(100)                                   // Máximo 100 caracteres
+  .has().uppercase()                               // Al menos una letra mayúscula
+  .has().lowercase()                               // Al menos una letra minúscula
+  .has().digits(1)                                 // Al menos un dígito
+  .has().symbols()                                 // Al menos un símbolo especial
+  .has().not().spaces();                           // Sin espacios
+
+// Definir los mensajes de error con claves específicas
+const errorMessages = {
+  min: "La contraseña debe tener al menos 8 caracteres.",
+  max: "La contraseña no debe tener más de 100 caracteres.",
+  uppercase: "La contraseña debe contener al menos una letra mayúscula.",
+  lowercase: "La contraseña debe contener al menos una letra minúscula.",
+  digits: "La contraseña debe contener al menos un número.",
+  symbols: "La contraseña debe contener al menos un símbolo especial.",
+  spaces: "La contraseña no debe contener espacios.",
+};
+// Validar la contraseña antes de enviar la solicitud al backend
+const validatePassword = (password: string): Array<keyof typeof errorMessages> => {
+  return schema.validate(password, { list: true }) as Array<keyof typeof errorMessages>;
+};
+
 
 interface PasswordResetRequest {
   token: string;
@@ -175,9 +202,18 @@ export const requestPasswordReset = async (
   }
 };
 
+// Función para resetear la contraseña
 export const resetPassword = async (
   data: PasswordResetRequest
 ): Promise<any> => {
+  // Validar la contraseña
+  const validationErrors = validatePassword(data.new_password);
+  if (validationErrors.length > 0) {
+    // Generar mensajes descriptivos de error
+    const errorMessagesList = validationErrors.map((error) => errorMessages[error]);
+    throw new Error(`Errores en la contraseña: ${errorMessagesList.join(', ')}`);
+  }
+
   try {
     const response = await fetch(`${API_BASE_URL}/set_password`, {
       method: "POST",
@@ -192,7 +228,6 @@ export const resetPassword = async (
 
     // Si la respuesta no es OK (200), manejamos el error
     if (!response.ok) {
-      // Intentar obtener el JSON de la respuesta
       const errorData = await response.json();
       throw new Error(errorData.error || "Failed to reset password");
     }
@@ -200,10 +235,7 @@ export const resetPassword = async (
     // Si la respuesta es exitosa, devolver los datos
     return await response.json();
   } catch (error: any) {
-    // Agregar log de la respuesta para depurar
     console.error("Error resetting password:", error);
-
-    // Lanzar el error al manejarlo
     throw new Error(
       error.message || "An error occurred while resetting the password."
     );
