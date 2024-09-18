@@ -23,6 +23,7 @@ const CustomDatePicker: React.FC<DatePickerProps> = ({
         calendarClassName="react-datepicker-calendar"
         wrapperClassName="react-datepicker-wrapper"
         popperClassName="react-datepicker-popper"
+        dateFormat="yyyy-MM-dd"
       />
       <CalendarIcon className="absolute top-1/2 left-52 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-white" />
     </div>

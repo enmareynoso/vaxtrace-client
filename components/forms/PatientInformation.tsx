@@ -7,10 +7,11 @@ import { FaInfoCircle } from "react-icons/fa";
 
 // Definición de la interfaz Dependent para manejar los dependientes
 interface Dependent {
-  id: string;
   first_name: string;
   last_name: string;
+  birthdate: string;
   gender: string;
+  parent: number;
 }
 
 // Definición de la interfaz FormData que representa los datos del formulario del paciente
@@ -62,13 +63,25 @@ export default function PatientInformation({
   const [showForm, setShowForm] = useState(false); // Controla la visibilidad del formulario
   const [patientExists, setPatientExists] = useState(false); // Verifica si el paciente ya existe
   const [dependents, setDependents] = useState<Dependent[]>([]); // Dependientes del paciente
+  const [selectedDependentId, setSelectedDependentId] = useState(null);
+  const [selectedDependentDetails, setSelectedDependentDetails] = useState<Dependent | null>(null);
+
+
 
   // Calcula la edad a partir de la fecha de nacimiento
   const calculateAge = (dob: Date): number => {
+
+    if (!(dob instanceof Date) || isNaN(dob.getTime())) {
+      return 0;
+    }
+  
     const diff = Date.now() - dob.getTime();
     const ageDate = new Date(diff);
     return Math.abs(ageDate.getUTCFullYear() - 1970);
   };
+  
+  
+  
 
   // Maneja el cambio en la fecha de nacimiento del paciente
   const handlebirthdateChange = (date: Date | null) => {
@@ -85,8 +98,12 @@ export default function PatientInformation({
         is_underage: isUnderage,
       }));
       setShowForm(true);
+    } else {
+      // Handle null or invalid dates
+      console.error("Invalid date provided.");
     }
   };
+  
 
   // Verifica si el paciente es dependiente en función de la edad
   const isDependent = formData.birthdate
@@ -98,6 +115,18 @@ export default function PatientInformation({
     setFormData((prev) => ({ ...prev, gender: value }));
     setPatientInfo((prev: any) => ({ ...prev, gender: value }));
   };
+  // Function to handle selecting a dependent from the dropdown
+  const handleDependentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const index = parseInt(e.target.value, 10); // Get index from the dropdown
+    if (!isNaN(index) && dependents[index]) {
+        setSelectedDependentDetails(dependents[index]);
+    } else {
+        setSelectedDependentDetails(null);
+    }
+};
+
+
+
 
   // Maneja el cambio de género del dependiente
   const handleDependentGenderChange = (value: "M" | "F") => {
@@ -118,62 +147,51 @@ export default function PatientInformation({
 
   // Limpia el formulario y reinicia los dependientes
   const clearForm = () => {
-    setFormData(initialFormData);
-    setDependents([]);
-  };
+    setFormData(initialFormData); // Restablece los datos del formulario
+    setDependents([]); // Limpia la lista de dependientes
+    setSelectedDependentId(null); // Restablece el dependiente seleccionado a 'null'
+    setShowForm(false); // Oculta el formulario, si es que estaba visible
+    setPatientExists(false); // Indica que ya no hay un paciente cargado
+    setSelectedDependentDetails(null);
+};
+
 
   // Verifica si el paciente existe en la base de datos basado en el documento
   const handleVerifyPatient = async () => {
     if (!documentInput) {
-      toast.error("Por favor digite su documento para verificarlo.");
-      return;
+        toast.error("Por favor digite su documento para verificarlo.");
+        return;
     }
 
     if (documentInput.length !== 11) {
-      toast.error("El número de documento debe tener exactamente 11 dígitos.");
-      return;
+        toast.error("El número de documento debe tener exactamente 11 dígitos.");
+        return;
     }
-
+    // Limpiar el formulario y otros estados relevantes antes de la verificación
     clearForm();
 
     try {
-      const patientData = await getPatientByDocument(documentInput);
-      if (patientData) {
-        // Si se encuentra el paciente, actualizar los campos correspondientes
-        setFormData({
-          document: patientData.document || "",
-          email: patientData.email || "",
-          first_name: patientData.first_name || "",
-          last_name: patientData.last_name || "",
-          birthdate: new Date(patientData.birthdate) || new Date(),
-          gender: patientData.gender || "",
-          dependentfirst_name: "",
-          dependentlast_name: "",
-          dependentGender: "",
-          parentBirthdate: new Date(),
-          occupation: patientData.occupation || "",
-          address: patientData.address || "",
-          dependents: patientData.dependents || [],
-          nationality: patientData.nationality || "",
-          is_underage: calculateAge(new Date(patientData.birthdate)) < 18,
-        });
+        const patientData = await getPatientByDocument(documentInput);
+        console.log("Received patient data:", patientData);  // Log the data for review
 
-        if (patientData.dependents && patientData.dependents.length > 0) {
-          setDependents(patientData.dependents); // Actualiza la lista de dependientes
+        if (patientData && patientData.patient_info) {
+            const { patient_info, children_info } = patientData;
+            const birthdate = new Date(patient_info.birthdate);
+
+            setFormData({
+                ...patient_info,  // Spread all patient info into formData
+                birthdate,  // Ensure the date is parsed correctly
+                dependents: children_info || [],  // Handle children info if present
+            });
+
+            setDependents(children_info || []);
+            setPatientInfo({ ...patient_info, document: documentInput });
+            setPatientExists(true);
+            setShowForm(true);
+            toast.success("Paciente encontrado.");
+        } else {
+            throw new Error("Paciente no encontrado.");
         }
-
-        // Asegurarse de pasar el document a setPatientInfo
-        setPatientInfo((prev: any) => ({
-          ...prev,
-          document: patientData.document || documentInput,
-        }));
-
-        setPatientExists(true);
-        setShowForm(true);
-        toast.success("Paciente encontrado.");
-      } else {
-        throw new Error("Paciente no encontrado");
-      }
     } catch (error) {
       // Si el paciente no existe, permite al usuario completar manualmente
       setFormData((prev) => ({
@@ -243,39 +261,12 @@ export default function PatientInformation({
           </Button>
         </div>
       </div>
-
-      {/* Lista de dependientes si el paciente no es dependiente */}
-      {!isDependent && dependents.length > 0 && (
-        <select
-          onChange={(e) => {
-            const selectedDependent = dependents.find(
-              (dep) => dep.id === e.target.value
-            );
-            // Actualiza los campos con la información del dependiente seleccionado
-            setFormData({
-              ...formData,
-              dependentfirst_name: selectedDependent?.first_name || "",
-              dependentlast_name: selectedDependent?.last_name || "",
-              dependentGender: selectedDependent?.gender === "male" ? "M" : "F",
-            });
-          }}
-          className="w-full mt-4 px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        >
-          {dependents.map((dep) => (
-            <option key={dep.id} value={dep.id}>
-              {`${dep.first_name} ${dep.last_name}`}
-            </option>
-          ))}
-        </select>
-      )}
-
       {showForm && (
         <>
           {/* Sección de información del paciente */}
           <h2 className="text-lg pt-4 font-bold text-gray-800 dark:text-white">
-            Información del Paciente
+          Información del Paciente
           </h2>
-
           <div className="md:col-span-1">
             <label
               htmlFor="birthdate"
@@ -291,7 +282,6 @@ export default function PatientInformation({
               />
             </div>
           </div>
-
           {/* Si el paciente es dependiente, muestra campos adicionales */}
           {isDependent && (
             <div className="pt-0 pb-8">
@@ -365,7 +355,6 @@ export default function PatientInformation({
               </div>
             </div>
           )}
-
           {/* Información del padre/tutor si es dependiente */}
           <div className="border-t pt-2">
             <h2 className="text-lg font-bold mb-0 text-gray-800 dark:text-white">
@@ -373,6 +362,7 @@ export default function PatientInformation({
             </h2>
 
             <div className={`grid gap-4 md:grid-cols-1 ${gridColsClass} mt-4`}>
+              
               <div>
                 <label
                   htmlFor="first_name"
@@ -569,6 +559,92 @@ export default function PatientInformation({
           </div>
         </>
       )}
+
+       {/* Dropdown for selecting a dependent if there are any */}
+       {dependents.length > 0 && (
+        <div className="mt-4">
+          <label htmlFor="dependent-selector" className="block text-gray-700 dark:text-white mb-4 mt-4">
+            Seleccione el Dependiente a aplicar la vacuna (si es al padre no seleccione ningun dependiente):
+          </label>
+          <select
+            onChange={handleDependentChange}
+            value={selectedDependentId || ''}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 shadow-sm transition duration-150 ease-in-out dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-400 dark:focus:border-blue-400"
+            id="dependent-selector"
+          >
+            <option value="">Seleccione un Dependiente</option>
+            {dependents.map((dependent, index) => (
+              <option key={index} value={index}>
+                {dependent.first_name} {dependent.last_name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+    {selectedDependentDetails && (
+      <div className="mb-4">
+      <h3 className="text-lg font-bold mt-4 mb-4 text-gray-800 dark:text-white">Detalles del Dependiente</h3>
+      <div className="grid grid-cols-2 gap-4">
+          <div>
+              <label className="block text-gray-700 dark:text-white">Nombre</label>
+              <input
+                  type="text"
+                  value={selectedDependentDetails?.first_name}
+                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white"
+                  readOnly
+                  disabled
+              />
+          </div>
+          <div>
+            <label className="block text-gray-700 dark:text-white">Apellido</label>
+            <input
+                type="text"
+                value={selectedDependentDetails?.last_name}
+                className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white"
+                readOnly
+                disabled
+            />
+        </div>
+        <div>
+            <label className="block text-gray-700 dark:text-white">Fecha de Nacimiento</label>
+            <input
+                type="text"
+                value={selectedDependentDetails?.birthdate}
+                className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white"
+                readOnly
+                disabled
+            />
+        </div>
+        <div className="flex items-center space-x-4 pt-4">
+            <label className="block text-gray-700 dark:text-white">Género</label>
+            <button
+              type="button"
+              onClick={() => handleDependentGenderChange("M")}
+              className={`py-2 px-4 border rounded-md text-center ${
+                selectedDependentDetails?.gender === "M"
+                  ? "bg-cyan-800 text-white"
+                  : "bg-gray-300 text-black"
+              }`}
+            >
+              M
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDependentGenderChange("F")}
+              className={`py-2 px-4 border rounded-md text-center ${
+                selectedDependentDetails?.gender === "F"
+                  ? "bg-cyan-800 text-white"
+                  : "bg-gray-300 text-black"
+              }`}
+            >
+              F
+            </button>
+          </div>
+
+      </div>
+  </div>
+  )}
     </div>
   );
 }

@@ -297,15 +297,19 @@ export const confirmAccount = async (token: string): Promise<any> => {
 
 export const getPatientByDocument = async (document: string): Promise<any> => {
   try {
-    const response = await axios.get(
-      `${API_BASE_URL}/get_patient_by_document/${document}/`
-    );
-    return response.data;
+    const response = await axios.get(`${API_BASE_URL}/get_patient_by_document/${document}/`);
+    // Check if the HTTP status code is 200 OK
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      // Handle non-200 responses if necessary
+      throw new Error("Received non-200 response from the server.");
+    }
   } catch (error: any) {
-    throw new Error(
-      error.response?.data?.error ||
-        "An error occurred while fetching the patient information."
-    );
+    console.error("Error fetching data from API:", error);
+    // More comprehensive error handling
+    const errorMessage = error.response?.data?.message || error.message || "An unknown error occurred while fetching the patient information.";
+    throw new Error(errorMessage);
   }
 };
 
