@@ -53,8 +53,11 @@ export default function PatientInformation({
   const [showForm, setShowForm] = useState(false); // Show/hide form
   const [patientExists, setPatientExists] = useState(false); // Check if patient exists
   const [dependents, setDependents] = useState<Dependent[]>([]); // Dependents list
-  const [selectedDependentId, setSelectedDependentId] = useState<number | null>(null); // Selected dependent ID
-  const [selectedDependentDetails, setSelectedDependentDetails] = useState<Dependent | null>(null); // Details of the selected dependent
+  const [selectedDependentId, setSelectedDependentId] = useState<number | null>(
+    null
+  ); // Selected dependent ID
+  const [selectedDependentDetails, setSelectedDependentDetails] =
+    useState<Dependent | null>(null); // Details of the selected dependent
 
   // Calculate age from birthdate
   const calculateAge = (dob: Date): number => {
@@ -88,7 +91,7 @@ export default function PatientInformation({
 
   // Handle dependent selection from the dropdown
   const handleDependentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const index = parseInt(e.target.value, 10);
+    const index = parseInt(e.target.value);
     if (!isNaN(index) && dependents[index]) {
       const selectedDependent = dependents[index];
       setSelectedDependentDetails(selectedDependent);
@@ -165,7 +168,9 @@ export default function PatientInformation({
 
   // Handle form field changes
   const handleFormChange = (
-    e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | React.ChangeEvent<HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -215,7 +220,10 @@ export default function PatientInformation({
           </h2>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label htmlFor="birthdate" className="block text-gray-700 dark:text-white">
+              <label
+                htmlFor="birthdate"
+                className="block text-gray-700 dark:text-white"
+              >
                 Fecha de Nacimiento
               </label>
               <div className="relative flex items-center">
@@ -228,7 +236,10 @@ export default function PatientInformation({
             </div>
 
             <div>
-              <label htmlFor="first_name" className="block text-gray-700 dark:text-white">
+              <label
+                htmlFor="first_name"
+                className="block text-gray-700 dark:text-white"
+              >
                 Nombre
               </label>
               <input
@@ -244,7 +255,10 @@ export default function PatientInformation({
             </div>
 
             <div>
-              <label htmlFor="last_name" className="block text-gray-700 dark:text-white">
+              <label
+                htmlFor="last_name"
+                className="block text-gray-700 dark:text-white"
+              >
                 Apellido
               </label>
               <input
@@ -260,7 +274,10 @@ export default function PatientInformation({
             </div>
 
             <div>
-              <label htmlFor="document" className="block text-gray-700 dark:text-white">
+              <label
+                htmlFor="document"
+                className="block text-gray-700 dark:text-white"
+              >
                 Documento
               </label>
               <input
@@ -276,7 +293,10 @@ export default function PatientInformation({
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-gray-700 dark:text-white">
+              <label
+                htmlFor="email"
+                className="block text-gray-700 dark:text-white"
+              >
                 Email
               </label>
               <input
@@ -297,7 +317,9 @@ export default function PatientInformation({
                 type="button"
                 onClick={() => handleGenderChange("M")}
                 className={`py-2 px-4 border rounded-md text-center ${
-                  formData.gender === "M" ? "bg-cyan-800 text-white" : "bg-gray-300 text-black"
+                  formData.gender === "M"
+                    ? "bg-cyan-800 text-white"
+                    : "bg-gray-300 text-black"
                 }`}
               >
                 M
@@ -306,7 +328,9 @@ export default function PatientInformation({
                 type="button"
                 onClick={() => handleGenderChange("F")}
                 className={`py-2 px-4 border rounded-md text-center ${
-                  formData.gender === "F" ? "bg-cyan-800 text-white" : "bg-gray-300 text-black"
+                  formData.gender === "F"
+                    ? "bg-cyan-800 text-white"
+                    : "bg-gray-300 text-black"
                 }`}
               >
                 F
@@ -315,7 +339,10 @@ export default function PatientInformation({
 
             {/* Additional fields for occupation and address */}
             <div>
-              <label htmlFor="occupation" className="block text-gray-700 dark:text-white">
+              <label
+                htmlFor="occupation"
+                className="block text-gray-700 dark:text-white"
+              >
                 Ocupación
               </label>
               <input
@@ -330,7 +357,10 @@ export default function PatientInformation({
             </div>
 
             <div>
-              <label htmlFor="address" className="block text-gray-700 dark:text-white">
+              <label
+                htmlFor="address"
+                className="block text-gray-700 dark:text-white"
+              >
                 Dirección
               </label>
               <input
@@ -352,17 +382,18 @@ export default function PatientInformation({
                 htmlFor="dependent-selector"
                 className="block text-gray-700 dark:text-white mb-4 mt-4"
               >
-                Seleccione el dependiente para registrar la vacuna (si es para el padre, no seleccione dependiente):
+                Seleccione el dependiente para registrar la vacuna (si es para
+                el padre, no seleccione dependiente):
               </label>
               <select
                 onChange={handleDependentChange}
-                value={selectedDependentId || ""}
+                value={selectedDependentId !== null ? selectedDependentId : ""}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 shadow-sm transition duration-150 ease-in-out dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-400 dark:focus:border-blue-400"
                 id="dependent-selector"
               >
                 <option value="">Seleccione un Dependiente</option>
                 {dependents.map((dependent, index) => (
-                  <option key={index} value={index}>
+                  <option key={dependent.id} value={index}>
                     {dependent.first_name} {dependent.last_name}
                   </option>
                 ))}
@@ -378,7 +409,9 @@ export default function PatientInformation({
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-gray-700 dark:text-white">Nombre</label>
+                  <label className="block text-gray-700 dark:text-white">
+                    Nombre
+                  </label>
                   <input
                     type="text"
                     value={selectedDependentDetails.first_name}
@@ -388,7 +421,9 @@ export default function PatientInformation({
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700 dark:text-white">Apellido</label>
+                  <label className="block text-gray-700 dark:text-white">
+                    Apellido
+                  </label>
                   <input
                     type="text"
                     value={selectedDependentDetails.last_name}
@@ -398,7 +433,9 @@ export default function PatientInformation({
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700 dark:text-white">Fecha de Nacimiento</label>
+                  <label className="block text-gray-700 dark:text-white">
+                    Fecha de Nacimiento
+                  </label>
                   <input
                     type="text"
                     value={selectedDependentDetails.birthdate}
@@ -408,11 +445,15 @@ export default function PatientInformation({
                   />
                 </div>
                 <div className="flex items-center space-x-4 pt-4">
-                  <label className="block text-gray-700 dark:text-white">Género</label>
+                  <label className="block text-gray-700 dark:text-white">
+                    Género
+                  </label>
                   <button
                     type="button"
                     className={`py-2 px-4 border rounded-md text-center ${
-                      selectedDependentDetails.gender === "M" ? "bg-cyan-800 text-white" : "bg-gray-300 text-black"
+                      selectedDependentDetails.gender === "M"
+                        ? "bg-cyan-800 text-white"
+                        : "bg-gray-300 text-black"
                     }`}
                   >
                     M
@@ -420,7 +461,9 @@ export default function PatientInformation({
                   <button
                     type="button"
                     className={`py-2 px-4 border rounded-md text-center ${
-                      selectedDependentDetails.gender === "F" ? "bg-cyan-800 text-white" : "bg-gray-300 text-black"
+                      selectedDependentDetails.gender === "F"
+                        ? "bg-cyan-800 text-white"
+                        : "bg-gray-300 text-black"
                     }`}
                   >
                     F

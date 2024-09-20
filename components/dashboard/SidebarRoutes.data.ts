@@ -19,22 +19,22 @@ export const adminRoutes: SidebarItemType[] = [
   },
   {
     icon: Building2,
-    label: "Manage Centers",
+    label: "Administrar centros",
     href: "/admin/management/center",
   },
   {
     icon: Calendar,
-    label: "Manage Vaccines",
+    label: "Administrar vacunas",
     href: "/admin/management/vaccine",
   },
   {
     icon: Settings,
-    label: "Profile Management",
+    label: "Administrar perfiles",
     href: "/admin/management/profile",
   },
   {
     icon: User,
-    label: "Profile",
+    label: "Perfil",
     href: "/admin/profile",
   },
   {
@@ -54,17 +54,17 @@ export const userRoutes: SidebarItemType[] = [
   },
   {
     icon: Calendar,
-    label: "Vaccine Record",
+    label: "Record de vacunas",
     href: "/user/record",
   },
   {
     icon: BarChart4,
-    label: "Vaccine Information",
+    label: "Información de vacuna",
     href: "/user/vaccine-info",
   },
   {
     icon: User,
-    label: "Profile",
+    label: "Perfil",
     href: "/user/profile",
   },
   {
@@ -84,17 +84,17 @@ export const centerRoutes: SidebarItemType[] = [
   },
   {
     icon: Building2,
-    label: "Register Vaccination",
+    label: "Registro de vacuna",
     href: "/center/register-vaccination",
   },
   {
     icon: BarChart4,
-    label: "Vaccine Information",
+    label: "Información de vacuna",
     href: "/center/vaccine-info",
   },
   {
     icon: User,
-    label: "Profile",
+    label: "Perfil",
     href: "/center/profile",
   },
   {
@@ -109,12 +109,12 @@ export const centerRoutes: SidebarItemType[] = [
 export const supportRoutes: SidebarItemType[] = [
   {
     icon: Settings,
-    label: "General Setting",
+    label: "Ajustes generales",
     href: "/",
   },
   {
     icon: ShieldCheck,
-    label: "Security",
+    label: "Seguridad",
     href: "/",
   },
 ];

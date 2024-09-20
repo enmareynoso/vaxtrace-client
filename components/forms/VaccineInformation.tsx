@@ -1,14 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { RadioGroup } from "../ui/RadioGroup";
-import DatePicker from "../ui/DatePicker";
-import { Input } from "../ui/input";
 import Select from "../ui/Select";
 import { supabase } from "@/lib/supabaseClient";
 
 interface Vaccine {
-  vaccine_id: number;  // Usar 'vaccine_id' en lugar de 'id'
+  vaccine_id: number;
   commercial_name: string;
 }
 
@@ -18,9 +15,6 @@ export default function VaccineInformation({
   setVaccineInfo: (vaccines: any[]) => void;
 }>) {
   const [vaccineCount, setVaccineCount] = useState(1);
-  const [newDoseRequired, setNewDoseRequired] = useState<"Yes" | "No">("No");
-  const [batchLotNumber, setBatchLotNumber] = useState("");
-  const [vaccinationDate, setVaccinationDate] = useState<Date | null>(null);
   const [vaccines, setVaccines] = useState<any[]>([]);
   const [availableVaccines, setAvailableVaccines] = useState<Vaccine[]>([]);
 
@@ -30,7 +24,7 @@ export default function VaccineInformation({
       try {
         const { data: vaccineData, error } = await supabase
           .from("vaxtraceapi_vaccine")
-          .select("vaccine_id, commercial_name");  // Usar 'vaccine_id' en lugar de 'id'
+          .select("vaccine_id, commercial_name");
 
         if (error) {
           console.error("Error fetching vaccines:", error);
@@ -82,14 +76,16 @@ export default function VaccineInformation({
       <h2 className="text-lg font-bold mb-4">Vaccine Information</h2>
       {[...Array(vaccineCount)].map((_, index) => (
         <div key={index} className="space-y-4 border p-4 rounded-md shadow-sm">
-          <h3 className="font-semibold text-lg">Vaccine Applied #{index + 1}</h3>
+          <h3 className="font-semibold text-lg">
+            Vaccine Applied #{index + 1}
+          </h3>
           <div className="flex flex-col space-y-4">
             <div className="flex flex-col space-y-4 md:flex-row md:space-x-4">
               {/* Select para las vacunas */}
               <Select
                 title="Vaccine"
                 options={availableVaccines.map((vaccine) => ({
-                  value: vaccine.vaccine_id.toString(),  // Convertir el 'vaccine_id' (number) a string
+                  value: vaccine.vaccine_id.toString(),
                   label: vaccine.commercial_name,
                 }))}
                 className="w-full mt-4 md:w-1/3"
@@ -106,42 +102,6 @@ export default function VaccineInformation({
                 className="w-full md:w-1/3"
                 onChange={handleSelectChange(index, "dose")}
               />
-
-              <Input
-                label="Batch Lot Number"
-                placeholder="Enter batch lot number"
-                value={batchLotNumber}
-                onChange={(e) => setBatchLotNumber(e.target.value)}
-                className="w-full md:w-1/3"
-              />
-            </div>
-
-            <div className="flex flex-col space-y-4 md:flex-row md:space-x-4">
-              <div className="relative w-full md:w-1/2">
-                <label
-                  htmlFor="vaccinationDate"
-                  className="block text-gray-700 dark:text-white"
-                >
-                  Date of Vaccination
-                </label>
-                <div className="relative flex items-center">
-                  <DatePicker
-                    selectedDate={vaccinationDate ?? new Date()}
-                    onDateChange={(date) => setVaccinationDate(date)}
-                    className="w-1/2 py-2 rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-              </div>
-              <RadioGroup
-                title="New Dose Required?"
-                options={[
-                  { title: "Yes", value: "Yes" },
-                  { title: "No", value: "No" },
-                ]}
-                selectedValue={newDoseRequired}
-                onChange={(value) => setNewDoseRequired(value as "Yes" | "No")}
-                className="w-full md:w-1/2"
-              />
             </div>
           </div>
         </div>
@@ -154,7 +114,7 @@ export default function VaccineInformation({
             vaccineCount < 5 ? "bg-cyan-800 hover:bg-cyan-900" : "bg-gray-500"
           } text-white`}
         >
-          Add one more vaccine
+          Agrega otra vacuna
         </button>
         {vaccineCount > 1 && (
           <button
@@ -168,4 +128,3 @@ export default function VaccineInformation({
     </div>
   );
 }
-
