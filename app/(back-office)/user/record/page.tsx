@@ -12,7 +12,7 @@ interface VaccinationRecord {
   dose: string;
   date: string;
   esavi_status: string;
-  vaccine: { commercial_name: string; diseases_covered: string };
+  vaccine: { commercial_name: string; diseases_covered: string; max_doses: number };
 }
 
 const VaccinationRecordPage: React.FC = () => {
@@ -65,7 +65,7 @@ const VaccinationRecordPage: React.FC = () => {
             dose,
             date,
             esavi_status,
-            vaccine: vaxtraceapi_vaccine (commercial_name, diseases_covered)
+            vaccine: vaxtraceapi_vaccine (commercial_name, diseases_covered , max_doses)
           `)
           .eq("patient_id", userId);
 
@@ -105,7 +105,7 @@ const VaccinationRecordPage: React.FC = () => {
         {/* Certificado de vacunación */}
         <div ref={certificateRef} className="bg-white p-8 shadow-lg rounded-lg max-w-4xl mx-auto">
           <div className="border-b-2 pb-4 mb-6">
-            <h3 className="text-2xl font-semibold mb-4 text-center">CERTIFICADO DE VACUNACIÓN</h3>
+            <h3 className="text-2xl font-semibold mb-4 text-center">Record de Vacunación</h3>
             <div className="grid grid-cols-2 gap-4 text-lg">
               <div>
                 <strong>Nombre:</strong> {userInfo?.first_name} {userInfo?.last_name}
@@ -123,9 +123,6 @@ const VaccinationRecordPage: React.FC = () => {
               <div>
                 <strong>Documento de Identidad:</strong> {userInfo?.document}
               </div>
-              <div>
-                <strong>Vacunado:</strong> {vaccinationRecords.length} de {vaccinationRecords.length}
-              </div>
             </div>
           </div>
 
@@ -133,10 +130,10 @@ const VaccinationRecordPage: React.FC = () => {
           <table className="w-full table-auto border-collapse border border-gray-300">
             <thead>
               <tr className="bg-gray-200">
-                <th className="border border-gray-300 px-4 py-2 text-left">Fecha de Vacunación</th>
                 <th className="border border-gray-300 px-4 py-2 text-left">Vacuna</th>
                 <th className="border border-gray-300 px-4 py-2 text-left">Dosis</th>
                 <th className="border border-gray-300 px-4 py-2 text-left">Lugar de Vacunación</th>
+                <th className="border border-gray-300 px-4 py-2 text-left">Fecha de Vacunación</th>
               </tr>
             </thead>
             <tbody>
@@ -145,12 +142,14 @@ const VaccinationRecordPage: React.FC = () => {
                   key={record.id}
                   className={idx % 2 === 0 ? "bg-gray-50" : "bg-white hover:bg-gray-100"}
                 >
+                  <td className="border border-gray-300 px-4 py-2">{record.vaccine.commercial_name}</td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {record.dose} de {record.vaccine.max_doses} {/* Displaying current dose out of max doses */}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">LIMA SUR - Complejo Del Ipd</td>
                   <td className="border border-gray-300 px-4 py-2">
                     {new Date(record.date).toLocaleDateString()}
                   </td>
-                  <td className="border border-gray-300 px-4 py-2">{record.vaccine.commercial_name}</td>
-                  <td className="border border-gray-300 px-4 py-2">{record.dose}</td>
-                  <td className="border border-gray-300 px-4 py-2">LIMA SUR - Complejo Del Ipd</td>
                 </tr>
               ))}
             </tbody>
