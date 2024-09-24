@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import { toast, Toaster } from "react-hot-toast";
 
 interface VaccinationCenterInfo {
-  id: number;
+  vaccination_center_id: number;
   RNC: string;
   name: string;
   address: string;
@@ -23,7 +23,7 @@ const ProfilePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<VaccinationCenterInfo>({
-    id: 0,
+    vaccination_center_id: 0,
     RNC: "",
     name: "",
     address: "",
@@ -43,17 +43,35 @@ const ProfilePage: React.FC = () => {
       }
 
       const decodedToken: any = jwtDecode(token);
-      const centerId = decodedToken.user_id; // Suponiendo que el token contiene el id del centro
+      const accountId = decodedToken.user_id; // Suponiendo que el token contiene el id de la cuenta
 
       try {
+        // 1. Obtener el vaccination_center_id desde vaxtraceapi_vaccinationcenteraccount
+        const { data: account, error: accountError } = await supabase
+          .from("vaxtraceapi_vaccinationcenteraccount")
+          .select("vaccination_center_id")
+          .eq("id", accountId)
+          .single();
+
+        if (accountError || !account) {
+          setError("Error obteniendo el vaccination_center_id.");
+          setLoading(false);
+          return;
+        }
+
+        const vaccination_center_id = account.vaccination_center_id;
+
+        // 2. Obtener los detalles del centro de vacunación desde vaxtraceapi_vaccinationcenter
         const { data: center, error: centerError } = await supabase
           .from("vaxtraceapi_vaccinationcenter")
           .select("RNC, name, address, phone_number, email, municipality_id")
-          .eq("vaccination_center_id", centerId)
+          .eq("vaccination_center_id", vaccination_center_id)
           .single();
 
-        if (centerError) {
-          setError(centerError.message); // Mostrar mensaje de error
+        if (centerError || !center) {
+          setError(
+            centerError?.message || "Error obteniendo los detalles del centro."
+          );
         } else {
           const municipality_id = center.municipality_id;
 
@@ -66,18 +84,16 @@ const ProfilePage: React.FC = () => {
               .single();
 
           if (municipalityError) {
-            setError(municipalityError.message); // Mostrar mensaje de error
+            setError(municipalityError.message);
           } else {
             setCenterInfo({
               ...center,
-              id: centerId,
-              RNC: center.RNC,
+              vaccination_center_id,
               municipality_name: municipality.name,
             });
             setFormData({
               ...center,
-              id: centerId,
-              RNC: center.RNC,
+              vaccination_center_id,
               municipality_name: municipality.name,
             });
           }
@@ -106,17 +122,12 @@ const ProfilePage: React.FC = () => {
     e.preventDefault();
     if (!formData) return;
 
-    const { id, municipality_name, ...data } = formData; // Excluir municipality_name
-
-    const updatedData = {
-      ...data,
-      vaccination_center_id: id,
-    };
+    const { vaccination_center_id, municipality_name, ...data } = formData; // Excluir municipality_name
 
     const { error } = await supabase
       .from("vaxtraceapi_vaccinationcenter")
-      .update(updatedData)
-      .eq("vaccination_center_id", id);
+      .update(data)
+      .eq("vaccination_center_id", vaccination_center_id);
 
     if (error) {
       setError("Error al actualizar la información del centro.");
