@@ -73,17 +73,17 @@ export default function VaccineInformation({
 
   return (
     <div className="border p-6 rounded-md bg-white shadow-lg space-y-6">
-      <h2 className="text-lg font-bold mb-4">Vaccine Information</h2>
+      <h2 className="text-lg font-bold mb-4">Información de vacuna</h2>
       {[...Array(vaccineCount)].map((_, index) => (
         <div key={index} className="space-y-4 border p-4 rounded-md shadow-sm">
           <h3 className="font-semibold text-lg">
-            Vaccine Applied #{index + 1}
+            Vacuna aplicada #{index + 1}
           </h3>
           <div className="flex flex-col space-y-4">
             <div className="flex flex-col space-y-4 md:flex-row md:space-x-4">
               {/* Select para las vacunas */}
               <Select
-                title="Vaccine"
+                title="Vacuna"
                 options={availableVaccines.map((vaccine) => ({
                   value: vaccine.vaccine_id.toString(),
                   label: vaccine.commercial_name,
@@ -94,7 +94,7 @@ export default function VaccineInformation({
 
               {/* Select para Doses */}
               <Select
-                title="Dose"
+                title="Dosis"
                 options={["Dose 1", "Dose 2", "Dose 3"].map((dose) => ({
                   value: dose,
                   label: dose,
@@ -121,7 +121,7 @@ export default function VaccineInformation({
             onClick={removeVaccine}
             className="px-4 py-2 h-10 rounded bg-red-500 hover:bg-red-600 text-white"
           >
-            Remove
+            Remover
           </button>
         )}
       </div>
