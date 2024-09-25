@@ -295,23 +295,19 @@ export const validate_Token = async (token: string): Promise<any> => {
   }
 };
 
-export const refresh_Token = async (token: string): Promise<any> => {
+export const refresh_Token = async (): Promise<any> => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/refresh_token`, {
-      token,
+    const response = await axios.post(`${API_BASE_URL}/refresh_token`, {}, {
+      withCredentials: true
     });
     return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.data) {
-      throw new Error(
-        error.response.data.message ||
-          "An error occurred while refreshing the token."
-      );
-    } else {
-      throw new Error("An error occurred while refreshing the token.");
-    }
+  } catch (error) {
+    console.error('Failed to refresh token:', error);
+    throw error;  // Rethrow error to be handled by calling function
   }
 };
+
+
 
 export const confirmAccount = async (token: string): Promise<any> => {
   try {

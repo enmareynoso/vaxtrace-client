@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface SessionExpirationModalProps {
   isOpen: boolean;
@@ -7,15 +7,33 @@ interface SessionExpirationModalProps {
 }
 
 const SessionExpirationModal: React.FC<SessionExpirationModalProps> = ({ isOpen, onClose, onRefreshToken }) => {
+  const [secondsLeft, setSecondsLeft] = useState(60);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+
+    if (isOpen && secondsLeft > 0) {
+      interval = setInterval(() => {
+        setSecondsLeft(secondsLeft - 1);
+      }, 1000);
+    } else if (secondsLeft <= 0) {
+      onClose(); // auto logout or redirect when time expires
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isOpen, secondsLeft, onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <div style={{ background: 'white', padding: '20px', borderRadius: '8px' }}>
+    <div className="session-modal-overlay">
+      <div className="session-modal-content">
         <h2>Your Session is About to Expire!</h2>
-        <p>Redirecting in 7 seconds.</p>
-        <button onClick={onRefreshToken} style={{ marginRight: '10px' }}>Stay Connected</button>
-        <button onClick={onClose}>Logout</button>
+        <p>Redirecting in {secondsLeft} seconds.</p>
+        <button onClick={onRefreshToken} className="session-modal-button stay-connected">Stay Connected</button>
+        <button onClick={onClose} className="session-modal-button logout">Logout</button>
       </div>
     </div>
   );
