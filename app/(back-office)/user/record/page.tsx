@@ -80,9 +80,32 @@ const VaccinationRecordPage: React.FC = () => {
       if (vaccinationError) {
         setError("Error fetching vaccination records.");
       } else {
-        setVaccinationRecords(
-          (vaccinationRecords as unknown as VaccinationRecord[]) || []
-        );
+        // Filter duplicates by keeping the most recent or highest dose number
+        const filteredRecords = vaccinationRecords.reduce<VaccinationRecord[]>((acc, current:any) => {
+          if (typeof current.vaccine_id !== 'number') {
+            // Skip records without a valid vaccine_id
+            console.warn("Skipping record due to missing vaccine_id", current);
+            return acc;
+          }
+        
+          const existing = acc.find(record => record.vaccine_id === current.vaccine_id);
+          if (!existing) {
+            acc.push(current);
+          } else {
+            // Assume dates are strings; parse if necessary
+            const existingDate = new Date(existing.date);
+            const currentDate = new Date(current.date);
+            
+            // Replace the existing record if the current one is more recent
+            if (existingDate < currentDate) {
+              const index = acc.indexOf(existing);
+              acc.splice(index, 1, current);
+            }
+          }
+          return acc;
+        }, []);
+  
+        setVaccinationRecords(filteredRecords || []);
       }
     } catch (err) {
       setError("Error fetching vaccination records.");
