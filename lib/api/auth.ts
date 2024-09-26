@@ -295,10 +295,12 @@ export const validate_Token = async (token: string): Promise<any> => {
   }
 };
 
-export const refresh_Token = async (): Promise<any> => {
+export const refresh_Token = async (token: any) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/refresh_token`, {}, {
-      withCredentials: true
+    const response = await axios.post(`${API_BASE_URL}/refresh_token`, { 
+      refresh_token: token 
+    }, {
+      withCredentials: true // Maintains cookie transmission if set server-side
     });
     return response.data;
   } catch (error) {
@@ -306,6 +308,8 @@ export const refresh_Token = async (): Promise<any> => {
     throw error;  // Rethrow error to be handled by calling function
   }
 };
+
+
 
 
 

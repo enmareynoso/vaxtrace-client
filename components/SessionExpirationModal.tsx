@@ -10,33 +10,43 @@ const SessionExpirationModal: React.FC<SessionExpirationModalProps> = ({ isOpen,
   const [secondsLeft, setSecondsLeft] = useState(60);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+      // Only set the interval when the modal is open
+      if (isOpen) {
+          setSecondsLeft(60); // Reset the timer whenever the modal opens
 
-    if (isOpen && secondsLeft > 0) {
-      interval = setInterval(() => {
-        setSecondsLeft(secondsLeft - 1);
-      }, 1000);
-    } else if (secondsLeft <= 0) {
-      onClose(); // auto logout or redirect when time expires
-    }
+          // Create a new interval
+          const interval = setInterval(() => {
+              setSecondsLeft((seconds) => {
+                  if (seconds <= 1) {
+                      clearInterval(interval); // Stop the interval if the countdown finishes
+                      onClose();  // Auto logout or redirect when time expires
+                      return 0;
+                  }
+                  return seconds - 1;
+              });
+          }, 1000);
 
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isOpen, secondsLeft, onClose]);
+          // Clear interval on cleanup
+          return () => clearInterval(interval);
+      }
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
   return (
     <div className="session-modal-overlay">
-      <div className="session-modal-content">
-        <h2>Your Session is About to Expire!</h2>
-        <p>Redirecting in {secondsLeft} seconds.</p>
-        <button onClick={onRefreshToken} className="session-modal-button stay-connected">Stay Connected</button>
-        <button onClick={onClose} className="session-modal-button logout">Logout</button>
-      </div>
+    <div className="session-modal-content">
+        <h2>¡Tu sesión está por expirar!</h2>
+        <p>Redireccionando en {secondsLeft} segundos.</p>
+        <div className="button-container">
+            <button onClick={() => onRefreshToken()} className="session-modal-button stay-connected">Mantenerse en linea</button>
+            <button onClick={onClose} className="session-modal-button logout">Salir</button>
+        </div>
     </div>
+</div>
+
   );
 };
 
 export default SessionExpirationModal;
+

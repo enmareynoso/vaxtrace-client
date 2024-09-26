@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // Ensure this import is correct
+import { useRouter } from 'next/navigation'; 
 import Cookies from 'js-cookie';
-import {jwtDecode} from 'jwt-decode'; // Ensure this import is correct, sometimes it's 'jwt-decode'
-import SessionExpirationModal from './SessionExpirationModal';  // Verify the correct path
-import { refresh_Token } from '@/lib/api/auth';  // Verify the correct import path
+import {jwtDecode} from 'jwt-decode';
+import SessionExpirationModal from './SessionExpirationModal';  
+import { refresh_Token } from '@/lib/api/auth'; 
 import "./SessionExpirationStyle.css"
 
-const AuthGuard = ({ children }) => {
+
+const AuthGuard = ({ children }: any) => {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true); // Only set mounted state on the client side
+    setIsMounted(true);
   }, []);
 
   useEffect(() => {
@@ -29,40 +30,43 @@ const AuthGuard = ({ children }) => {
           }
         } catch (error) {
           console.error("Error decoding token: ", error);
-          handleLogout(); // Log out if the token is invalid
+          handleLogout();
         }
       }
     };
 
     if (isMounted) {
       handleTokenCheck();
-      const interval = setInterval(handleTokenCheck, 5000); // Check every 5 seconds
+      const interval = setInterval(handleTokenCheck, 5000);
       return () => clearInterval(interval);
     }
   }, [isMounted, router]);
 
   const handleRefreshToken = async () => {
     try {
-      const data = await refresh_Token();
-      console.log('Token refreshed successfully', data);
-      Cookies.set("access_token", data.access_token, { expires: 1 }); // Optionally set the cookie if needed
-      // Handle further logic with new tokens, like updating state or UI
-    } catch (error) {
-      console.error("Refresh token error:", error);
-      // Handle errors, possibly logging out the user or showing an error message
-    }
-  };
-  
+        const storedToken = localStorage.getItem('refresh_token');
+        if (!storedToken) {
+            throw new Error('No refresh token found');
+        }
 
-  const handleLogout = async () => {
+        const data = await refresh_Token(storedToken);
+        console.log('Token refreshed successfully', data);
+        Cookies.set("access_token", data.access_token, { expires: 1 });
+
+        setShowModal(false); // Close the modal upon successful refresh
+
+    } catch (error) {
+        console.error("Refresh token error:", error);
+        handleLogout(); // This could be leading to the unintended redirect
+    }
+};
+
+
+  const handleLogout = () => {
     Cookies.remove("access_token");
     Cookies.remove("refresh_token");
     router.push("/auth/login");
   };
-
-  if (!isMounted) {
-    return null; // Optionally render a loading spinner here
-  }
 
   return (
     <>
@@ -73,4 +77,5 @@ const AuthGuard = ({ children }) => {
 };
 
 export default AuthGuard;
+
 
