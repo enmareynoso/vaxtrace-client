@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { getPatientByDocument } from "@/lib/api/auth";
-import CustomDatePicker from "../ui/DatePicker";
 import toast, { Toaster } from "react-hot-toast";
 import { FaInfoCircle } from "react-icons/fa";
 
@@ -31,33 +30,47 @@ interface FormData {
 export default function PatientInformation({
   setPatientInfo,
   setSelectedDependent,
-}: Readonly<{
-  setPatientInfo: any;
-  setSelectedDependent: any;
-}>) {
+}: {
+  setPatientInfo: (info: any) => void;
+  setSelectedDependent: (dependent: Dependent | null) => void;
+}) {
   const initialFormData: FormData = {
     document: "",
     email: "",
     first_name: "",
     last_name: "",
-    birthdate: new Date(),
+    birthdate: new Date("2000/01/01"),
     gender: "",
     occupation: "",
     address: "",
     dependents: [],
   };
 
+  const initialDependentData: Dependent = {
+    id: 0,
+    first_name: "",
+    last_name: "",
+    birthdate: "",
+    gender: "",
+    parent: 0,
+  };
+
   // Local state management
   const [formData, setFormData] = useState<FormData>(initialFormData);
-  const [documentInput, setDocumentInput] = useState(""); // Input document number
-  const [showForm, setShowForm] = useState(false); // Show/hide form
-  const [patientExists, setPatientExists] = useState(false); // Check if patient exists
-  const [dependents, setDependents] = useState<Dependent[]>([]); // Dependents list
+  const [documentInput, setDocumentInput] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [patientExists, setPatientExists] = useState(false);
+  const [dependents, setDependents] = useState<Dependent[]>([]);
   const [selectedDependentId, setSelectedDependentId] = useState<number | null>(
     null
-  ); // Selected dependent ID
+  );
   const [selectedDependentDetails, setSelectedDependentDetails] =
-    useState<Dependent | null>(null); // Details of the selected dependent
+    useState<Dependent | null>(null);
+  const [showDependentFields, setShowDependentFields] = useState(false);
+  const [isMinor, setIsMinor] = useState(false);
+
+  const [newDependentData, setNewDependentData] =
+    useState<Dependent>(initialDependentData);
 
   // Calculate age from birthdate
   const calculateAge = (dob: Date): number => {
@@ -89,6 +102,11 @@ export default function PatientInformation({
     setPatientInfo((prev: any) => ({ ...prev, gender: value }));
   };
 
+  // Handle dependent gender change
+  const handleDependentGenderChange = (value: "M" | "F") => {
+    setNewDependentData((prev: any) => ({ ...prev, gender: value }));
+  };
+
   // Handle dependent selection from the dropdown
   const handleDependentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const index = parseInt(e.target.value);
@@ -97,12 +115,15 @@ export default function PatientInformation({
       setSelectedDependentDetails(selectedDependent);
       setSelectedDependent(selectedDependent); // Pasar el dependiente seleccionado al componente padre
       setSelectedDependentId(index); // Establecer el dependiente seleccionado en el estado local
+      setShowDependentFields(false);
     } else {
       setSelectedDependentDetails(null);
       setSelectedDependent(null); // Limpiar el dependiente seleccionado si se deselecciona
       setSelectedDependentId(null); // Reset dependent if not selected
+      setShowDependentFields(false);
     }
   };
+
   // Verify patient based on document number
   const handleVerifyPatient = async () => {
     if (!documentInput) {
@@ -122,6 +143,8 @@ export default function PatientInformation({
       if (patientData && patientData.patient_info) {
         const { patient_info, children_info } = patientData;
         const birthdate = new Date(patient_info.birthdate);
+        const age = calculateAge(birthdate);
+        setIsMinor(age < 18);
 
         // Update form data with parent information
         setFormData({
@@ -164,6 +187,7 @@ export default function PatientInformation({
     setShowForm(false);
     setPatientExists(false);
     setSelectedDependentDetails(null);
+    setShowDependentFields(false);
   };
 
   // Handle form field changes
@@ -179,6 +203,113 @@ export default function PatientInformation({
     }));
     setPatientInfo((prev: any) => ({ ...prev, [name]: value }));
   };
+
+  // Handle dependent form field changes
+  const handleDependentFormChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+    setNewDependentData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleAddDependent = () => {
+    setSelectedDependentDetails(null); // Clear previous dependent selection
+    setShowDependentFields(true); // Show new dependent form
+    setNewDependentData(initialDependentData); // Reset new dependent form
+    setSelectedDependent(null); // Limpiar el dependiente seleccionado si se deselecciona
+    setSelectedDependentId(null); // Reset dependent if not selected
+  };
+
+  const handleSaveNewDependent = () => {
+    // Verificar que todos los campos requeridos estén presentes
+    if (
+      !newDependentData.first_name ||
+      !newDependentData.last_name ||
+      !newDependentData.birthdate ||
+      !newDependentData.gender
+    ) {
+      toast.error("Por favor, complete todos los campos del dependiente.");
+      return;
+    }
+
+    // Add the new dependent to the list
+    setDependents((prev: Dependent[]) => [
+      ...prev,
+      {
+        ...newDependentData,
+        id: prev.length + 1,
+        parent: parseInt(formData.document),
+      },
+    ]);
+    setShowDependentFields(false);
+    setNewDependentData(initialDependentData); // Resetear el formulario del nuevo dependiente
+  };
+
+  const handleClearDependentFields = () => {
+    setNewDependentData(initialDependentData);
+    setShowDependentFields(false);
+  };
+
+  interface FormFieldProps {
+    label: string;
+    type?: string;
+    name: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    placeholder?: string;
+    disabled?: boolean;
+  }
+
+  const FormField: React.FC<FormFieldProps> = ({
+    label,
+    type = "text",
+    name,
+    value,
+    onChange,
+    placeholder,
+    disabled,
+  }) => (
+    <div>
+      <label className="block text-gray-700 dark:text-white">{label}</label>
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        disabled={disabled}
+      />
+    </div>
+  );
+
+  const GenderButtons: React.FC<{
+    selectedGender: string;
+    onChange: (value: "M" | "F") => void;
+    disabled: boolean;
+  }> = ({ selectedGender, onChange, disabled }) => (
+    <div className="flex items-center space-x-4 pt-4">
+      <h4 className="block text-gray-700 dark:text-white">Género</h4>
+      {["M", "F"].map((gender) => (
+        <button
+          key={gender}
+          type="button"
+          onClick={() => onChange(gender as "M" | "F")}
+          className={`py-2 px-4 border rounded-md text-center ${
+            selectedGender === gender
+              ? "bg-cyan-800 text-white"
+              : "bg-gray-300 text-black"
+          }`}
+          disabled={disabled}
+        >
+          {gender}
+        </button>
+      ))}
+    </div>
+  );
 
   return (
     <div className="border p-6 rounded-md shadow-md space-y-2 bg-white dark:bg-gray-800">
@@ -200,7 +331,7 @@ export default function PatientInformation({
               }
             }}
             className="flex-grow w-full md:w-auto px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-400 dark:focus:border-blue-400 transition duration-150"
-            placeholder="Document"
+            placeholder="Documento"
             maxLength={11}
           />
           <Button
@@ -215,167 +346,137 @@ export default function PatientInformation({
       {/* Always display the form for patient information */}
       {showForm && (
         <>
-          <h2 className="text-lg pt-4 font-bold text-gray-800 dark:text-white">
-            Información del Paciente
-          </h2>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <label
-                htmlFor="birthdate"
-                className="block text-gray-700 dark:text-white"
-              >
-                Fecha de Nacimiento
-              </label>
-              <div className="relative flex items-center">
-                <CustomDatePicker
-                  selectedDate={formData.birthdate}
-                  onDateChange={handlebirthdateChange}
-                  className="w-full py-2 rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
+          {/* Formulario del Paciente y Dependiente */}
+          <div>
+            {/* Dependiente Form */}
+            {isMinor && (
+              <div className="mb-4">
+                <h3 className="text-lg font-bold mt-4 mb-4 text-gray-800 dark:text-white">
+                  Información del Dependiente
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    label="Nombre"
+                    name="first_name"
+                    value={newDependentData.first_name}
+                    onChange={handleDependentFormChange}
+                  />
+                  <FormField
+                    label="Apellido"
+                    name="last_name"
+                    value={newDependentData.last_name}
+                    onChange={handleDependentFormChange}
+                  />
+                  <FormField
+                    label="Fecha de Nacimiento"
+                    type="date"
+                    name="birthdate"
+                    value={
+                      newDependentData.birthdate
+                        ? new Date(newDependentData.birthdate)
+                            .toISOString()
+                            .split("T")[0]
+                        : ""
+                    }
+                    onChange={(e) => {
+                      const newDate = e.target.value
+                        ? new Date(e.target.value)
+                        : null;
+                      handlebirthdateChange(newDate);
+                    }}
+                  />
+                  <GenderButtons
+                    selectedGender={newDependentData.gender}
+                    onChange={handleDependentGenderChange}
+                    disabled={false}
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
-            <div>
-              <label
-                htmlFor="first_name"
-                className="block text-gray-700 dark:text-white"
-              >
-                Nombre
-              </label>
-              <input
-                type="text"
-                id="first_name"
+            {/* Información del Padre/Madre o Tutor */}
+            <h2 className="text-lg py-4 font-bold text-gray-800 dark:text-white">
+              {isMinor
+                ? "Información del Padre/Madre o Tutor"
+                : "Información del Paciente"}
+            </h2>
+            <div className="grid gap-4 md:grid-cols-2">
+              <FormField
+                label="Fecha de Nacimiento"
+                type="date"
+                name="birthdate"
+                value={
+                  formData.birthdate
+                    ? new Date(formData.birthdate).toISOString().split("T")[0]
+                    : ""
+                }
+                onChange={(e) => {
+                  const newDate = e.target.value
+                    ? new Date(e.target.value)
+                    : null;
+                  handlebirthdateChange(newDate);
+                }}
+                disabled={patientExists}
+              />
+
+              <FormField
+                label={isMinor ? "Nombre del Tutor" : "Nombre"}
                 name="first_name"
-                placeholder="First Name"
+                placeholder={isMinor ? "Nombre del Tutor" : "Primer nombre"}
                 value={formData.first_name}
                 onChange={handleFormChange}
-                className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 disabled={patientExists}
               />
-            </div>
-
-            <div>
-              <label
-                htmlFor="last_name"
-                className="block text-gray-700 dark:text-white"
-              >
-                Apellido
-              </label>
-              <input
-                type="text"
-                id="last_name"
+              <FormField
+                label={isMinor ? "Apellido del Tutor" : "Apellidos"}
                 name="last_name"
-                placeholder="Last name"
+                placeholder={isMinor ? "Apellido del Tutor" : "Apellidos"}
                 value={formData.last_name}
                 onChange={handleFormChange}
-                className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 disabled={patientExists}
               />
-            </div>
-
-            <div>
-              <label
-                htmlFor="document"
-                className="block text-gray-700 dark:text-white"
-              >
-                Documento
-              </label>
-              <input
-                type="text"
-                id="document"
+              <FormField
+                label="Documento"
                 name="document"
-                placeholder="Document"
+                placeholder="Documento"
                 value={formData.document}
                 onChange={handleFormChange}
-                className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 disabled={patientExists}
               />
-            </div>
-
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-gray-700 dark:text-white"
-              >
-                Email
-              </label>
-              <input
+              <FormField
+                label="Email"
                 type="email"
-                id="email"
                 name="email"
-                placeholder="Enter email"
+                placeholder="email"
                 value={formData.email}
                 onChange={handleFormChange}
-                className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 disabled={patientExists}
               />
-            </div>
+              <GenderButtons
+                selectedGender={formData.gender}
+                onChange={handleGenderChange}
+                disabled={patientExists}
+              />
 
-            <div className="flex items-center space-x-4 pt-4">
-              <h4 className="block text-gray-700 dark:text-white">Género</h4>
-              <button
-                type="button"
-                onClick={() => handleGenderChange("M")}
-                className={`py-2 px-4 border rounded-md text-center ${
-                  formData.gender === "M"
-                    ? "bg-cyan-800 text-white"
-                    : "bg-gray-300 text-black"
-                }`}
-              >
-                M
-              </button>
-              <button
-                type="button"
-                onClick={() => handleGenderChange("F")}
-                className={`py-2 px-4 border rounded-md text-center ${
-                  formData.gender === "F"
-                    ? "bg-cyan-800 text-white"
-                    : "bg-gray-300 text-black"
-                }`}
-              >
-                F
-              </button>
-            </div>
-
-            {/* Additional fields for occupation and address */}
-            <div>
-              <label
-                htmlFor="occupation"
-                className="block text-gray-700 dark:text-white"
-              >
-                Ocupación
-              </label>
-              <input
-                type="text"
-                id="occupation"
+              {/* Additional fields for occupation and address */}
+              <FormField
+                label="Ocupación"
                 name="occupation"
-                placeholder="Occupation"
+                placeholder="Ocupación"
                 value={formData.occupation}
                 onChange={handleFormChange}
-                className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
-            </div>
-
-            <div>
-              <label
-                htmlFor="address"
-                className="block text-gray-700 dark:text-white"
-              >
-                Dirección
-              </label>
-              <input
-                type="text"
-                id="address"
+              <FormField
+                label="Dirección"
                 name="address"
-                placeholder="Address"
+                placeholder="Dirección"
                 value={formData.address}
                 onChange={handleFormChange}
-                className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
 
-          {/* Dropdown to select dependents if available */}
+          {/* Dropdown para seleccionar dependiente */}
           {dependents.length > 0 && (
             <div className="mt-4">
               <label
@@ -383,7 +484,7 @@ export default function PatientInformation({
                 className="block text-gray-700 dark:text-white mb-4 mt-4"
               >
                 Seleccione el dependiente para registrar la vacuna (si es para
-                el padre, no seleccione dependiente):
+                el padre/madre/tutor, no seleccione dependiente):
               </label>
               <select
                 onChange={handleDependentChange}
@@ -393,15 +494,139 @@ export default function PatientInformation({
               >
                 <option value="">Seleccione un Dependiente</option>
                 {dependents.map((dependent, index) => (
-                  <option key={dependent.id} value={index}>
+                  <option
+                    key={dependent.first_name + dependent.last_name}
+                    value={index}
+                  >
                     {dependent.first_name} {dependent.last_name}
                   </option>
                 ))}
               </select>
+
+              <div className="col-span-2 pt-4">
+                <Button
+                  onClick={handleAddDependent}
+                  className="px-6 py-2 w-full md:w-auto bg-cyan-800 text-white font-medium rounded hover:bg-cyan-900 focus:outline-none focus:ring-2 focus:ring-white transition duration-150"
+                >
+                  Agregar nuevo dependiente
+                </Button>
+
+                {showDependentFields && (
+                  <Button
+                    onClick={handleClearDependentFields}
+                    className="px-6 py-2 w-full md:w-auto bg-transparent text-red-500 font-medium rounded hover:text-red-700 hover:bg-transparent focus:outline-none focus:ring-2 focus:ring-white transition duration-150"
+                  >
+                    Cancelar
+                  </Button>
+                )}
+              </div>
             </div>
           )}
 
-          {/* Display dependent details if selected */}
+          {/* Botón para agregar dependiente */}
+          {!isMinor && dependents.length == 0 && (
+            <div className="col-span-2 pt-4">
+              <Button
+                onClick={handleAddDependent}
+                className="px-6 py-2 w-full md:w-auto bg-cyan-800 text-white font-medium rounded hover:bg-cyan-900 focus:outline-none focus:ring-2 focus:ring-white transition duration-150"
+              >
+                Agregar Dependiente
+              </Button>
+
+              {showDependentFields && (
+                <Button
+                  onClick={handleClearDependentFields}
+                  className="px-6 py-2 w-full md:w-auto bg-transparent text-red-500 font-medium rounded hover:text-red-700 hover:bg-transparent focus:outline-none focus:ring-2 focus:ring-white transition duration-150"
+                >
+                  Cancelar
+                </Button>
+              )}
+            </div>
+          )}
+
+          {/* Dependent form */}
+          {showDependentFields && (
+            <div className="mb-4">
+              <h3 className="text-lg font-bold mt-4 mb-4 text-gray-800 dark:text-white">
+                Nuevo Dependiente
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-700 dark:text-white">
+                    Nombre
+                  </label>
+                  <input
+                    type="text"
+                    name="first_name"
+                    value={newDependentData.first_name}
+                    onChange={handleDependentFormChange}
+                    className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 dark:text-white">
+                    Apellido
+                  </label>
+                  <input
+                    type="text"
+                    name="last_name"
+                    value={newDependentData.last_name}
+                    onChange={handleDependentFormChange}
+                    className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 dark:text-white">
+                    Fecha de Nacimiento
+                  </label>
+                  <input
+                    type="date"
+                    name="birthdate"
+                    value={newDependentData.birthdate}
+                    onChange={handleDependentFormChange}
+                    className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white"
+                  />
+                </div>
+                <div className="flex items-center space-x-4 pt-4">
+                  <label className="block text-gray-700 dark:text-white">
+                    Género
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => handleDependentGenderChange("M")}
+                    className={`py-2 px-4 border rounded-md text-center ${
+                      newDependentData.gender === "M"
+                        ? "bg-cyan-800 text-white"
+                        : "bg-gray-300 text-black"
+                    }`}
+                  >
+                    M
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDependentGenderChange("F")}
+                    className={`py-2 px-4 border rounded-md text-center ${
+                      newDependentData.gender === "F"
+                        ? "bg-cyan-800 text-white"
+                        : "bg-gray-300 text-black"
+                    }`}
+                  >
+                    F
+                  </button>
+                </div>
+              </div>
+              <div className="mt-4">
+                <Button
+                  onClick={handleSaveNewDependent}
+                  className="px-6 py-2 w-full md:w-auto bg-green-700 text-white font-semibold rounded-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-white transition duration-150"
+                >
+                  Guardar Dependiente
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Detalles del dependiente seleccionado */}
           {selectedDependentDetails && (
             <div className="mb-4">
               <h3 className="text-lg font-bold mt-4 mb-4 text-gray-800 dark:text-white">

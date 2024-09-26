@@ -1,53 +1,81 @@
-import { useRouter } from "next/navigation";
-import { useEffect, ReactNode, useState } from "react";
-import { jwtDecode } from "jwt-decode";
-import Cookies from "js-cookie";
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation'; 
+import Cookies from 'js-cookie';
+import {jwtDecode} from 'jwt-decode';
+import SessionExpirationModal from './SessionExpirationModal';  
+import { refresh_Token } from '@/lib/api/auth'; 
+import "./SessionExpirationStyle.css"
 
-interface AuthGuardProps {
-  children: ReactNode;
-}
 
-const AuthGuard = ({ children }: AuthGuardProps) => {
+const AuthGuard = ({ children }: any) => {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true); // Solo se ejecuta en el cliente
+    setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    if (isMounted) {
-      const token = Cookies.get("access_token"); // Obtener el token de la cookie
-
+    const handleTokenCheck = async () => {
+      const token = Cookies.get("access_token");
       if (!token) {
-        // Si no hay token, redirige a la página de login
         router.push("/auth/login");
       } else {
         try {
-          const decoded: any = jwtDecode(token);
-
-          // Verificar si el token es válido y no ha expirado
+          const decoded = jwtDecode(token);
           const currentTime = Date.now() / 1000;
           if (decoded.exp < currentTime) {
-            // Si el token ha expirado, redirigir al login y eliminar tokens de las cookies
-            Cookies.remove("access_token");
-            Cookies.remove("refresh_token");
-            router.push("/auth/login");
+            setShowModal(true);
           }
         } catch (error) {
-          console.error("Invalid token:", error);
-          router.push("/auth/login");
+          console.error("Error decoding token: ", error);
+          handleLogout();
         }
       }
+    };
+
+    if (isMounted) {
+      handleTokenCheck();
+      const interval = setInterval(handleTokenCheck, 5000);
+      return () => clearInterval(interval);
     }
   }, [isMounted, router]);
 
-  // Esperar a que el componente esté montado en el cliente
-  if (!isMounted) {
-    return null;
-  }
+  const handleRefreshToken = async () => {
+    try {
+        const storedToken = localStorage.getItem('refresh_token');
+        if (!storedToken) {
+            throw new Error('No refresh token found');
+        }
 
-  return <>{children}</>;
+        const data = await refresh_Token(storedToken);
+        console.log('Token refreshed successfully', data);
+        Cookies.set("access_token", data.access_token, { expires: 1 });
+
+        setShowModal(false); // Close the modal upon successful refresh
+
+    } catch (error) {
+        console.error("Refresh token error:", error);
+        handleLogout(); // This could be leading to the unintended redirect
+    }
+};
+
+
+  const handleLogout = () => {
+    Cookies.remove("access_token");
+    Cookies.remove("refresh_token");
+    router.push("/auth/login");
+  };
+
+  return (
+    <>
+      <SessionExpirationModal isOpen={showModal} onClose={handleLogout} onRefreshToken={handleRefreshToken} />
+      {children}
+    </>
+  );
 };
 
 export default AuthGuard;
+
+

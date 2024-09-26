@@ -3,7 +3,7 @@
 import PatientInformation from "@/components/forms/PatientInformation";
 import VaccineInformation from "@/components/forms/VaccineInformation";
 import { Button } from "@/components/ui/button";
-import toast from "react-hot-toast";
+import toast, { Renderable, Toast, ValueFunction } from "react-hot-toast";
 import { registerVaccinationRecord } from "@/lib/api/auth";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
@@ -84,19 +84,24 @@ export default function RegisterVaccination() {
           `Registro de vacunación creado para el usuario ${patientInfo.first_name}.`
         );
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       // Manejo de errores con diferentes tipos de error
-      if (typeof error === "object" && error !== null && "response" in error) {
-        const typedError = error as { response: { data: any } };
-        console.error("Error response:", typedError.response.data);
-        toast.error(
-          typedError.response.data.detail || "Failed to save the record."
-        );
+      if (error.response && error.response.data) {
+        if (error.response.data.errors && error.response.data.errors.length > 0) {
+          // Display all error messages from the array
+          error.response.data.errors.forEach((err: Renderable | ValueFunction<Renderable, Toast>) => {
+            toast.error(err);
+          });
+        } else if (error.response.data.detail) {
+          // Display detail error if present
+          toast.error(error.response.data.detail);
+        } else {
+          // Fallback error message
+          toast.error("Failed to save the record.");
+        }
       } else if (error instanceof Error) {
-        console.error("Error:", error.message);
-        toast.error("Failed to save the record: " + error.message);
+        toast.error(`Failed to save the record: ${error.message}`);
       } else {
-        console.error("Unknown error:", error);
         toast.error("An unknown error occurred.");
       }
     }
