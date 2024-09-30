@@ -122,7 +122,8 @@ const ProfilePage: React.FC = () => {
     e.preventDefault();
     if (!formData) return;
 
-    const { vaccination_center_id, municipality_name, ...data } = formData; // Excluir municipality_name
+    const { RNC, email, vaccination_center_id, municipality_name, ...data } =
+      formData;
 
     const { error } = await supabase
       .from("vaxtraceapi_vaccinationcenter")
@@ -170,8 +171,10 @@ const ProfilePage: React.FC = () => {
             name="RNC"
             value={formData.RNC}
             onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400"
             required
+            readOnly
+            disabled
           />
         </div>
         <div className="mb-4">
@@ -234,8 +237,10 @@ const ProfilePage: React.FC = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400"
             required
+            readOnly
+            disabled
           />
         </div>
         <div className="mb-4">
@@ -249,8 +254,9 @@ const ProfilePage: React.FC = () => {
             type="text"
             name="municipality_id"
             value={centerInfo?.municipality_name || ""}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400"
             readOnly
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100"
+            disabled
           />
         </div>
         <button

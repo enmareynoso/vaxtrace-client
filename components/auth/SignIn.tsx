@@ -29,15 +29,15 @@ const SignIn: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-  
+
     try {
       const data = await loginUser({ email, password });
       console.log("Login response data:", data); // Depuración de los datos recibidos
-  
+
       if (data.access_token) {
         // Verificar la configuración de las cookies
-        const isProduction = process.env.NODE_ENV === 'production';
-  
+        const isProduction = process.env.NODE_ENV === "production";
+
         Cookies.set("access_token", data.access_token, {
           secure: isProduction, // True en producción, false en desarrollo
           sameSite: "Strict",
@@ -50,20 +50,23 @@ const SignIn: React.FC = () => {
         // También almacenar en localStorage
         localStorage.setItem("access_token", data.access_token);
         localStorage.setItem("refresh_token", data.refresh_token);
-        console.log("Token saved to cookies and localStorage:", data.access_token);
-  
+        console.log(
+          "Token saved to cookies and localStorage:",
+          data.access_token
+        );
+
         console.log("Access token cookie:", Cookies.get("access_token")); // Verificar si la cookie se establece correctamente
-  
+
         const decoded: CustomJwtPayload = jwtDecode(data.access_token);
         console.log("Decoded JWT:", decoded); // Depuración del token decodificado
-  
+
         if (decoded.role) {
           switch (decoded.role) {
             case "patient":
               router.push("/user/dashboard");
               break;
             case "vaccination_center":
-              localStorage.setItem("center_id", decoded.user_id.toString());
+              localStorage.setItem("account_id", decoded.user_id.toString());
               router.push("/center/dashboard");
               break;
             default:
@@ -82,7 +85,6 @@ const SignIn: React.FC = () => {
       setLoading(false);
     }
   };
-  
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -238,4 +240,3 @@ const SignIn: React.FC = () => {
 };
 
 export default SignIn;
-

@@ -39,7 +39,7 @@ export default function PatientInformation({
     email: "",
     first_name: "",
     last_name: "",
-    birthdate: new Date("2000/01/01"),
+    birthdate: new Date(),
     gender: "",
     occupation: "",
     address: "",
@@ -192,16 +192,19 @@ export default function PatientInformation({
 
   // Handle form field changes
   const handleFormChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    setPatientInfo((prev: any) => ({ ...prev, [name]: value }));
+
+    setPatientInfo((prev: any) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   // Handle dependent form field changes
@@ -252,39 +255,6 @@ export default function PatientInformation({
     setNewDependentData(initialDependentData);
     setShowDependentFields(false);
   };
-
-  interface FormFieldProps {
-    label: string;
-    type?: string;
-    name: string;
-    value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    placeholder?: string;
-    disabled?: boolean;
-  }
-
-  const FormField: React.FC<FormFieldProps> = ({
-    label,
-    type = "text",
-    name,
-    value,
-    onChange,
-    placeholder,
-    disabled,
-  }) => (
-    <div>
-      <label className="block text-gray-700 dark:text-white">{label}</label>
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        disabled={disabled}
-      />
-    </div>
-  );
 
   const GenderButtons: React.FC<{
     selectedGender: string;
@@ -348,52 +318,6 @@ export default function PatientInformation({
         <>
           {/* Formulario del Paciente y Dependiente */}
           <div>
-            {/* Dependiente Form */}
-            {isMinor && (
-              <div className="mb-4">
-                <h3 className="text-lg font-bold mt-4 mb-4 text-gray-800 dark:text-white">
-                  Información del Dependiente
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    label="Nombre"
-                    name="first_name"
-                    value={newDependentData.first_name}
-                    onChange={handleDependentFormChange}
-                  />
-                  <FormField
-                    label="Apellido"
-                    name="last_name"
-                    value={newDependentData.last_name}
-                    onChange={handleDependentFormChange}
-                  />
-                  <FormField
-                    label="Fecha de Nacimiento"
-                    type="date"
-                    name="birthdate"
-                    value={
-                      newDependentData.birthdate
-                        ? new Date(newDependentData.birthdate)
-                            .toISOString()
-                            .split("T")[0]
-                        : ""
-                    }
-                    onChange={(e) => {
-                      const newDate = e.target.value
-                        ? new Date(e.target.value)
-                        : null;
-                      handlebirthdateChange(newDate);
-                    }}
-                  />
-                  <GenderButtons
-                    selectedGender={newDependentData.gender}
-                    onChange={handleDependentGenderChange}
-                    disabled={false}
-                  />
-                </div>
-              </div>
-            )}
-
             {/* Información del Padre/Madre o Tutor */}
             <h2 className="text-lg py-4 font-bold text-gray-800 dark:text-white">
               {isMinor
@@ -401,57 +325,86 @@ export default function PatientInformation({
                 : "Información del Paciente"}
             </h2>
             <div className="grid gap-4 md:grid-cols-2">
-              <FormField
-                label="Fecha de Nacimiento"
-                type="date"
-                name="birthdate"
-                value={
-                  formData.birthdate
-                    ? new Date(formData.birthdate).toISOString().split("T")[0]
-                    : ""
-                }
-                onChange={(e) => {
-                  const newDate = e.target.value
-                    ? new Date(e.target.value)
-                    : null;
-                  handlebirthdateChange(newDate);
-                }}
-                disabled={patientExists}
-              />
+              <div>
+                <label className="block text-gray-700 dark:text-white">
+                  Fecha de Nacimiento
+                </label>
+                <input
+                  type="date"
+                  name="birthdate"
+                  value={
+                    formData.birthdate
+                      ? new Date(formData.birthdate).toISOString().split("T")[0]
+                      : ""
+                  }
+                  onChange={(e) => {
+                    const newDate = e.target.value
+                      ? new Date(e.target.value)
+                      : null;
+                    handlebirthdateChange(newDate);
+                  }}
+                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  disabled={patientExists}
+                />
+              </div>
 
-              <FormField
-                label={isMinor ? "Nombre del Tutor" : "Nombre"}
-                name="first_name"
-                placeholder={isMinor ? "Nombre del Tutor" : "Primer nombre"}
-                value={formData.first_name}
-                onChange={handleFormChange}
-                disabled={patientExists}
-              />
-              <FormField
-                label={isMinor ? "Apellido del Tutor" : "Apellidos"}
-                name="last_name"
-                placeholder={isMinor ? "Apellido del Tutor" : "Apellidos"}
-                value={formData.last_name}
-                onChange={handleFormChange}
-                disabled={patientExists}
-              />
-              <FormField
-                label="Documento"
-                name="document"
-                placeholder="Documento"
-                value={formData.document}
-                onChange={handleFormChange}
-                disabled={patientExists}
-              />
-              <FormField
-                label="Email"
-                type="email"
-                name="email"
-                placeholder="email"
-                value={formData.email}
-                onChange={handleFormChange}
-                disabled={patientExists}
-              />
+              <div>
+                <label className="block text-gray-700 dark:text-white">
+                  Documento
+                </label>
+                <input
+                  name="document"
+                  placeholder="Documento"
+                  value={formData.document}
+                  onChange={handleFormChange}
+                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  disabled={patientExists}
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 dark:text-white">
+                  {isMinor ? "Nombre del Tutor" : "Nombre"}
+                </label>
+                <input
+                  name="first_name"
+                  placeholder={isMinor ? "Nombre del Tutor" : "Primer nombre"}
+                  value={formData.first_name}
+                  onChange={handleFormChange}
+                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  disabled={patientExists}
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 dark:text-white">
+                  {isMinor ? "Apellido del Tutor" : "Apellidos"}
+                </label>
+                <input
+                  name="last_name"
+                  placeholder={isMinor ? "Apellido del Tutor" : "Apellidos"}
+                  value={formData.last_name}
+                  onChange={handleFormChange}
+                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  disabled={patientExists}
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 dark:text-white">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="email"
+                  value={formData.email}
+                  onChange={handleFormChange}
+                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  disabled={patientExists}
+                />
+              </div>
+
               <GenderButtons
                 selectedGender={formData.gender}
                 onChange={handleGenderChange}
@@ -459,20 +412,31 @@ export default function PatientInformation({
               />
 
               {/* Additional fields for occupation and address */}
-              <FormField
-                label="Ocupación"
-                name="occupation"
-                placeholder="Ocupación"
-                value={formData.occupation}
-                onChange={handleFormChange}
-              />
-              <FormField
-                label="Dirección"
-                name="address"
-                placeholder="Dirección"
-                value={formData.address}
-                onChange={handleFormChange}
-              />
+              <div>
+                <label className="block text-gray-700 dark:text-white">
+                  Ocupación
+                </label>
+                <input
+                  name="occupation"
+                  placeholder="Ocupación"
+                  value={formData.occupation}
+                  onChange={handleFormChange}
+                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 dark:text-white">
+                  Dirección
+                </label>
+                <input
+                  name="address"
+                  placeholder="Dirección"
+                  value={formData.address}
+                  onChange={handleFormChange}
+                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
             </div>
           </div>
 

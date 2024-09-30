@@ -7,17 +7,61 @@ import toast, { Renderable, Toast, ValueFunction } from "react-hot-toast";
 import { registerVaccinationRecord } from "@/lib/api/auth";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function RegisterVaccination() {
   const [patientInfo, setPatientInfo] = useState<any>(null); // Información del paciente
   const [vaccineInfo, setVaccineInfo] = useState<any[]>([]); // Información de la vacuna
   const [selectedDependent, setSelectedDependent] = useState<any>(null); // Dependiente seleccionado (hijo)
   const [centerId, setCenterId] = useState<string | null>(null); // ID del centro
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Obtener el ID del centro desde localStorage al cargar el componente
   useEffect(() => {
-    const id = localStorage.getItem("center_id");
-    setCenterId(id);
+    const fetchCenterId = async () => {
+      setLoading(true);
+      const accountId = localStorage.getItem("account_id");
+
+      if (!accountId) {
+        setError("No account_id found.");
+        setLoading(false);
+        return;
+      }
+
+      // Paso 1: Obtener vaccination_center_id desde vaxtraceapi_vaccinationcenteraccount
+      const { data: account, error: accountError } = await supabase
+        .from("vaxtraceapi_vaccinationcenteraccount")
+        .select("vaccination_center_id")
+        .eq("id", accountId)
+        .single();
+
+      if (accountError || !account) {
+        setError("Error obteniendo el vaccination_center_id.");
+        setLoading(false);
+        return;
+      }
+
+      const vaccination_center_id = account.vaccination_center_id;
+
+      // Paso 2: Obtener detalles del centro de vacunación si es necesario
+      const { data: center, error: centerError } = await supabase
+        .from("vaxtraceapi_vaccinationcenter")
+        .select("RNC, name, address, phone_number, email, municipality_id")
+        .eq("vaccination_center_id", vaccination_center_id)
+        .single();
+
+      if (centerError || !center) {
+        setError("Error obteniendo los detalles del centro.");
+        setLoading(false);
+        return;
+      }
+
+      setCenterId(vaccination_center_id);
+      setLoading(false);
+    };
+
+    fetchCenterId();
   }, []);
 
   const handleSaveRecord = async () => {
@@ -67,6 +111,7 @@ export default function RegisterVaccination() {
           dose: v.dose,
           batch_lot_number: v.batch_lot_number,
         })),
+        center_id: centerId?.toString(),
       };
 
       console.log("Sending vaccination record:", vaccinationRecord); // Debugging
@@ -75,23 +120,24 @@ export default function RegisterVaccination() {
       await registerVaccinationRecord(vaccinationRecord, token);
 
       // Mostrar mensajes de éxito personalizados
-      if (selectedDependent) {
-        toast.success(
-          `Registro de vacunación creado para el usuario menor de edad ${selectedDependent.first_name}.`
-        );
-      } else {
-        toast.success(
-          `Registro de vacunación creado para el usuario ${patientInfo.first_name}.`
-        );
-      }
+      toast.success(
+        selectedDependent
+          ? `Registro de vacunación creado para el usuario menor de edad ${selectedDependent.first_name}.`
+          : `Registro de vacunación creado para el usuario ${patientInfo.first_name}.`
+      );
     } catch (error: any) {
       // Manejo de errores con diferentes tipos de error
       if (error.response && error.response.data) {
-        if (error.response.data.errors && error.response.data.errors.length > 0) {
+        if (
+          error.response.data.errors &&
+          error.response.data.errors.length > 0
+        ) {
           // Display all error messages from the array
-          error.response.data.errors.forEach((err: Renderable | ValueFunction<Renderable, Toast>) => {
-            toast.error(err);
-          });
+          error.response.data.errors.forEach(
+            (err: Renderable | ValueFunction<Renderable, Toast>) => {
+              toast.error(err);
+            }
+          );
         } else if (error.response.data.detail) {
           // Display detail error if present
           toast.error(error.response.data.detail);
