@@ -189,8 +189,10 @@ const ProfilePage: React.FC = () => {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400"
             required
+            readOnly
+            disabled
           />
         </div>
         <div className="mb-4">

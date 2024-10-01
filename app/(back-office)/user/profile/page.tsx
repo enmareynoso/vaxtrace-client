@@ -218,8 +218,10 @@ const ProfilePage: React.FC = () => {
               name="first_name"
               value={formData.first_name}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400"
               required
+              readOnly
+              disabled
             />
           </div>
           <div className="mb-4">
@@ -234,8 +236,10 @@ const ProfilePage: React.FC = () => {
               name="last_name"
               value={formData.last_name}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400"
               required
+              readOnly
+              disabled
             />
           </div>
           <div className="mb-4">
@@ -250,8 +254,10 @@ const ProfilePage: React.FC = () => {
               name="document"
               value={formData.document}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400"
               required
+              readOnly
+              disabled
             />
           </div>
           <div className="mb-4">
@@ -266,8 +272,10 @@ const ProfilePage: React.FC = () => {
               name="birthdate"
               value={formData.birthdate}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400"
               required
+              readOnly
+              disabled
             />
           </div>
           <div className="mb-4">
@@ -387,8 +395,10 @@ const ProfilePage: React.FC = () => {
                     name="first_name"
                     value={dependentFormData.first_name}
                     onChange={handleDependentFormChange}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400"
                     required
+                    readOnly
+                    disabled
                   />
                 </div>
 
@@ -404,8 +414,10 @@ const ProfilePage: React.FC = () => {
                     name="last_name"
                     value={dependentFormData.last_name}
                     onChange={handleDependentFormChange}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400"
                     required
+                    readOnly
+                    disabled
                   />
                 </div>
 
@@ -421,8 +433,10 @@ const ProfilePage: React.FC = () => {
                     name="birthdate"
                     value={dependentFormData.birthdate}
                     onChange={handleDependentFormChange}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400"
                     required
+                    readOnly
+                    disabled
                   />
                 </div>
 

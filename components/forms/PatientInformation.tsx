@@ -139,45 +139,65 @@ export default function PatientInformation({
     clearForm(); // Reset form and states before verification
 
     try {
+        // Llama a la API de validación de cédulas
+      const response = await fetch(`https://api.digital.gob.do/v3/cedulas/${documentInput}/validate`);
+
+      if (response.status === 200) { // Verifica que la solicitud fue exitosa
+        const data = await response.json();
+  
+        // Verifica si la cédula es válida
+        if (!data.valid) {
+          // Si la cédula no es válida
+          toast.error("La cédula ingresada no es válida.");
+          return;
+        }
+    // Si la cédula es válida, proceder con la búsqueda del paciente
+      // Si la cédula es válida, proceder con la búsqueda del paciente
       const patientData = await getPatientByDocument(documentInput);
+
       if (patientData && patientData.patient_info) {
         const { patient_info, children_info } = patientData;
         const birthdate = new Date(patient_info.birthdate);
         const age = calculateAge(birthdate);
         setIsMinor(age < 18);
 
-        // Update form data with parent information
+        // Actualiza los datos del formulario con la información del paciente
         setFormData({
           ...patient_info,
           birthdate,
           dependents: children_info || [],
         });
 
-        // Update state for dependents if any exist
+        // Actualiza el estado de dependientes
         setDependents(children_info || []);
         setPatientInfo({ ...patient_info, document: documentInput });
         setPatientExists(true);
         setShowForm(true);
         toast.success("Paciente encontrado.");
       } else {
+        // Si el paciente no es encontrado en la base de datos
         throw new Error("Paciente no encontrado.");
       }
-    } catch (error) {
-      // If patient doesn't exist, allow the user to manually fill in the data
-      setFormData((prev) => ({
-        ...prev,
-        document: documentInput,
-      }));
-
-      setPatientInfo((prev: any) => ({ ...prev, document: documentInput }));
-      toast("Paciente nuevo. Complete el formulario manualmente.", {
-        icon: <FaInfoCircle size={24} color="#155e75" />,
-      });
-
-      setPatientExists(false);
-      setShowForm(true);
+    } else {
+      // Si el código de estado no es 200, mostrar un error
+      toast.error("Cédula no valida.");
     }
-  };
+  } catch (error) {
+    // Si no se encuentra el paciente, permite que el usuario complete el formulario manualmente
+    setFormData((prev) => ({
+      ...prev,
+      document: documentInput,
+    }));
+
+    setPatientInfo((prev: any) => ({ ...prev, document: documentInput }));
+    toast("Paciente nuevo. Complete el formulario manualmente.", {
+      icon: <FaInfoCircle size={24} color="#155e75" />,
+    });
+
+    setPatientExists(false);
+    setShowForm(true);
+  }
+};
 
   // Clear the form and reset states
   const clearForm = () => {
@@ -343,7 +363,9 @@ export default function PatientInformation({
                       : null;
                     handlebirthdateChange(newDate);
                   }}
-                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    patientExists ? "bg-gray-100 text-gray-400" : "bg-white text-black"
+                  }`}
                   disabled={patientExists}
                 />
               </div>
@@ -357,7 +379,9 @@ export default function PatientInformation({
                   placeholder="Documento"
                   value={formData.document}
                   onChange={handleFormChange}
-                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    patientExists ? "bg-gray-100 text-gray-400" : "bg-white text-black"
+                  }`}
                   disabled={patientExists}
                 />
               </div>
@@ -371,7 +395,9 @@ export default function PatientInformation({
                   placeholder={isMinor ? "Nombre del Tutor" : "Primer nombre"}
                   value={formData.first_name}
                   onChange={handleFormChange}
-                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    patientExists ? "bg-gray-100 text-gray-400" : "bg-white text-black"
+                  }`}
                   disabled={patientExists}
                 />
               </div>
@@ -385,7 +411,9 @@ export default function PatientInformation({
                   placeholder={isMinor ? "Apellido del Tutor" : "Apellidos"}
                   value={formData.last_name}
                   onChange={handleFormChange}
-                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    patientExists ? "bg-gray-100 text-gray-400" : "bg-white text-black"
+                  }`}
                   disabled={patientExists}
                 />
               </div>
@@ -400,7 +428,9 @@ export default function PatientInformation({
                   placeholder="email"
                   value={formData.email}
                   onChange={handleFormChange}
-                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    patientExists ? "bg-gray-100 text-gray-400" : "bg-white text-black"
+                  }`}
                   disabled={patientExists}
                 />
               </div>
@@ -604,7 +634,7 @@ export default function PatientInformation({
                   <input
                     type="text"
                     value={selectedDependentDetails.first_name}
-                    className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white"
+                    className="w-full px-3 py-2 border rounded bg-gray-100 text-gray-400 dark:bg-gray-500 dark:text-white"
                     readOnly
                     disabled
                   />
@@ -616,7 +646,7 @@ export default function PatientInformation({
                   <input
                     type="text"
                     value={selectedDependentDetails.last_name}
-                    className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white"
+                    className="w-full px-3 py-2 border rounded bg-gray-100 text-gray-400 dark:bg-gray-500 dark:text-white"
                     readOnly
                     disabled
                   />
@@ -628,7 +658,7 @@ export default function PatientInformation({
                   <input
                     type="text"
                     value={selectedDependentDetails.birthdate}
-                    className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white"
+                    className="w-full px-3 py-2 border rounded bg-gray-100 text-gray-400 dark:bg-gray-500 dark:text-white"
                     readOnly
                     disabled
                   />
