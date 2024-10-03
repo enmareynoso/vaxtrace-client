@@ -146,6 +146,7 @@ export default function RegisterVaccination() {
         },
         dependent: isChild
           ? {
+              id: selectedDependent.id,
               first_name: selectedDependent.first_name,
               last_name: selectedDependent.last_name,
               birthdate: selectedDependent.birthdate,
@@ -203,6 +204,7 @@ export default function RegisterVaccination() {
       <VaccineInformation
         setVaccineInfo={setVaccineInfo}
         patientId={patientInfo?.id}
+        childId={selectedDependent?.id}
       />
 
       {/* Botón para guardar el registro */}

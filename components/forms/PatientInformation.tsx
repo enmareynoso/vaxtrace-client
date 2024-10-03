@@ -170,7 +170,6 @@ export default function PatientInformation({
           return;
         }
         // Si la cédula es válida, proceder con la búsqueda del paciente
-        // Si la cédula es válida, proceder con la búsqueda del paciente
         const patientData = await getPatientByDocument(documentInput);
 
         if (patientData && patientData.patient_info) {

@@ -14,7 +14,7 @@ export default function VaccineInformation({
   patientId, // Asegúrate de recibir el patientId o childId
   childId, // Opcional: si es un dependiente
 }: Readonly<{
-  setVaccineInfo: (vaccines: any[]) => void;
+  setVaccineInfo: (vaccines: Vaccine[]) => void;
   patientId: number; // Asegúrate de recibir el ID del paciente
   childId?: number; // Opcional: si es un dependiente
 }>) {
