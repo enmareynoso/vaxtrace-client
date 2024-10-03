@@ -179,7 +179,9 @@ const VaccinationRecordPage: React.FC = () => {
 
   const handleSubmitReport = async (vaccinationRecordId: number) => {
     if (selectedSymptoms.length === 0 && !otherSymptom) {
-      toast.error("Por favor selecciona al menos un síntoma o proporciona otro síntoma.");
+      toast.error(
+        "Por favor selecciona al menos un síntoma o proporciona otro síntoma."
+      );
       return;
     }
 
@@ -238,22 +240,23 @@ const VaccinationRecordPage: React.FC = () => {
       setOtherSymptom("");
 
       // Refresh the records for the current patient
-    const patientId = selectedDependent || userInfo?.id;
+      const patientId = selectedDependent || userInfo?.id;
 
-    // Ensure patientId is valid before making the request
-    if (typeof patientId === 'number') {
-      const isDependent = patientId !== userInfo?.id;
-      await fetchVaccinationRecords(patientId, isDependent);
-    } else {
-      toast.error("No se pudo identificar el ID del paciente. Verifica la información del usuario.");
-      console.error("Patient ID is undefined.");
+      // Ensure patientId is valid before making the request
+      if (typeof patientId === "number") {
+        const isDependent = patientId !== userInfo?.id;
+        await fetchVaccinationRecords(patientId, isDependent);
+      } else {
+        toast.error(
+          "No se pudo identificar el ID del paciente. Verifica la información del usuario."
+        );
+        console.error("Patient ID is undefined.");
+      }
+    } catch (err) {
+      toast.error("Error enviando el reporte. Intenta de nuevo.");
+      console.error("Error during ESAVI report submission:", err);
     }
-  } catch (err) {
-    toast.error("Error enviando el reporte. Intenta de nuevo.");
-    console.error("Error during ESAVI report submission:", err);
-  }
-};
-
+  };
 
   // Función para obtener la información del usuario y dependientes
   useEffect(() => {
@@ -318,8 +321,6 @@ const VaccinationRecordPage: React.FC = () => {
     fetchUserInfo();
   }, []);
 
-  
-
   // Manejar el cambio de dependiente
   const handleDependentChange = async (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -345,75 +346,75 @@ const VaccinationRecordPage: React.FC = () => {
         });
 
         // Obtener el nombre del padre
-      const { data: parent, error: parentError } = await supabase
-      .from("vaxtraceapi_patientuser")
-      .select("first_name, last_name")
-      .eq("id", dependent.parent_id)
-      .single();
+        const { data: parent, error: parentError } = await supabase
+          .from("vaxtraceapi_patientuser")
+          .select("first_name, last_name")
+          .eq("id", dependent.parent_id)
+          .single();
 
-    if (parentError) {
-      setError("Error fetching parent information.");
+        if (parentError) {
+          setError("Error fetching parent information.");
+        } else {
+          setParentName(`${parent.first_name} ${parent.last_name}`);
+        }
+
+        fetchVaccinationRecords(selectedId, true);
+      }
     } else {
-      setParentName(`${parent.first_name} ${parent.last_name}`);
+      setCurrentPatient(userInfo);
+      setParentName(null); // Si es el usuario principal, no hay padre que mostrar
+      fetchVaccinationRecords(userInfo.id, false);
     }
-
-    fetchVaccinationRecords(selectedId, true);
-  }
-} else {
-  setCurrentPatient(userInfo);
-  setParentName(null); // Si es el usuario principal, no hay padre que mostrar
-  fetchVaccinationRecords(userInfo.id, false);
-}
-};
+  };
 
   const handleGenerateCertificate = () => {
     const element = certificateRef.current;
     const button = document.getElementById("download-btn");
-  
-    if (element && button) {
 
+    if (element && button) {
       // Cambiar el estado a "generando PDF"
       setIsGeneratingPDF(true);
       // Hide the button before generating the PDF
-      button.style.display = 'none';
-  
+      button.style.display = "none";
 
       const options = {
-        margin: [10, 1, 10, 1], // Top, right, bottom, left margins 
-        filename: 'vaccination_certificate.pdf',
-        image: { type: 'jpeg', quality: 1 }, 
+        margin: [10, 1, 10, 1], // Top, right, bottom, left margins
+        filename: "vaccination_certificate.pdf",
+        image: { type: "jpeg", quality: 1 },
         html2canvas: {
           scale: 3, // Scale up for better quality
-          useCORS: true // Handle cross-origin images if any
+          useCORS: true, // Handle cross-origin images if any
         },
         jsPDF: {
-          unit: 'mm',
-          format: 'a4',
-          orientation: 'portrait', // You can switch to 'landscape' if needed
+          unit: "mm",
+          format: "a4",
+          orientation: "portrait", // You can switch to 'landscape' if needed
         },
-        pagebreak: { mode: ['avoid-all'] }, // Avoid breaking the table across pages
+        pagebreak: { mode: ["avoid-all"] }, // Avoid breaking the table across pages
       };
-  
+
       // Apply custom styling to the table cells for better layout
       const esaviCells = element.querySelectorAll("td:nth-child(6)");
-  
-      esaviCells.forEach(cell => {
+
+      esaviCells.forEach((cell) => {
         const htmlCell = cell as HTMLElement; // Cast cell to HTMLElement
-        htmlCell.style.whiteSpace = 'normal'; // Ensure word wrapping
-        htmlCell.style.width = '150px'; // Increase width of Esavi column
+        htmlCell.style.whiteSpace = "normal"; // Ensure word wrapping
+        htmlCell.style.width = "150px"; // Increase width of Esavi column
       });
-  
+
       // Generate the PDF with the high-quality options
-      html2pdf().from(element).set(options).save().then(() => {
-        // Show the button again after the PDF is generated
-        button.style.display = 'block';
-        // Cambiar el estado a "no generando PDF"
-      setIsGeneratingPDF(false);
-      });
+      html2pdf()
+        .from(element)
+        .set(options)
+        .save()
+        .then(() => {
+          // Show the button again after the PDF is generated
+          button.style.display = "block";
+          // Cambiar el estado a "no generando PDF"
+          setIsGeneratingPDF(false);
+        });
     }
   };
-  
-  
 
   if (loading) {
     return (
@@ -440,7 +441,7 @@ const VaccinationRecordPage: React.FC = () => {
         <div className="mb-6 ml-24">
           <label
             htmlFor="dependent-select"
-            className="block mb-2 text-lg font-medium text-gray-700"
+            className="block mb-2 text-lg font-medium text-gray-700 dark:text-gray-200"
           >
             Seleccionar paciente:
           </label>
@@ -448,7 +449,7 @@ const VaccinationRecordPage: React.FC = () => {
             id="dependent-select"
             value={selectedDependent || userInfo?.id || ""}
             onChange={handleDependentChange}
-            className="block w-2/5 p-2 border border-gray-300 rounded-lg shadow-sm"
+            className="block w-2/5 p-2 border border-gray-300 dark:border-gray-400 dark:bg-gray-700 dark:text-gray-200 rounded-lg shadow-sm"
           >
             <option key={userInfo?.id} value={userInfo?.id}>
               {userInfo?.first_name} {userInfo?.last_name}
@@ -464,19 +465,19 @@ const VaccinationRecordPage: React.FC = () => {
         {/* Certificado de vacunación */}
         <div
           ref={certificateRef}
-          className="bg-white p-8 shadow-lg rounded-lg max-w-4xl mx-auto"
+          className="bg-white p-8 shadow-lg rounded-lg max-w-4xl mx-auto dark:bg-gray-700"
         >
-          <div className="border-b-2 pb-4 mb-6">
+          <div className="border-b-2 pb-4 mb-6 dark:border-gray-400">
             <h3 className="text-2xl font-semibold mb-5 text-center">
               Record de Vacunación
             </h3>
             <div className="grid grid-cols-2 gap-4 text-lg">
               <div>
-                <strong>Nombre:</strong> {currentPatient?.first_name}
+                <strong>Nombre:</strong> {currentPatient?.first_name}{" "}
                 {currentPatient?.last_name}
               </div>
               <div>
-                <strong>Fecha de Nacimiento:</strong>
+                <strong>Fecha de Nacimiento: </strong>
                 {currentPatient?.birthdate
                   ? new Date(currentPatient.birthdate).toLocaleDateString()
                   : "N/A"}
@@ -494,20 +495,20 @@ const VaccinationRecordPage: React.FC = () => {
               )}
 
               <div>
-                <strong>Documento de Identidad:</strong>
+                <strong>Documento de Identidad: </strong>
                 {currentPatient?.document}
               </div>
             </div>
           </div>
 
           {/* Tabla de vacunación */}
-          <table className="w-full table-auto border-collapse border border-gray-300">
+          <table className="w-full table-auto border-collapse border border-gray-300  dark:border-gray-400">
             <thead>
-              <tr className="bg-gray-200">
-                <th className="border border-gray-300 px-4 py-2 text-left">
+              <tr className="bg-gray-200 dark:bg-gray-500">
+                <th className="border border-gray-300 px-4 py-2 text-left ">
                   Vacuna
                 </th>
-                <th className="border border-gray-300 px-5 py-2 text-left">
+                <th className="border border-gray-300 px-5 py-2 text-left ">
                   Dosis
                 </th>
                 <th className="border border-gray-300 px-4 py-2 text-left">
@@ -529,7 +530,10 @@ const VaccinationRecordPage: React.FC = () => {
                 const reportedSymptoms =
                   reportedSymptomsByRecord[record.id] || [];
                 return (
-                  <tr key={record.id} className="hover:bg-gray-100">
+                  <tr
+                    key={record.id}
+                    className="hover:bg-gray-100 dark:hover:bg-gray-600"
+                  >
                     <td className="border border-gray-300 px-4 py-2">
                       {record.vaccine.commercial_name}
                     </td>
@@ -550,7 +554,9 @@ const VaccinationRecordPage: React.FC = () => {
                       {reportedSymptoms.length > 0 ? (
                         <ul className="list-disc pl-5">
                           {reportedSymptoms.map((symptom) => (
-                            <li key={symptom.id}>{symptom.esavisymptom_id.name}</li>
+                            <li key={symptom.id}>
+                              {symptom.esavisymptom_id.name}
+                            </li>
                           ))}
                         </ul>
                       ) : isGeneratingPDF ? (
@@ -567,32 +573,36 @@ const VaccinationRecordPage: React.FC = () => {
                         </button> // Mostrar botón si no está generando PDF
                       )}
                     </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
 
           {/* Modal para el reporte de ESAVI */}
           {showEsaviModal && (
             <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex justify-center items-center z-50">
-              <div className="bg-white p-8 rounded-lg w-full max-w-md mx-4 shadow-lg relative">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+              <div className="bg-white p-8 rounded-lg w-full max-w-md mx-4 shadow-lg relative dark:bg-gray-800">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center dark:text-gray-300">
                   Reportar ESAVI
                 </h2>
-                <p className="text-gray-600 mb-6 text-sm leading-relaxed">
-                  Un ESAVI es un evento supuestamente atribuido a la vacunación o
-                  inmunización. Selecciona hasta 3 síntomas que hayas experimentado:
+                <p className="text-gray-600 mb-6 text-sm leading-relaxed dark:text-gray-300">
+                  Un ESAVI es un evento supuestamente atribuido a la vacunación
+                  o inmunización. Selecciona hasta 3 síntomas que hayas
+                  experimentado:
                 </p>
-                 {/* Muestra el mensaje de error si existe */}
-                  {symptomError && (
-                    <p className="text-red-500 text-sm mb-4">{symptomError}</p>
-                  )}
+                {/* Muestra el mensaje de error si existe */}
+                {symptomError && (
+                  <p className="text-red-500 text-sm mb-4">{symptomError}</p>
+                )}
 
                 {/* Lista de síntomas */}
                 <div className="mb-6 space-y-3">
                   {esaviSymptoms.map((symptom) => (
-                    <label key={symptom.id} className="flex items-center space-x-3">
+                    <label
+                      key={symptom.id}
+                      className="flex items-center space-x-3"
+                    >
                       <input
                         type="checkbox"
                         value={symptom.id}
@@ -605,7 +615,9 @@ const VaccinationRecordPage: React.FC = () => {
                               setSelectedSymptoms((prev) => [...prev, id]);
                               setSymptomError(null);
                             } else {
-                              setSymptomError("Solo puedes seleccionar hasta 3 síntomas.");
+                              setSymptomError(
+                                "Solo puedes seleccionar hasta 3 síntomas."
+                              );
                             }
                           } else {
                             // Elimina el síntoma si se desmarca
@@ -617,7 +629,9 @@ const VaccinationRecordPage: React.FC = () => {
                         }}
                         className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
                       />
-                      <span className="text-gray-700">{symptom.name}</span>
+                      <span className="text-gray-700 dark:text-gray-300">
+                        {symptom.name}
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -626,7 +640,7 @@ const VaccinationRecordPage: React.FC = () => {
                 <div className="mb-6">
                   <label
                     htmlFor="other-symptom"
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300"
                   >
                     Otro síntoma:
                   </label>
@@ -656,7 +670,10 @@ const VaccinationRecordPage: React.FC = () => {
                       setSelectedSymptoms([]);
                       setOtherSymptom("");
                     }}
-                    disabled={selectedSymptoms.length === 0 && otherSymptom.trim() === ""}
+                    disabled={
+                      selectedSymptoms.length === 0 &&
+                      otherSymptom.trim() === ""
+                    }
                   >
                     Enviar reporte
                   </button>
@@ -666,7 +683,7 @@ const VaccinationRecordPage: React.FC = () => {
                       setShowEsaviModal(false);
                       setSelectedSymptoms([]);
                       setOtherSymptom("");
-                      setSymptomError(null); 
+                      setSymptomError(null);
                     }}
                   >
                     Cancelar
@@ -684,7 +701,6 @@ const VaccinationRecordPage: React.FC = () => {
               Descargar Certificado
             </button>
           </div>
-
         </div>
       </main>
     </div>

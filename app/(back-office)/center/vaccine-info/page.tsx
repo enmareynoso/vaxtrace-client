@@ -24,7 +24,7 @@ const ImmunizationSchedule: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            <tr className="bg-blue-100">
+            <tr className="bg-blue-100 dark:bg-blue-900">
               <td className="border border-gray-300 px-4 py-2 text-center">
                 <div className="flex flex-col items-center">
                   <img
@@ -85,7 +85,7 @@ const ImmunizationSchedule: React.FC = () => {
                 1ra Dosis
               </td>
             </tr>
-            <tr className="bg-blue-100">
+            <tr className="bg-blue-100 dark:bg-blue-900">
               <td className="border border-gray-300 px-4 py-2 text-center">
                 <div className="flex flex-col items-center">
                   <img
@@ -146,7 +146,7 @@ const ImmunizationSchedule: React.FC = () => {
                 3ra Dosis
               </td>
             </tr>
-            <tr className="bg-blue-100">
+            <tr className="bg-blue-100 dark:bg-blue-900">
               <td className="border border-gray-300 px-4 py-2 text-center">
                 <div className="flex flex-col items-center">
                   <img
@@ -201,7 +201,7 @@ const ImmunizationSchedule: React.FC = () => {
                 2da Dosis (1er Refuerzo)
               </td>
             </tr>
-            <tr className="bg-blue-100">
+            <tr className="bg-blue-100 dark:bg-blue-900">
               <td className="border border-gray-300 px-4 py-2 text-center">
                 <div className="flex flex-col items-center">
                   <img

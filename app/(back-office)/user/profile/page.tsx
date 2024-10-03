@@ -209,7 +209,7 @@ const ProfilePage: React.FC = () => {
           <div className="mb-4">
             <label
               htmlFor="first_name"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Nombre
             </label>
@@ -218,7 +218,7 @@ const ProfilePage: React.FC = () => {
               name="first_name"
               value={formData.first_name}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400 dark:bg-gray-600"
               required
               readOnly
               disabled
@@ -227,7 +227,7 @@ const ProfilePage: React.FC = () => {
           <div className="mb-4">
             <label
               htmlFor="last_name"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Apellido
             </label>
@@ -236,7 +236,7 @@ const ProfilePage: React.FC = () => {
               name="last_name"
               value={formData.last_name}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400 dark:bg-gray-600"
               required
               readOnly
               disabled
@@ -245,7 +245,7 @@ const ProfilePage: React.FC = () => {
           <div className="mb-4">
             <label
               htmlFor="document"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Documento
             </label>
@@ -254,7 +254,7 @@ const ProfilePage: React.FC = () => {
               name="document"
               value={formData.document}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400 dark:bg-gray-600"
               required
               readOnly
               disabled
@@ -263,7 +263,7 @@ const ProfilePage: React.FC = () => {
           <div className="mb-4">
             <label
               htmlFor="birthdate"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Fecha de Nacimiento
             </label>
@@ -272,7 +272,7 @@ const ProfilePage: React.FC = () => {
               name="birthdate"
               value={formData.birthdate}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400 dark:bg-gray-600"
               required
               readOnly
               disabled
@@ -281,7 +281,7 @@ const ProfilePage: React.FC = () => {
           <div className="mb-4">
             <label
               htmlFor="gender"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Género
             </label>
@@ -289,7 +289,7 @@ const ProfilePage: React.FC = () => {
               name="gender"
               value={formData.gender}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-950"
               required
             >
               <option value="">Seleccionar Género</option>
@@ -301,7 +301,7 @@ const ProfilePage: React.FC = () => {
           <div className="mb-4">
             <label
               htmlFor="nationality"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Nacionalidad
             </label>
@@ -310,14 +310,14 @@ const ProfilePage: React.FC = () => {
               name="nationality"
               value={formData.nationality}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-950"
               required
             />
           </div>
           <div className="mb-4">
             <label
               htmlFor="address"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Dirección
             </label>
@@ -326,14 +326,14 @@ const ProfilePage: React.FC = () => {
               name="address"
               value={formData.address}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-950"
               required
             />
           </div>
           <div className="mb-4">
             <label
               htmlFor="occupation"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Ocupación
             </label>
@@ -342,7 +342,7 @@ const ProfilePage: React.FC = () => {
               name="occupation"
               value={formData.occupation}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-950"
               required
             />
           </div>
@@ -363,14 +363,14 @@ const ProfilePage: React.FC = () => {
             <div className="mb-4">
               <label
                 htmlFor="dependent"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Seleccionar Dependiente
               </label>
               <select
                 name="dependent"
                 onChange={handleDependentChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-950"
               >
                 <option value="">Seleccionar Dependiente</option>
                 {dependents.map((dep) => (
@@ -386,7 +386,7 @@ const ProfilePage: React.FC = () => {
                 <div className="mb-4">
                   <label
                     htmlFor="first_name"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
                     Nombre del Dependiente
                   </label>
@@ -395,7 +395,7 @@ const ProfilePage: React.FC = () => {
                     name="first_name"
                     value={dependentFormData.first_name}
                     onChange={handleDependentFormChange}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400 dark:bg-gray-600"
                     required
                     readOnly
                     disabled
@@ -405,7 +405,7 @@ const ProfilePage: React.FC = () => {
                 <div className="mb-4">
                   <label
                     htmlFor="last_name"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
                     Apellido del Dependiente
                   </label>
@@ -414,7 +414,7 @@ const ProfilePage: React.FC = () => {
                     name="last_name"
                     value={dependentFormData.last_name}
                     onChange={handleDependentFormChange}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400 dark:bg-gray-600"
                     required
                     readOnly
                     disabled
@@ -424,7 +424,7 @@ const ProfilePage: React.FC = () => {
                 <div className="mb-4">
                   <label
                     htmlFor="birthdate"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
                     Fecha de Nacimiento del Dependiente
                   </label>
@@ -433,7 +433,7 @@ const ProfilePage: React.FC = () => {
                     name="birthdate"
                     value={dependentFormData.birthdate}
                     onChange={handleDependentFormChange}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400 dark:bg-gray-600"
                     required
                     readOnly
                     disabled
@@ -443,7 +443,7 @@ const ProfilePage: React.FC = () => {
                 <div className="mb-4">
                   <label
                     htmlFor="gender"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
                     Género del Dependiente
                   </label>
@@ -451,7 +451,7 @@ const ProfilePage: React.FC = () => {
                     name="gender"
                     value={dependentFormData.gender}
                     onChange={handleDependentFormChange}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-950"
                     required
                   >
                     <option value="">Seleccionar Género</option>
