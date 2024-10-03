@@ -684,38 +684,11 @@ export default function PatientInformation({
                     className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white"
                   />
                 </div>
-                <div className="flex items-center space-x-4 pt-4">
-                  <label
-                    htmlFor="dependent-gender"
-                    className="block text-gray-700 dark:text-white"
-                  >
-                    Género
-                  </label>
-                  <div id="dependent-gender">
-                    <button
-                      type="button"
-                      onClick={() => handleDependentGenderChange("M")}
-                      className={`py-2 px-4 border rounded-md text-center ${
-                        newDependentData.gender === "M"
-                          ? "bg-cyan-800 text-white"
-                          : "bg-gray-300 text-black"
-                      }`}
-                    >
-                      M
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDependentGenderChange("F")}
-                      className={`py-2 px-4 border rounded-md text-center ${
-                        newDependentData.gender === "F"
-                          ? "bg-cyan-800 text-white"
-                          : "bg-gray-300 text-black"
-                      }`}
-                    >
-                      F
-                    </button>
-                  </div>
-                </div>
+                <GenderButtons
+                  selectedGender={newDependentData.gender}
+                  onChange={handleDependentGenderChange}
+                  disabled={false}
+                />
               </div>
               <div className="mt-4">
                 <Button
@@ -783,36 +756,11 @@ export default function PatientInformation({
                     disabled
                   />
                 </div>
-                <div className="flex items-center space-x-4 pt-4">
-                  <label
-                    htmlFor="selectedDependent-gender"
-                    className="block text-gray-700 dark:text-white"
-                  >
-                    Género
-                  </label>
-                  <div id="selectedDependent-gender">
-                    <button
-                      type="button"
-                      className={`py-2 px-4 border rounded-md text-center ${
-                        selectedDependentDetails.gender === "M"
-                          ? "bg-cyan-800 text-white"
-                          : "bg-gray-300 text-black"
-                      }`}
-                    >
-                      M
-                    </button>
-                    <button
-                      type="button"
-                      className={`py-2 px-4 border rounded-md text-center ${
-                        selectedDependentDetails.gender === "F"
-                          ? "bg-cyan-800 text-white"
-                          : "bg-gray-300 text-black"
-                      }`}
-                    >
-                      F
-                    </button>
-                  </div>
-                </div>
+                <GenderButtons
+                  selectedGender={selectedDependentDetails.gender}
+                  onChange={() => {}}
+                  disabled={true}
+                />
               </div>
             </div>
           )}

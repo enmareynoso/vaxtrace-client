@@ -22,6 +22,7 @@ export default function VaccineInformation({
   const [vaccines, setVaccines] = useState<any[]>([]);
   const [availableVaccines, setAvailableVaccines] = useState<Vaccine[]>([]);
   const [doses, setDoses] = useState<string[]>([]); // Para almacenar las dosis por vacuna
+  const [vaccineSelections, setVaccineSelections] = useState<string[]>([]);
 
   // Obtener los IDs y nombres comerciales de las vacunas desde la base de datos
   useEffect(() => {
@@ -47,6 +48,14 @@ export default function VaccineInformation({
     fetchVaccines();
   }, []);
 
+  // Reiniciar el campo de dosis cuando cambie el dependiente
+  useEffect(() => {
+    setVaccines([]); // Reiniciar vacunas seleccionadas
+    setVaccineSelections([]);
+    setDoses([]); // Reiniciar las dosis
+    setVaccineCount(1); // Reiniciar el número de vacunas a 1
+  }, [childId, patientId]);
+
   // Buscar la próxima dosis basada en el último registro
   const fetchNextDose = async (vaccineId: number) => {
     try {
@@ -67,6 +76,10 @@ export default function VaccineInformation({
         // Asumimos que las dosis son secuenciales: "1", "2", "3", etc.
         const lastDose = parseInt(lastRecord[0].dose, 10);
         return (lastDose + 1).toString(); // La próxima dosis
+      }
+
+      if (vaccineId == 0) {
+        return ""; // Si no hay registros, la primera dosis es "1"
       }
 
       return "1"; // Si no hay registros previos, empieza con la dosis 1
@@ -94,37 +107,36 @@ export default function VaccineInformation({
     value: string | boolean | Date
   ) => {
     const updatedVaccines = [...vaccines];
+    const updatedSelections = { ...vaccineSelections };
+
     updatedVaccines[index] = { ...updatedVaccines[index], [field]: value };
 
     // Si cambia la vacuna, buscar la próxima dosis automáticamente
     if (field === "vaccine_id") {
       if (value === "select") {
         // Comprobar si se seleccionó la opción predeterminada
-
         updatedVaccines[index].dose = ""; // Vaciar la dosis
 
         setDoses((prev) => {
           const updatedDoses = [...prev];
-
           updatedDoses[index] = ""; // Vaciar la dosis en el estado
-
           return updatedDoses;
         });
+        updatedSelections[index] = "select"; // Resetear el select a la opción predeterminada
       } else {
         const nextDose = await fetchNextDose(Number(value));
-
         updatedVaccines[index].dose = nextDose; // Asignar la próxima dosis
 
         setDoses((prev) => {
           const updatedDoses = [...prev];
-
           updatedDoses[index] = nextDose || "";
-
           return updatedDoses;
         });
+        updatedSelections[index] = value as string; // Guardar la selección actual
       }
     }
 
+    setVaccineSelections(updatedSelections);
     setVaccines(updatedVaccines);
     setVaccineInfo(updatedVaccines);
   };
@@ -151,11 +163,12 @@ export default function VaccineInformation({
               {/* Select para las vacunas */}
               <Select
                 title="Vacuna"
+                value={vaccineSelections[index] || "select"} // Establecer el valor desde el estado
                 options={availableVaccines.map((vaccine) => ({
                   value: vaccine.vaccine_id.toString(),
                   label: vaccine.commercial_name,
                 }))}
-                className="w-full mt-3 md:w-1/3 "
+                className="w-full mt-3 md:w-1/3"
                 onChange={handleSelectChange(index, "vaccine_id")}
               />
 
