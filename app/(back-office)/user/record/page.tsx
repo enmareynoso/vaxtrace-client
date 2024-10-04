@@ -438,29 +438,33 @@ const VaccinationRecordPage: React.FC = () => {
 
       <main className="flex-grow p-8">
         {/* Dropdown de dependientes */}
-        <div className="mb-6 ml-24">
+        <div className="mb-8 flex justify-center">
+        <div className="w-full max-w-lg">
           <label
             htmlFor="dependent-select"
-            className="block mb-2 text-lg font-medium text-gray-700 dark:text-gray-200"
+            className="block mb-2 text-xl font-semibold text-gray-800 dark:text-gray-300"
           >
             Seleccionar paciente:
           </label>
-          <select
-            id="dependent-select"
-            value={selectedDependent || userInfo?.id || ""}
-            onChange={handleDependentChange}
-            className="block w-2/5 p-2 border border-gray-300 dark:border-gray-400 dark:bg-gray-700 dark:text-gray-200 rounded-lg shadow-sm"
-          >
-            <option key={userInfo?.id} value={userInfo?.id}>
-              {userInfo?.first_name} {userInfo?.last_name}
-            </option>
-            {dependents.map((dependent) => (
-              <option key={dependent.id} value={dependent.id}>
-                {dependent.first_name} {dependent.last_name}
+          <div className="relative">
+            <select
+              id="dependent-select"
+              value={selectedDependent || userInfo?.id || ""}
+              onChange={handleDependentChange}
+              className="block w-full p-3 border border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-800 dark:text-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-200 ease-in-out"
+            >
+              <option key={userInfo?.id} value={userInfo?.id}>
+                {userInfo?.first_name} {userInfo?.last_name}
               </option>
-            ))}
-          </select>
+              {dependents.map((dependent) => (
+                <option key={dependent.id} value={dependent.id}>
+                  {dependent.first_name} {dependent.last_name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
+      </div>
 
         {/* Certificado de vacunación */}
         <div

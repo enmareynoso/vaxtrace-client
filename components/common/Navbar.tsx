@@ -24,13 +24,13 @@ export default function Navbar() {
           </a>
         </div>
         <div className="hidden lg:flex space-x-8 px-10">
-          <a href="/about" className="link-94 dark:text-gray-300">
+          <a href="/about" className="link-94 dark:text-gray-100">
             Acerca de nosotros
           </a>
-          <a href="/info" className="link-94 dark:text-gray-300">
+          <a href="/info" className="link-94 dark:text-gray-100">
             Información de vacunas
           </a>
-          <a href="/#faqs" className="link-94 dark:text-gray-300">
+          <a href="/#faqs" className="link-94 dark:text-gray-100">
             Preguntas frecuentes
           </a>
         </div>

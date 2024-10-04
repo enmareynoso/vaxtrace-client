@@ -1,3 +1,4 @@
+/* Overlay oscuro */
 .session-modal-overlay {
   position: fixed;
   top: 0;
@@ -11,6 +12,7 @@
   z-index: 1050;
 }
 
+/* Contenido del modal */
 .session-modal-content {
   background: #ffffff;
   padding: 25px;
@@ -20,15 +22,24 @@
   text-align: center;
   position: relative;
   transition: transform 0.3s ease-in-out;
-  border: 2px solid #0695a8; /* Cyan-900 color assumed as similar to Cyan A400 */
+  border: 2px solid #0695a8;
 }
 
+/* Modo oscuro */
+.dark .session-modal-content {
+  background: #1e293b; /* Gray-800 for dark mode */
+  color: #e5e7eb; /* Text light gray */
+  border: 2px solid #3b82f6; /* Border azul más claro para modo oscuro */
+}
+
+/* Contenedor de botones */
 .button-container {
   margin-top: 20px;
   display: flex;
   justify-content: space-around;
 }
 
+/* Estilo de los botones */
 .session-modal-button {
   padding: 12px 25px;
   border: none;
@@ -39,7 +50,7 @@
   font-size: 16px;
   font-weight: bold;
   transition: background-color 0.3s, transform 0.2s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border: 1px solid #000000;
 }
 
@@ -48,12 +59,28 @@
   transform: scale(1.05);
 }
 
+/* Botón de cerrar sesión */
 .session-modal-button.logout {
   background-color: #dc3545;
 }
 
 .session-modal-button.logout:hover {
   background-color: #c82333;
+}
+
+/* Modo oscuro para los botones */
+.dark .session-modal-button {
+  background-color: #3b82f6; /* Botón azul claro para modo oscuro */
+  color: #e5e7eb; /* Texto claro */
+  border-color: #e5e7eb; /* Borde claro en modo oscuro */
+}
+
+.dark .session-modal-button.logout {
+  background-color: #ef4444; /* Rojo claro para logout en modo oscuro */
+}
+
+.dark .session-modal-button.logout:hover {
+  background-color: #dc2626; /* Rojo más oscuro en hover en modo oscuro */
 }
 
   
