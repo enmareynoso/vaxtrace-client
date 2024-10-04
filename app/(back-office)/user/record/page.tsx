@@ -326,46 +326,62 @@ const VaccinationRecordPage: React.FC = () => {
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     const selectedId = Number(event.target.value);
-    setSelectedDependent(selectedId);
-
-    if (selectedId !== userInfo?.id) {
-      const { data: dependent, error: dependentError } = await supabase
-        .from("vaxtraceapi_child")
-        .select("first_name, last_name, birthdate, gender, parent_id")
-        .eq("id", selectedId)
-        .single();
-
-      if (dependentError) {
-        setError("Error fetching dependent information.");
-      } else {
-        setCurrentPatient({
-          ...dependent,
-          id: selectedId,
-          document: userInfo?.document || "",
-          nationality: userInfo?.nationality || "",
-        });
-
-        // Obtener el nombre del padre
-        const { data: parent, error: parentError } = await supabase
-          .from("vaxtraceapi_patientuser")
-          .select("first_name, last_name")
-          .eq("id", dependent.parent_id)
-          .single();
-
-        if (parentError) {
-          setError("Error fetching parent information.");
-        } else {
-          setParentName(`${parent.first_name} ${parent.last_name}`);
-        }
-
-        fetchVaccinationRecords(selectedId, true);
-      }
+  
+    // Si se selecciona "Seleccionar dependiente" (valor 0 o vacío)
+    if (!selectedId || selectedId === userInfo?.id) {
+      // Si se selecciona la opción del padre o la opción vacía
+      setSelectedDependent(userInfo?.id || null);
+      setCurrentPatient(userInfo); // Cargar los datos del padre en currentPatient
+      setParentName(null); // No hay padre que mostrar porque el paciente es el principal
+      // Verificar que userInfo y userInfo.id existan antes de llamar a fetchVaccinationRecords
+    if (userInfo?.id !== undefined) {
+      await fetchVaccinationRecords(userInfo.id, false); // Cargar los registros de vacunación del padre
     } else {
-      setCurrentPatient(userInfo);
-      setParentName(null); // Si es el usuario principal, no hay padre que mostrar
-      fetchVaccinationRecords(userInfo.id, false);
+      console.error("Error: userInfo o userInfo.id es undefined");
+    }
+    } else {
+      // Si se selecciona un dependiente, buscar su información
+      setSelectedDependent(selectedId);
+  
+      try {
+        const { data: dependent, error: dependentError } = await supabase
+          .from("vaxtraceapi_child")
+          .select("first_name, last_name, birthdate, gender, parent_id")
+          .eq("id", selectedId)
+          .single();
+  
+        if (dependentError) {
+          setError("Error fetching dependent information.");
+        } else {
+          setCurrentPatient({
+            ...dependent,
+            id: selectedId,
+            document: userInfo?.document || "",
+            nationality: userInfo?.nationality || "",
+          });
+  
+          // Obtener el nombre del padre del dependiente
+          const { data: parent, error: parentError } = await supabase
+            .from("vaxtraceapi_patientuser")
+            .select("first_name, last_name")
+            .eq("id", dependent.parent_id)
+            .single();
+  
+          if (parentError) {
+            setError("Error fetching parent information.");
+          } else {
+            setParentName(`${parent.first_name} ${parent.last_name}`);
+          }
+  
+          await fetchVaccinationRecords(selectedId, true); // Cargar los registros de vacunación del dependiente
+        }
+      } catch (err) {
+        setError("Error fetching dependent information.");
+        console.error(err);
+      }
     }
   };
+  
 
   const handleGenerateCertificate = () => {
     const element = certificateRef.current;
@@ -438,33 +454,59 @@ const VaccinationRecordPage: React.FC = () => {
 
       <main className="flex-grow p-8">
         {/* Dropdown de dependientes */}
-        <div className="mb-8 flex justify-center">
-        <div className="w-full max-w-lg">
-          <label
-            htmlFor="dependent-select"
-            className="block mb-2 text-xl font-semibold text-gray-800 dark:text-gray-300"
-          >
-            Seleccionar paciente:
-          </label>
-          <div className="relative">
-            <select
-              id="dependent-select"
-              value={selectedDependent || userInfo?.id || ""}
-              onChange={handleDependentChange}
-              className="block w-full p-3 border border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-800 dark:text-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-200 ease-in-out"
+        <div className="mb-8 flex justify-center gap-4">
+          {/* Dropdown para el padre */}
+          <div className="w-full max-w-lg">
+            <label
+              htmlFor="parent-select"
+              className="block mb-2 text-xl font-semibold text-gray-800 dark:text-gray-300"
             >
-              <option key={userInfo?.id} value={userInfo?.id}>
-                {userInfo?.first_name} {userInfo?.last_name}
-              </option>
-              {dependents.map((dependent) => (
-                <option key={dependent.id} value={dependent.id}>
-                  {dependent.first_name} {dependent.last_name}
+              Paciente:
+            </label>
+            <div className="relative">
+              <select
+                id="parent-select"
+                value={userInfo?.id || ""}
+                className="block w-full p-3 border border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-800 dark:text-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-200 ease-in-out"
+                disabled
+              >
+                <option key={userInfo?.id} value={userInfo?.id}>
+                  {userInfo?.first_name} {userInfo?.last_name} (Padre)
                 </option>
-              ))}
-            </select>
+              </select>
+            </div>
           </div>
+
+          {/* Mostrar el dropdown de dependientes solo si existen */}
+          {dependents.length > 0 && (
+            <div className="w-full max-w-lg">
+              <label
+                htmlFor="dependent-select"
+                className="block mb-2 text-xl font-semibold text-gray-800 dark:text-gray-300"
+              >
+                Seleccionar dependiente:
+              </label>
+              <div className="relative">
+                <select
+                  id="dependent-select"
+                  value={selectedDependent || ""}  // Controlamos el valor del dependiente seleccionado
+                  onChange={handleDependentChange}
+                  className="block w-full p-3 border border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-800 dark:text-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-200 ease-in-out"
+                >
+                  {/* Opción por defecto para seleccionar dependiente */}
+                  <option value="">
+                    Seleccionar dependiente
+                  </option>
+                  {dependents.map((dependent) => (
+                    <option key={dependent.id} value={dependent.id}>
+                      {dependent.first_name} {dependent.last_name} (Dependiente)
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
         </div>
-      </div>
 
         {/* Certificado de vacunación */}
         <div
