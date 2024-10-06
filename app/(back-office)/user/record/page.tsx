@@ -326,7 +326,7 @@ const VaccinationRecordPage: React.FC = () => {
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     const selectedId = Number(event.target.value);
-  
+
     // Si se selecciona "Seleccionar dependiente" (valor 0 o vacío)
     if (!selectedId || selectedId === userInfo?.id) {
       // Si se selecciona la opción del padre o la opción vacía
@@ -334,22 +334,22 @@ const VaccinationRecordPage: React.FC = () => {
       setCurrentPatient(userInfo); // Cargar los datos del padre en currentPatient
       setParentName(null); // No hay padre que mostrar porque el paciente es el principal
       // Verificar que userInfo y userInfo.id existan antes de llamar a fetchVaccinationRecords
-    if (userInfo?.id !== undefined) {
-      await fetchVaccinationRecords(userInfo.id, false); // Cargar los registros de vacunación del padre
-    } else {
-      console.error("Error: userInfo o userInfo.id es undefined");
-    }
+      if (userInfo?.id !== undefined) {
+        await fetchVaccinationRecords(userInfo.id, false); // Cargar los registros de vacunación del padre
+      } else {
+        console.error("Error: userInfo o userInfo.id es undefined");
+      }
     } else {
       // Si se selecciona un dependiente, buscar su información
       setSelectedDependent(selectedId);
-  
+
       try {
         const { data: dependent, error: dependentError } = await supabase
           .from("vaxtraceapi_child")
           .select("first_name, last_name, birthdate, gender, parent_id")
           .eq("id", selectedId)
           .single();
-  
+
         if (dependentError) {
           setError("Error fetching dependent information.");
         } else {
@@ -359,20 +359,20 @@ const VaccinationRecordPage: React.FC = () => {
             document: userInfo?.document || "",
             nationality: userInfo?.nationality || "",
           });
-  
+
           // Obtener el nombre del padre del dependiente
           const { data: parent, error: parentError } = await supabase
             .from("vaxtraceapi_patientuser")
             .select("first_name, last_name")
             .eq("id", dependent.parent_id)
             .single();
-  
+
           if (parentError) {
             setError("Error fetching parent information.");
           } else {
             setParentName(`${parent.first_name} ${parent.last_name}`);
           }
-  
+
           await fetchVaccinationRecords(selectedId, true); // Cargar los registros de vacunación del dependiente
         }
       } catch (err) {
@@ -381,7 +381,6 @@ const VaccinationRecordPage: React.FC = () => {
       }
     }
   };
-  
 
   const handleGenerateCertificate = () => {
     const element = certificateRef.current;
@@ -458,22 +457,20 @@ const VaccinationRecordPage: React.FC = () => {
           {/* Dropdown para el padre */}
           <div className="w-full max-w-lg">
             <label
-              htmlFor="parent-select"
+              htmlFor="parent-input"
               className="block mb-2 text-xl font-semibold text-gray-800 dark:text-gray-300"
             >
               Paciente:
             </label>
             <div className="relative">
-              <select
-                id="parent-select"
-                value={userInfo?.id || ""}
+              <input
+                type="text"
+                id="parent-input"
+                value={`${userInfo?.first_name} ${userInfo?.last_name} (Padre)`}
                 className="block w-full p-3 border border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-800 dark:text-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-200 ease-in-out"
+                readOnly
                 disabled
-              >
-                <option key={userInfo?.id} value={userInfo?.id}>
-                  {userInfo?.first_name} {userInfo?.last_name} (Padre)
-                </option>
-              </select>
+              />
             </div>
           </div>
 
@@ -489,14 +486,12 @@ const VaccinationRecordPage: React.FC = () => {
               <div className="relative">
                 <select
                   id="dependent-select"
-                  value={selectedDependent || ""}  // Controlamos el valor del dependiente seleccionado
+                  value={selectedDependent || ""} // Controlamos el valor del dependiente seleccionado
                   onChange={handleDependentChange}
                   className="block w-full p-3 border border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-800 dark:text-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-200 ease-in-out"
                 >
                   {/* Opción por defecto para seleccionar dependiente */}
-                  <option value="">
-                    Seleccionar dependiente
-                  </option>
+                  <option value="">Seleccionar dependiente</option>
                   {dependents.map((dependent) => (
                     <option key={dependent.id} value={dependent.id}>
                       {dependent.first_name} {dependent.last_name} (Dependiente)

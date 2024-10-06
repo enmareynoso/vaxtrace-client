@@ -1,9 +1,9 @@
 import { LucideIcon } from "lucide-react";
 
-export type CardSummaryProps = {
+export interface CardSummaryProps {
   icon: LucideIcon;
   total: string;
-  average: number;
   title: string;
-  tooltipText: string;
-};
+  average?: number;
+  tooltipText?: string;
+}
