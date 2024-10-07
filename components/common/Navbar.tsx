@@ -6,7 +6,6 @@ import logo from "../../public/images/logo.png";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import "./navbar.css";
 
-
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -25,22 +24,13 @@ export default function Navbar() {
           </a>
         </div>
         <div className="hidden lg:flex space-x-8 px-10">
-          <a
-            href="/about"
-            className="link-94"
-          >
+          <a href="/about" className="link-94 dark:text-gray-100">
             Acerca de nosotros
           </a>
-          <a
-            href="/info"
-            className="link-94"
-          >
+          <a href="/info" className="link-94 dark:text-gray-100">
             Información de vacunas
           </a>
-          <a
-            href="/#faqs"
-            className="link-94"
-          >
+          <a href="/#faqs" className="link-94 dark:text-gray-100">
             Preguntas frecuentes
           </a>
         </div>

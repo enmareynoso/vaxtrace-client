@@ -7,18 +7,103 @@ import toast, { Renderable, Toast, ValueFunction } from "react-hot-toast";
 import { registerVaccinationRecord } from "@/lib/api/auth";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function RegisterVaccination() {
   const [patientInfo, setPatientInfo] = useState<any>(null); // Información del paciente
   const [vaccineInfo, setVaccineInfo] = useState<any[]>([]); // Información de la vacuna
   const [selectedDependent, setSelectedDependent] = useState<any>(null); // Dependiente seleccionado (hijo)
   const [centerId, setCenterId] = useState<string | null>(null); // ID del centro
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<any>({}); // Ahora es un objeto para manejar errores de cada campo
 
   // Obtener el ID del centro desde localStorage al cargar el componente
   useEffect(() => {
-    const id = localStorage.getItem("center_id");
-    setCenterId(id);
+    const fetchCenterId = async () => {
+      setLoading(true);
+      const accountId = localStorage.getItem("account_id");
+
+      if (!accountId) {
+        setError((prevError: any) => ({
+          ...prevError,
+          center: "No account_id found.",
+        }));
+        setLoading(false);
+        return;
+      }
+
+      // Paso 1: Obtener vaccination_center_id desde vaxtraceapi_vaccinationcenteraccount
+      const { data: account, error: accountError } = await supabase
+        .from("vaxtraceapi_vaccinationcenteraccount")
+        .select("vaccination_center_id")
+        .eq("id", accountId)
+        .single();
+
+      if (accountError || !account) {
+        setError((prevError: any) => ({
+          ...prevError,
+          center: "Error obteniendo el vaccination_center_id.",
+        }));
+        setLoading(false);
+        return;
+      }
+
+      const vaccination_center_id = account.vaccination_center_id;
+
+      // Paso 2: Obtener detalles del centro de vacunación si es necesario
+      const { data: center, error: centerError } = await supabase
+        .from("vaxtraceapi_vaccinationcenter")
+        .select("RNC, name, address, phone_number, email, municipality_id")
+        .eq("vaccination_center_id", vaccination_center_id)
+        .single();
+
+      if (centerError || !center) {
+        setError((prevError: any) => ({
+          ...prevError,
+          center: "Error obteniendo los detalles del centro.",
+        }));
+        setLoading(false);
+        return;
+      }
+
+      setCenterId(vaccination_center_id);
+      setLoading(false);
+    };
+
+    fetchCenterId();
   }, []);
+
+  const validateForm = () => {
+    let newErrors: any = {};
+
+    // Validación de los campos de patientInfo
+    if (!patientInfo?.document)
+      newErrors.document = "El documento es obligatorio.";
+    if (!patientInfo?.first_name)
+      newErrors.first_name = "El nombre es obligatorio.";
+    if (!patientInfo?.last_name)
+      newErrors.last_name = "El apellido es obligatorio.";
+    if (!patientInfo?.birthdate)
+      newErrors.birthdate = "La fecha de nacimiento es obligatoria.";
+    if (!patientInfo?.gender) newErrors.gender = "El género es obligatorio.";
+
+    // Validación de vaccineInfo
+    if (vaccineInfo.length === 0)
+      newErrors.vaccines = "Debe agregar al menos una vacuna.";
+
+    setError(newErrors);
+
+    // Retorna true si no hay errores
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const resetForm = () => {
+    // Reiniciar todos los estados a sus valores iniciales
+    setPatientInfo(null);
+    setVaccineInfo([]);
+    setSelectedDependent(null);
+    setError({});
+  };
 
   const handleSaveRecord = async () => {
     const token = Cookies.get("access_token"); // Obtener el token de las cookies
@@ -29,11 +114,17 @@ export default function RegisterVaccination() {
       return;
     }
 
+    if (!validateForm()) {
+      toast.error("Por favor, complete todos los campos obligatorios.");
+      return;
+    }
+
+    setLoading(true);
     try {
       // Formatear la fecha de nacimiento
       const formattedBirthdate = patientInfo.birthdate
         ? new Date(patientInfo.birthdate).toISOString().split("T")[0]
-        : null; // Convertir birthdate a 'YYYY-MM-DD'
+        : null;
 
       // Determinar si se debe registrar la vacuna para el padre o el dependiente
       const targetPatient = selectedDependent || patientInfo;
@@ -44,10 +135,10 @@ export default function RegisterVaccination() {
       // Construir los datos del registro de vacunación
       const vaccinationRecord = {
         patient: {
-          document: patientInfo.document, // Siempre pasar el documento del padre
+          document: patientInfo.document,
           first_name: patientInfo.first_name,
           last_name: patientInfo.last_name,
-          birthdate: formattedBirthdate ?? "", // Usar la fecha formateada
+          birthdate: formattedBirthdate ?? "",
           gender: patientInfo.gender,
           email: patientInfo.email,
           occupation: patientInfo.occupation,
@@ -55,6 +146,7 @@ export default function RegisterVaccination() {
         },
         dependent: isChild
           ? {
+              id: selectedDependent.id,
               first_name: selectedDependent.first_name,
               last_name: selectedDependent.last_name,
               birthdate: selectedDependent.birthdate,
@@ -67,6 +159,7 @@ export default function RegisterVaccination() {
           dose: v.dose,
           batch_lot_number: v.batch_lot_number,
         })),
+        center_id: centerId?.toString(),
       };
 
       console.log("Sending vaccination record:", vaccinationRecord); // Debugging
@@ -75,35 +168,26 @@ export default function RegisterVaccination() {
       await registerVaccinationRecord(vaccinationRecord, token);
 
       // Mostrar mensajes de éxito personalizados
-      if (selectedDependent) {
-        toast.success(
-          `Registro de vacunación creado para el usuario menor de edad ${selectedDependent.first_name}.`
-        );
-      } else {
-        toast.success(
-          `Registro de vacunación creado para el usuario ${patientInfo.first_name}.`
-        );
-      }
+      toast.success(
+        selectedDependent
+          ? `Registro de vacunación creado para el usuario menor de edad ${selectedDependent.first_name}.`
+          : `Registro de vacunación creado para el usuario ${patientInfo.first_name}.`
+      );
+
+      // Llamar a la función para reiniciar el formulario
+      resetForm();
     } catch (error: any) {
-      // Manejo de errores con diferentes tipos de error
-      if (error.response && error.response.data) {
-        if (error.response.data.errors && error.response.data.errors.length > 0) {
-          // Display all error messages from the array
-          error.response.data.errors.forEach((err: Renderable | ValueFunction<Renderable, Toast>) => {
+      if (error.response?.data?.errors?.length > 0) {
+        error.response.data.errors.forEach(
+          (err: Renderable | ValueFunction<Renderable, Toast>) => {
             toast.error(err);
-          });
-        } else if (error.response.data.detail) {
-          // Display detail error if present
-          toast.error(error.response.data.detail);
-        } else {
-          // Fallback error message
-          toast.error("Failed to save the record.");
-        }
-      } else if (error instanceof Error) {
-        toast.error(`Failed to save the record: ${error.message}`);
+          }
+        );
       } else {
-        toast.error("An unknown error occurred.");
+        toast.error("Fallo al guardar el registro.");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -112,17 +196,27 @@ export default function RegisterVaccination() {
       {/* Componente para la información del paciente */}
       <PatientInformation
         setPatientInfo={setPatientInfo}
-        setSelectedDependent={setSelectedDependent} // Pasar la función para capturar el dependiente seleccionado
+        setSelectedDependent={setSelectedDependent}
+        setError={setError}
       />
+
       {/* Componente para la información de la vacuna */}
-      <VaccineInformation setVaccineInfo={setVaccineInfo} />
+      <VaccineInformation
+        setVaccineInfo={setVaccineInfo}
+        patientId={patientInfo?.id}
+        childId={selectedDependent?.id}
+      />
+
       {/* Botón para guardar el registro */}
       <div className="pt-6">
         <Button
           onClick={handleSaveRecord}
-          className="w-full py-3 bg-cyan-800 text-white font-semibold rounded-md hover:bg-cyan-900 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-150"
+          disabled={loading}
+          className={`w-full py-3 bg-cyan-800 text-white font-semibold rounded-md ${
+            loading ? "opacity-50 cursor-not-allowed" : "hover:bg-cyan-900"
+          } transition duration-150`}
         >
-          Guardar Registro
+          {loading ? "Guardando..." : "Guardar Registro"}
         </Button>
       </div>
     </div>

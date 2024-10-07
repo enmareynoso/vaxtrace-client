@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import MainImage from "../../public/images/heroImage.png";
+import "./hero.css"
 
 const Hero = () => {
   return (
@@ -10,7 +11,7 @@ const Hero = () => {
           <div className="w-full lg:w-1/2 px-4">
             <div>
               <h1 className="text-4xl font-bold text-cyan-900 mb-4 dark:text-white">
-                Sistema Web para el registro de vacunación en la República
+                Sistema para el registro de vacunación en la República
                 Dominicana
               </h1>
               <p className="text-lg text-gray-600 mb-6 dark:text-gray-200">
@@ -19,7 +20,7 @@ const Hero = () => {
               </p>
               <a
                 href="/auth/login"
-                className="bg-cyan-900 text-white font-medium rounded-md px-6 py-3 hover:bg-blue-500 transition-colors"
+                className="custom-comenzar-button bg-cyan-900 text-white font-medium rounded-md px-6 py-3"
               >
                 Comenzar
               </a>

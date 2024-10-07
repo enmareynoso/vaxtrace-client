@@ -1,10 +1,13 @@
-import { CustomIconProps } from "./Customicon.types";
+// CustomIcon.tsx
+import React from "react";
+import { LucideIcon } from "lucide-react";
 
-export function CustomIcon(props: CustomIconProps) {
-  const { icon: Icon } = props;
-  return (
-    <div className="p-2 bg-slate-400/2 rounded-lg">
-      <Icon strokeWidth={1} className="w-6 h-6 text-slate-500" />
-    </div>
-  );
+interface CustomIconProps {
+  icon: LucideIcon;
+  className?: string;
 }
+
+export const CustomIcon: React.FC<CustomIconProps> = ({
+  icon: Icon,
+  className,
+}) => <Icon className={className} />;

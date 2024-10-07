@@ -9,7 +9,7 @@ import Checkbox from "../ui/checkbox";
 import { supabase } from "@/lib/supabaseClient";
 import { registerCenter } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
-import toast, { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from "react-hot-toast";
 
 interface Province {
   province_id: number;
@@ -42,32 +42,34 @@ const CenterSignUp: React.FC = () => {
       const { data: provinceData, error: provinceError } = await supabase
         .from("vaxtraceapi_province")
         .select("province_id, name");
-  
-      const { data: municipalityData, error: municipalityError } = await supabase
-        .from("vaxtraceapi_municipality")
-        .select("municipality_id, name, province_id");
-  
+
+      const { data: municipalityData, error: municipalityError } =
+        await supabase
+          .from("vaxtraceapi_municipality")
+          .select("municipality_id, name, province_id");
+
       if (provinceError || municipalityError) {
-        console.error("Error fetching data:", provinceError || municipalityError);
+        console.error(
+          "Error fetching data:",
+          provinceError || municipalityError
+        );
       } else {
         setProvinces(provinceData || []);
         setMunicipalities(municipalityData || []);
       }
     };
-  
+
     fetchProvincesAndMunicipalities();
   }, []);
 
   const filteredMunicipalities = municipalities.filter(
     (muni) => muni.province_id === parseInt(province)
   );
-  
-  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true); // Activar loading
-    
+
     try {
       const payload = {
         RNC: rnc,
@@ -171,85 +173,99 @@ const CenterSignUp: React.FC = () => {
         </div>
       </div>
       <div className="w-full md:w-1/2 bg-cyan-900 flex items-center justify-center p-6 md:p-12 flex-1">
-        <div className="bg-gray-100 p-6 md:p-8 rounded-lg shadow-lg w-full max-w-md">
-          <h1 className="text-2xl md:text-3xl font-bold mb-8 text-center text-cyan-900">
+        <div className="bg-gray-100 p-6 md:p-8 rounded-lg shadow-lg w-full max-w-md dark:bg-gray-800">
+          <h1 className="text-2xl md:text-3xl font-bold mb-8 text-center text-cyan-900 dark:text-gray-300">
             Center Sign Up
           </h1>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label className="block text-cyan-900 font-semibold">RNC</label>
+              <label className="block text-cyan-900 font-semibold dark:text-gray-300">
+                RNC
+              </label>
               <input
                 type="text"
                 value={rnc}
                 onChange={handleRNCChange}
                 inputMode="numeric"
                 maxLength={11}
-                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300 dark:text-gray-300"
                 placeholder="RNC"
                 required
               />
             </div>
             <div className="mb-4">
-              <label className="block text-cyan-900 font-semibold">Nombre</label>
+              <label className="block text-cyan-900 font-semibold dark:text-gray-300">
+                Nombre
+              </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300 dark:text-gray-300"
                 placeholder="Center Name"
                 required
               />
             </div>
             <div className="mb-4">
-              <label className="block text-cyan-900 font-semibold">Cédula</label>
+              <label className="block text-cyan-900 font-semibold dark:text-gray-300">
+                Cédula
+              </label>
               <input
                 type="text"
                 value={directorDocument}
                 onChange={(e) => setDirectorDocument(e.target.value)}
-                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300 dark:text-gray-300"
                 placeholder="Director Document"
                 required
               />
             </div>
             <div className="mb-4">
-              <label className="block text-cyan-900 font-semibold">Dirección</label>
+              <label className="block text-cyan-900 font-semibold dark:text-gray-300">
+                Dirección
+              </label>
               <input
                 type="text"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300 dark:text-gray-300"
                 placeholder="Address"
                 required
               />
             </div>
             <div className="mb-4">
-              <label className="block text-cyan-900 font-semibold">Phone Number</label>
+              <label className="block text-cyan-900 font-semibold dark:text-gray-300">
+                Phone Number
+              </label>
               <input
                 type="text"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
-                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300 dark:text-gray-300"
                 placeholder="Phone Number"
                 required
               />
             </div>
             <div className="mb-4">
-              <label className="block text-cyan-900 font-semibold">Email</label>
+              <label className="block text-cyan-900 font-semibold dark:text-gray-300">
+                Email
+              </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300 dark:text-gray-300"
                 placeholder="Email"
                 required
               />
             </div>
             <div className="mb-4">
-              <label className="block text-cyan-900 font-semibold">Province</label>
+              <label className="block text-cyan-900 font-semibold dark:text-gray-300">
+                Province
+              </label>
               <select
                 value={province}
                 onChange={(e) => setProvince(e.target.value)}
-                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300 dark:text-gray-300"
                 required
               >
                 <option value="">Select Province</option>
@@ -262,16 +278,21 @@ const CenterSignUp: React.FC = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-cyan-900 font-semibold">Municipality</label>
+              <label className="block text-cyan-900 font-semibold dark:text-gray-300">
+                Municipality
+              </label>
               <select
                 value={municipality}
                 onChange={(e) => setMunicipality(e.target.value)}
-                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300"
+                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300 dark:text-gray-300"
                 required
               >
                 <option value="">Select Municipality</option>
                 {filteredMunicipalities.map((muni) => (
-                  <option key={muni.municipality_id} value={muni.municipality_id}>
+                  <option
+                    key={muni.municipality_id}
+                    value={muni.municipality_id}
+                  >
                     {muni.name}
                   </option>
                 ))}
@@ -284,7 +305,7 @@ const CenterSignUp: React.FC = () => {
                 onChange={handleCheckboxChange}
               />
             </div>
-            
+
             <Button
               variant="outline"
               className="w-full bg-cyan-800 text-white py-2 rounded hover:text-white hover:bg-cyan-900 transition duration-200"
@@ -319,9 +340,12 @@ const CenterSignUp: React.FC = () => {
               )}
             </Button>
             <div className="mt-4 text-center">
-              <a href="/auth/login" className="text-cyan-900 hover:underline">
+              <a
+                href="/auth/login"
+                className="text-cyan-900 hover:underline dark:text-gray-300"
+              >
                 Already have an account?{" "}
-                <span className="font-semibold">Login</span>
+                <span className="font-semibold dark:text-gray-400">Login</span>
               </a>
             </div>
           </form>

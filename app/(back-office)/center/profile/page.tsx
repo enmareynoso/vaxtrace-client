@@ -122,7 +122,8 @@ const ProfilePage: React.FC = () => {
     e.preventDefault();
     if (!formData) return;
 
-    const { vaccination_center_id, municipality_name, ...data } = formData; // Excluir municipality_name
+    const { RNC, email, vaccination_center_id, municipality_name, ...data } =
+      formData;
 
     const { error } = await supabase
       .from("vaxtraceapi_vaccinationcenter")
@@ -161,7 +162,7 @@ const ProfilePage: React.FC = () => {
         <div className="mb-4">
           <label
             htmlFor="RNC"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             RNC
           </label>
@@ -170,14 +171,16 @@ const ProfilePage: React.FC = () => {
             name="RNC"
             value={formData.RNC}
             onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400 dark:bg-gray-600"
             required
+            readOnly
+            disabled
           />
         </div>
         <div className="mb-4">
           <label
             htmlFor="name"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Nombre
           </label>
@@ -186,14 +189,16 @@ const ProfilePage: React.FC = () => {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400 dark:bg-gray-600"
             required
+            readOnly
+            disabled
           />
         </div>
         <div className="mb-4">
           <label
             htmlFor="address"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Dirección
           </label>
@@ -202,14 +207,14 @@ const ProfilePage: React.FC = () => {
             name="address"
             value={formData.address}
             onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-950"
             required
           />
         </div>
         <div className="mb-4">
           <label
             htmlFor="phone_number"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Teléfono
           </label>
@@ -218,14 +223,14 @@ const ProfilePage: React.FC = () => {
             name="phone_number"
             value={formData.phone_number}
             onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-950"
             required
           />
         </div>
         <div className="mb-4">
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Correo Electrónico
           </label>
@@ -234,14 +239,16 @@ const ProfilePage: React.FC = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400 dark:bg-gray-600"
             required
+            readOnly
+            disabled
           />
         </div>
         <div className="mb-4">
           <label
             htmlFor="municipality_id"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Municipio
           </label>
@@ -249,8 +256,9 @@ const ProfilePage: React.FC = () => {
             type="text"
             name="municipality_id"
             value={centerInfo?.municipality_name || ""}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400 dark:bg-gray-600"
             readOnly
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100"
+            disabled
           />
         </div>
         <button

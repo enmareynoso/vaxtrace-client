@@ -24,7 +24,7 @@ const SetPasswordForm: React.FC = () => {
       try {
         const response = await validate_Token(token);  // Validar el token en el backend
 
-        if (response.message !== "Token is valid") {
+        if (response.message !== "El token es válido") {
           router.push("/auth/set_password_failure");
         }
       } catch (err) {

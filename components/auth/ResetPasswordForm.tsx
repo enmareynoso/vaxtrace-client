@@ -23,7 +23,7 @@ const ResetPasswordForm: React.FC = () => {
       try {
         const response = await validate_Token(token);  // Validar el token en el backend
 
-        if (response.message !== "Token is valid") {
+        if (response.message !== "El token es válido") {
           router.push("/auth/reset_password_failure");
         }
       } catch (err) {

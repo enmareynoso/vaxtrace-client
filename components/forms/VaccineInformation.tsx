@@ -11,12 +11,18 @@ interface Vaccine {
 
 export default function VaccineInformation({
   setVaccineInfo,
+  patientId, // Asegúrate de recibir el patientId o childId
+  childId, // Opcional: si es un dependiente
 }: Readonly<{
-  setVaccineInfo: (vaccines: any[]) => void;
+  setVaccineInfo: (vaccines: Vaccine[]) => void;
+  patientId: number; // Asegúrate de recibir el ID del paciente
+  childId?: number; // Opcional: si es un dependiente
 }>) {
   const [vaccineCount, setVaccineCount] = useState(1);
   const [vaccines, setVaccines] = useState<any[]>([]);
   const [availableVaccines, setAvailableVaccines] = useState<Vaccine[]>([]);
+  const [doses, setDoses] = useState<string[]>([]); // Para almacenar las dosis por vacuna
+  const [vaccineSelections, setVaccineSelections] = useState<string[]>([]);
 
   // Obtener los IDs y nombres comerciales de las vacunas desde la base de datos
   useEffect(() => {
@@ -42,6 +48,47 @@ export default function VaccineInformation({
     fetchVaccines();
   }, []);
 
+  // Reiniciar el campo de dosis cuando cambie el dependiente
+  useEffect(() => {
+    setVaccines([]); // Reiniciar vacunas seleccionadas
+    setVaccineSelections([]);
+    setDoses([]); // Reiniciar las dosis
+    setVaccineCount(1); // Reiniciar el número de vacunas a 1
+  }, [childId, patientId]);
+
+  // Buscar la próxima dosis basada en el último registro
+  const fetchNextDose = async (vaccineId: number) => {
+    try {
+      const { data: lastRecord, error } = await supabase
+        .from("vaxtraceapi_vaccinationrecord")
+        .select("dose")
+        .eq(childId ? "child_id" : "patient_id", childId || patientId) // Usar el campo adecuado (paciente o dependiente)
+        .eq("vaccine_id", vaccineId)
+        .order("date", { ascending: false }) // Obtener el último registro
+        .limit(1);
+
+      if (error) {
+        console.error("Error fetching last dose:", error);
+        return null;
+      }
+
+      if (lastRecord && lastRecord.length > 0) {
+        // Asumimos que las dosis son secuenciales: "1", "2", "3", etc.
+        const lastDose = parseInt(lastRecord[0].dose, 10);
+        return (lastDose + 1).toString(); // La próxima dosis
+      }
+
+      if (vaccineId == 0) {
+        return ""; // Si no hay registros, la primera dosis es "1"
+      }
+
+      return "1"; // Si no hay registros previos, empieza con la dosis 1
+    } catch (err) {
+      console.error("Error fetching dose:", err);
+      return null;
+    }
+  };
+
   const addVaccine = () => {
     if (vaccineCount < 5) {
       setVaccineCount((prev) => prev + 1);
@@ -54,13 +101,42 @@ export default function VaccineInformation({
     }
   };
 
-  const handleVaccineChange = (
+  const handleVaccineChange = async (
     index: number,
     field: string,
     value: string | boolean | Date
   ) => {
     const updatedVaccines = [...vaccines];
+    const updatedSelections = { ...vaccineSelections };
+
     updatedVaccines[index] = { ...updatedVaccines[index], [field]: value };
+
+    // Si cambia la vacuna, buscar la próxima dosis automáticamente
+    if (field === "vaccine_id") {
+      if (value === "select") {
+        // Comprobar si se seleccionó la opción predeterminada
+        updatedVaccines[index].dose = ""; // Vaciar la dosis
+
+        setDoses((prev) => {
+          const updatedDoses = [...prev];
+          updatedDoses[index] = ""; // Vaciar la dosis en el estado
+          return updatedDoses;
+        });
+        updatedSelections[index] = "select"; // Resetear el select a la opción predeterminada
+      } else {
+        const nextDose = await fetchNextDose(Number(value));
+        updatedVaccines[index].dose = nextDose; // Asignar la próxima dosis
+
+        setDoses((prev) => {
+          const updatedDoses = [...prev];
+          updatedDoses[index] = nextDose || "";
+          return updatedDoses;
+        });
+        updatedSelections[index] = value as string; // Guardar la selección actual
+      }
+    }
+
+    setVaccineSelections(updatedSelections);
     setVaccines(updatedVaccines);
     setVaccineInfo(updatedVaccines);
   };
@@ -72,36 +148,47 @@ export default function VaccineInformation({
     };
 
   return (
-    <div className="border p-6 rounded-md bg-white shadow-lg space-y-6">
+    <div className="border p-6 rounded-md bg-white shadow-lg space-y-6 dark:bg-gray-700">
       <h2 className="text-lg font-bold mb-4">Información de vacuna</h2>
       {[...Array(vaccineCount)].map((_, index) => (
-        <div key={index} className="space-y-4 border p-4 rounded-md shadow-sm">
+        <div
+          key={index}
+          className="space-y-4 border p-4 rounded-md shadow-sm dark:border-gray-400"
+        >
           <h3 className="font-semibold text-lg">
             Vacuna aplicada #{index + 1}
           </h3>
           <div className="flex flex-col space-y-4">
-            <div className="flex flex-col space-y-4 md:flex-row md:space-x-4">
+            <div className="flex flex-col space-y-4 md:flex-row md:space-x-4 items-end">
               {/* Select para las vacunas */}
               <Select
                 title="Vacuna"
+                value={vaccineSelections[index] || "select"} // Establecer el valor desde el estado
                 options={availableVaccines.map((vaccine) => ({
                   value: vaccine.vaccine_id.toString(),
                   label: vaccine.commercial_name,
                 }))}
-                className="w-full mt-4 md:w-1/3"
+                className="w-full mt-3 md:w-1/3"
                 onChange={handleSelectChange(index, "vaccine_id")}
               />
 
-              {/* Select para Doses */}
-              <Select
-                title="Dosis"
-                options={["Dose 1", "Dose 2", "Dose 3"].map((dose) => ({
-                  value: dose,
-                  label: dose,
-                }))}
-                className="w-full md:w-1/3"
-                onChange={handleSelectChange(index, "dose")}
-              />
+              {/* Input deshabilitado para la dosis */}
+              <div className="w-full md:w-1/3">
+                <label
+                  htmlFor="doses"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Dosis
+                </label>
+                <input
+                  id="doses"
+                  type="text"
+                  value={doses[index] || ""}
+                  disabled
+                  className="w-full h-10 mt-1 p-2 border rounded bg-gray-100 dark:bg-gray-600"
+                  placeholder="Dosis"
+                />
+              </div>
             </div>
           </div>
         </div>

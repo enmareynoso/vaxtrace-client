@@ -107,7 +107,6 @@ interface VaccinationRecordRequest {
   };
   vaccinations: {
     vaccine_id: string;
-    //dose: string;
   }[];
   center_id?: string; // ID del centro que realiza el registro
 }
@@ -174,9 +173,6 @@ export const loginUser = async (
       sameSite: "Strict",
       httpOnly: true,
     });
-
-    // Guardar el user_id en localStorage
-    localStorage.setItem("center_id", userId.toString());
 
     return response.data;
   } catch (error: any) {
@@ -297,21 +293,21 @@ export const validate_Token = async (token: string): Promise<any> => {
 
 export const refresh_Token = async (token: any) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/refresh_token`, { 
-      refresh_token: token 
-    }, {
-      withCredentials: true // Maintains cookie transmission if set server-side
-    });
+    const response = await axios.post(
+      `${API_BASE_URL}/refresh_token`,
+      {
+        refresh_token: token,
+      },
+      {
+        withCredentials: true, // Maintains cookie transmission if set server-side
+      }
+    );
     return response.data;
   } catch (error) {
-    console.error('Failed to refresh token:', error);
-    throw error;  // Rethrow error to be handled by calling function
+    console.error("Failed to refresh token:", error);
+    throw error; // Rethrow error to be handled by calling function
   }
 };
-
-
-
-
 
 export const confirmAccount = async (token: string): Promise<any> => {
   try {
@@ -362,7 +358,7 @@ export const registerVaccinationRecord = async (
         headers: {
           Authorization: `Bearer ${token}`, // Token en el encabezado
         },
-        withCredentials: true, // Asegúrate de enviar las cookies
+        withCredentials: true,
       }
     );
     return response.data;

@@ -19,12 +19,12 @@ const ForgotPassword: React.FC = () => {
       const response = await requestPasswordReset(email);
 
       // Verificar si ya existe un token válido
-      if (response.message === "A valid reset token already exists. Please check your email.") {
-        toast.error("A valid reset token already exists. Please check your email", {
+      if (response.message === "Ya existe un token de restablecimiento válido. Por favor, revisa tu correo.") {
+        toast.error("Ya existe un token de restablecimiento válido. Por favor, revisa tu correo", {
           id: "reset-link-exists-toast",
         });
       } else {
-        toast.success("Password reset link sent", {
+        toast.success("Correo de restablecimiento de contraseña enviado", {
           id: "reset-link-toast",
         });
       }
