@@ -658,12 +658,13 @@ const CenterDashboardPage: React.FC = () => {
               Información del Centro
             </h3>
             <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3 lg:gap-x-20">
-              {centerInfoCards.map(({ icon: Icon, total, title }) => (
+              {centerInfoCards.map(({ icon: Icon, total, title}) => (
                 <CardSummary
                   key={title}
                   icon={Icon}
                   total={total}
                   title={title}
+                  className="transition-transform transform hover:-translate-y-3 cursor-pointer"
                 />
               ))}
             </div>

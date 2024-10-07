@@ -6,4 +6,5 @@ export interface CardSummaryProps {
   title: string;
   average?: number;
   tooltipText?: string;
+  className?: string;
 }
