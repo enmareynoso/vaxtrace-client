@@ -289,8 +289,9 @@ const ProfilePage: React.FC = () => {
               name="gender"
               value={formData.gender}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-950"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-gray-400 dark:bg-gray-950"
               required
+              disabled
             >
               <option value="">Seleccionar Género</option>
               <option value="M">Masculino</option>
@@ -310,8 +311,10 @@ const ProfilePage: React.FC = () => {
               name="nationality"
               value={formData.nationality}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-950"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-gray-400 dark:bg-gray-950"
               required
+              readOnly
+              disabled
             />
           </div>
           <div className="mb-4">
@@ -451,8 +454,9 @@ const ProfilePage: React.FC = () => {
                     name="gender"
                     value={dependentFormData.gender}
                     onChange={handleDependentFormChange}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-950"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-gray-400 dark:bg-gray-950"
                     required
+                    disabled
                   >
                     <option value="">Seleccionar Género</option>
                     <option value="M">Masculino</option>

@@ -276,8 +276,7 @@ export default function PatientInformation({
       setShowForm(true);
     }
   };
-
-  // Clear the form and reset states
+  
   // Clear the form and reset states
 const clearForm = () => {
   setFormData(initialFormData); // Reinicia el formulario del paciente
