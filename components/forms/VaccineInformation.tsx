@@ -162,40 +162,40 @@ export default function VaccineInformation({
     setVaccineSelections([]);
     setDoses([]); // Reiniciar las dosis
     setVaccineCount(1); // Reiniciar el número de vacunas a 1
+    // Reiniciar la información del componente padre también
+  setVaccineInfo([]); // Actualizar el componente padre para que no tenga vacunas seleccionadas
   }, [childId, patientId]);
 
-  // Buscar la próxima dosis basada en el último registro
-  const fetchNextDose = async (vaccineId: number) => {
-    try {
-      const { data: lastRecord, error } = await supabase
-        .from("vaxtraceapi_vaccinationrecord")
-        .select("dose")
-        .eq(childId ? "child_id" : "patient_id", childId || patientId) // Usar el campo adecuado (paciente o dependiente)
-        .eq("vaccine_id", vaccineId)
-        .order("date", { ascending: false }) // Obtener el último registro
-        .limit(1);
+// Buscar la próxima dosis basada en el último registro
+const fetchNextDose = async (vaccineId: number) => {
+  try {
+    const { data: lastRecord, error } = await supabase
+      .from("vaxtraceapi_vaccinationrecord")
+      .select("dose")
+      .eq(childId ? "child_id" : "patient_id", childId || patientId) // Usar el campo adecuado (paciente o dependiente)
+      .eq("vaccine_id", vaccineId)
+      .order("date", { ascending: false }) // Obtener el último registro
+      .limit(1);
 
-      if (error) {
-        console.error("Error fetching last dose:", error);
-        return null;
-      }
-
-      if (lastRecord && lastRecord.length > 0) {
-        // Asumimos que las dosis son secuenciales: "1", "2", "3", etc.
-        const lastDose = parseInt(lastRecord[0].dose, 10);
-        return (lastDose + 1).toString(); // La próxima dosis
-      }
-
-      if (vaccineId == 0) {
-        return ""; // Si no hay registros, la primera dosis es "1"
-      }
-
-      return "1"; // Si no hay registros previos, empieza con la dosis 1
-    } catch (err) {
-      console.error("Error fetching dose:", err);
-      return null;
+    if (error) {
+      console.error("Error fetching last dose:", error);
+      return "1"; // Retorna "1" si hay un error al obtener el registro
     }
-  };
+
+    if (lastRecord && lastRecord.length > 0) {
+      // Si hay un registro previo, incrementar la dosis en 1
+      const lastDose = parseInt(lastRecord[0].dose, 10);
+      return (lastDose + 1).toString(); // La próxima dosis
+    }
+
+    // Si no hay registros previos, empieza con la dosis "1"
+    return "1";
+  } catch (err) {
+    console.error("Error fetching dose:", err);
+    return "1"; // Retorna "1" si ocurre algún error inesperado
+  }
+};
+
 
   const addVaccine = () => {
     if (vaccineCount < 5) {

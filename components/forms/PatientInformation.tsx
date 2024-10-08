@@ -278,17 +278,21 @@ export default function PatientInformation({
   };
 
   // Clear the form and reset states
-  const clearForm = () => {
-    setFormData(initialFormData);
-    setDependents([]);
-    setSelectedDependentId(null);
-    setShowForm(false);
-    setPatientExists(false);
-    setSelectedDependentDetails(null);
-    setShowDependentFields(false);
-    setAppliedVaccines([]); // Limpia la tabla de vacunas del paciente
-    setAppliedVaccinesDependent([]); // Limpia la tabla de vacunas del dependiente
-  };
+  // Clear the form and reset states
+const clearForm = () => {
+  setFormData(initialFormData); // Reinicia el formulario del paciente
+  setDependents([]); // Limpia la lista de dependientes
+  setSelectedDependentId(null); // Restablece la selección del dependiente
+  setSelectedDependentDetails(null); // Limpia los detalles del dependiente seleccionado
+  setPatientExists(false); // Restablece la existencia del paciente a falso
+  setShowForm(false); // Oculta el formulario
+  setShowDependentFields(false); // Oculta los campos del dependiente
+
+  setAppliedVaccines([]); // Limpia la tabla de vacunas del paciente
+  setAppliedVaccinesDependent([]); // Limpia la tabla de vacunas del dependiente
+  setPatientInfo(initialFormData); // Actualiza el componente padre para que no tenga información de paciente
+};
+
 
   // Handle form field changes
   const handleFormChange = (

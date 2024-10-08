@@ -16,6 +16,10 @@ export default function RegisterVaccination() {
   const [centerId, setCenterId] = useState<string | null>(null); // ID del centro
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<any>({}); // Ahora es un objeto para manejar errores de cada campo
+  const [vaccineSelections, setVaccineSelections] = useState<any[]>([]); // Selecciones de vacunas
+  const [appliedVaccines, setAppliedVaccines] = useState<any[]>([]); // Vacunas aplicadas para el paciente
+  const [appliedVaccinesDependent, setAppliedVaccinesDependent] = useState<any[]>([]); // Vacunas aplicadas para el dependiente
+
 
   // Obtener el ID del centro desde localStorage al cargar el componente
   useEffect(() => {
@@ -103,6 +107,9 @@ export default function RegisterVaccination() {
     setVaccineInfo([]);
     setSelectedDependent(null);
     setError({});
+    setAppliedVaccines([]); // Limpiar las vacunas aplicadas del paciente
+    setVaccineSelections([]);  
+    setAppliedVaccinesDependent([]); // Limpiar las vacunas aplicadas del dependiente
   };
 
   const handleSaveRecord = async () => {
@@ -201,7 +208,7 @@ export default function RegisterVaccination() {
       />
 
       {/* Componente para la información de la vacuna */}
-      {(patientInfo?.id || selectedDependent?.id) && (
+      {(patientInfo !== null || selectedDependent !== null) && (
         <VaccineInformation
           setVaccineInfo={setVaccineInfo}
           patientId={patientInfo?.id}
@@ -209,7 +216,6 @@ export default function RegisterVaccination() {
           birthDate={selectedDependent?.birthdate || patientInfo?.birthdate} // Pasar la fecha de nacimiento correcta
         />
       )}
-
 
       {/* Botón para guardar el registro */}
       <div className="pt-6">
