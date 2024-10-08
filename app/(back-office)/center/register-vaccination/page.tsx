@@ -201,11 +201,15 @@ export default function RegisterVaccination() {
       />
 
       {/* Componente para la información de la vacuna */}
-      <VaccineInformation
-        setVaccineInfo={setVaccineInfo}
-        patientId={patientInfo?.id}
-        childId={selectedDependent?.id}
-      />
+      {(patientInfo?.id || selectedDependent?.id) && (
+        <VaccineInformation
+          setVaccineInfo={setVaccineInfo}
+          patientId={patientInfo?.id}
+          childId={selectedDependent?.id}
+          birthDate={selectedDependent?.birthdate || patientInfo?.birthdate} // Pasar la fecha de nacimiento correcta
+        />
+      )}
+
 
       {/* Botón para guardar el registro */}
       <div className="pt-6">

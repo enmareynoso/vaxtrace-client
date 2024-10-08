@@ -286,6 +286,8 @@ export default function PatientInformation({
     setPatientExists(false);
     setSelectedDependentDetails(null);
     setShowDependentFields(false);
+    setAppliedVaccines([]); // Limpia la tabla de vacunas del paciente
+    setAppliedVaccinesDependent([]); // Limpia la tabla de vacunas del dependiente
   };
 
   // Handle form field changes
