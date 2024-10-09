@@ -334,10 +334,6 @@ const clearForm = () => {
     setSelectedDependentId(null); // Reset dependent if not selected
     setAppliedVaccinesDependent([]); // Limpia la tabla de vacunas del dependiente
   };
-  
-  
-  
-  
 
   const handleSaveNewDependent = () => {
     // Verificar que todos los campos requeridos estén presentes
@@ -348,6 +344,16 @@ const clearForm = () => {
       !newDependentData.gender
     ) {
       toast.error("Por favor, complete todos los campos del dependiente.");
+      return;
+    }
+
+     // Calcular la edad del dependiente utilizando la función calculateAge
+    const birthdate = new Date(newDependentData.birthdate);
+    const age = calculateAge(birthdate);
+
+    // Verificar si el dependiente es mayor de edad
+    if (age >= 18) {
+      toast.error("El dependiente es mayor de edad y no se puede agregar.");
       return;
     }
   
@@ -368,18 +374,6 @@ const clearForm = () => {
     setNewDependentData(initialDependentData); // Resetea el formulario del nuevo dependiente
     toast.success("Dependiente agregado exitosamente.");
   };
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
 
   const handleClearDependentFields = () => {
     setNewDependentData(initialDependentData);
@@ -885,37 +879,33 @@ const clearForm = () => {
             </div>
           )}
           {/* Mostrar la tabla de vacunas aplicadas del dependiente seleccionado */}
-{/* Mostrar la tabla de vacunas aplicadas del dependiente seleccionado */}
-{selectedDependentDetails && selectedDependentDetails.id !== 0 && appliedVaccinesDependent.length > 0 && (
-  <div className="mt-6">
-    <h3 className="text-lg font-semibold mb-4">Vacunas Aplicadas del Dependiente</h3>
-    <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 mt-4">
-      <thead>
-        <tr className="bg-gray-200 dark:bg-gray-700">
-          <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Nombre de la Vacuna</th>
-          <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Total Dosis</th>
-        </tr>
-      </thead>
-      <tbody>
-        {appliedVaccinesDependent.map((vaccine) => (
-          <tr
-            key={vaccine.vaccine_id}
-            className={`hover:bg-gray-100 dark:hover:bg-gray-700 ${
-              vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""
-            }`}
-          >
-            <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.commercial_name}</td>
-            <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.totalDoses}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-)}
-
-
-
-
+        {/* Mostrar la tabla de vacunas aplicadas del dependiente seleccionado */}
+        {selectedDependentDetails && selectedDependentDetails.id !== 0 && appliedVaccinesDependent.length > 0 && (
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold mb-4">Vacunas Aplicadas del Dependiente</h3>
+            <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 mt-4">
+              <thead>
+                <tr className="bg-gray-200 dark:bg-gray-700">
+                  <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Nombre de la Vacuna</th>
+                  <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Total Dosis</th>
+                </tr>
+              </thead>
+              <tbody>
+                {appliedVaccinesDependent.map((vaccine) => (
+                  <tr
+                    key={vaccine.vaccine_id}
+                    className={`hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                      vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""
+                    }`}
+                  >
+                    <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.commercial_name}</td>
+                    <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.totalDoses}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
         </>
       )}
     </div>
