@@ -335,7 +335,7 @@ const clearForm = () => {
     setAppliedVaccinesDependent([]); // Limpia la tabla de vacunas del dependiente
   };
 
-  const handleSaveNewDependent = () => {
+  const handleSaveNewDependent = async () => {
     // Verificar que todos los campos requeridos estén presentes
     if (
       !newDependentData.first_name ||
@@ -346,34 +346,54 @@ const clearForm = () => {
       toast.error("Por favor, complete todos los campos del dependiente.");
       return;
     }
-
-     // Calcular la edad del dependiente utilizando la función calculateAge
+  
+    // Calcular la edad del dependiente utilizando la función calculateAge
     const birthdate = new Date(newDependentData.birthdate);
     const age = calculateAge(birthdate);
-
+  
     // Verificar si el dependiente es mayor de edad
     if (age >= 18) {
       toast.error("El dependiente es mayor de edad y no se puede agregar.");
       return;
     }
   
-    // Calcular el nuevo ID para el dependiente
-    const nextId = dependents.length > 0
-      ? Math.max(...dependents.map(dependent => dependent.id)) + 1 // Obtener el mayor ID y sumar 1
-      : 60; // Si no hay dependientes, comenzar con 60
+    try {
+      // Obtener todos los IDs existentes de los dependientes para calcular el siguiente ID disponible
+      const { data: existingDependents, error: fetchError } = await supabase
+        .from('vaxtraceapi_child') // Asegúrate de que este sea el nombre correcto de la tabla
+        .select('id');
   
-    // Crear el nuevo dependiente con el ID calculado
-    const newDependent = {
-      ...newDependentData,
-      id: nextId, // Asignar el ID calculado
-    };
+      if (fetchError) {
+        console.error("Error al obtener los IDs de los dependientes:", fetchError);
+        toast.error("Error al verificar los IDs existentes.");
+        return;
+      }
   
-    // Actualizar el estado local con el nuevo dependiente para que aparezca en el dropdown
-    setDependents((prev: Dependent[]) => [...prev, newDependent]);
-    setShowDependentFields(false);
-    setNewDependentData(initialDependentData); // Resetea el formulario del nuevo dependiente
-    toast.success("Dependiente agregado exitosamente.");
+      // Encontrar el siguiente ID disponible
+      const maxId = existingDependents && existingDependents.length > 0
+        ? Math.max(...existingDependents.map((dependent: { id: number }) => dependent.id))
+        : 59; // Empezar en 59 si no hay dependientes existentes
+  
+      const nextId = maxId + 1;
+  
+      // Crear el nuevo dependiente con el ID calculado
+      const newDependent = {
+        ...newDependentData,
+        id: nextId, // Asignar el ID calculado
+      };
+  
+      // Actualizar el estado local con el nuevo dependiente para que aparezca en el dropdown
+      setDependents((prev: Dependent[]) => [...prev, newDependent]);
+      setShowDependentFields(false);
+      setNewDependentData(initialDependentData); // Resetea el formulario del nuevo dependiente
+      toast.success("Dependiente agregado exitosamente y listo para ser registrado.");
+    } catch (error) {
+      console.error("Error al agregar dependiente:", error);
+      toast.error("Hubo un error al agregar el dependiente. Por favor, inténtelo de nuevo.");
+    }
   };
+  
+  
 
   const handleClearDependentFields = () => {
     setNewDependentData(initialDependentData);
