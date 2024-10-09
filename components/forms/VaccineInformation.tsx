@@ -156,6 +156,14 @@ export default function VaccineInformation({
     fetchRecommendedVaccines(ageInMonths, childId || patientId, !!childId);
   }, [childId, patientId, birthDate]);
 
+
+  // Función para filtrar vacunas ya seleccionadas
+  const getFilteredVaccines = (index: number) => {
+    const selectedIds = vaccineSelections.map((selection) => Number(selection));
+    return availableVaccines.filter(
+      (vaccine) => !selectedIds.includes(vaccine.vaccine_id) || vaccineSelections[index] === vaccine.vaccine_id.toString()
+    );
+  };
   // Reiniciar el campo de dosis cuando cambie el dependiente
   useEffect(() => {
     setVaccines([]); // Reiniciar vacunas seleccionadas
@@ -275,7 +283,7 @@ const fetchNextDose = async (vaccineId: number) => {
             <Select
               title="Vacuna"
               value={vaccineSelections[index] || "select"}
-              options={availableVaccines.map((vaccine) => ({
+              options={getFilteredVaccines(index).map((vaccine) => ({
                 value: vaccine.vaccine_id.toString(),
                 label: vaccine.commercial_name,
               }))}
