@@ -4,6 +4,7 @@ import { getPatientByDocument } from "@/lib/api/auth";
 import toast, { Toaster } from "react-hot-toast";
 import { FaInfoCircle } from "react-icons/fa";
 import { supabase } from "@/lib/supabaseClient";
+import { FaExclamationCircle } from 'react-icons/fa';
 
 // Dependent interface
 interface Dependent {
@@ -44,11 +45,19 @@ export default function PatientInformation({
   setSelectedDependent,
   setPatientExists,
   setError,
+  errorI,
 }: Readonly<{
   setPatientInfo: (info: any) => void;
   setSelectedDependent: (dependent: Dependent | null) => void;
   setPatientExists: (exists: boolean) => void; // Add this line
   setError: (error: any) => void;
+  errorI: { // Define el tipo para el error aquí
+    document?: string;
+    birthdate?: string;
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+  } | null;
 }>) {
   const initialFormData: FormData = {
     document: "",
@@ -142,6 +151,12 @@ export default function PatientInformation({
     }
   };
   
+  const calculateAgeMayor = (dob: Date): number => {
+    const diff = Date.now() - dob.getTime();
+    const ageDate = new Date(diff);
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
+  };
+  
 
 
   // Calculate age from birthdate
@@ -157,16 +172,33 @@ export default function PatientInformation({
   // Handle birthdate change for the patient
   const handlebirthdateChange = (date: Date | null) => {
     if (date) {
-      setFormData((prev) => ({
-        ...prev,
-        birthdate: date,
-      }));
-      setPatientInfo((prev: any) => ({
-        ...prev,
-        birthdate: date,
-      }));
+      const age = calculateAge(date);
+  
+      if (age < 18) {
+        // Mostrar error si el usuario es menor de edad
+        setError((prevError: any) => ({
+          ...prevError,
+          birthdate: "El usuario no es mayor de edad.",
+        }));
+      } else {
+        // Limpiar el error si la fecha es válida
+        setError((prevError: any) => ({
+          ...prevError,
+          birthdate: null,
+        }));
+        setFormData((prev) => ({
+          ...prev,
+          birthdate: date,
+        }));
+        setPatientInfo((prev: any) => ({
+          ...prev,
+          birthdate: date,
+        }));
+      }
     }
   };
+  
+  
 
   // Handle gender change
   const handleGenderChange = (value: "M" | "F") => {
@@ -482,41 +514,37 @@ const clearForm = () => {
                 : "Información del Paciente"}
             </h2>
             <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="birthdate"
-                  className="block text-gray-700 dark:text-white"
-                >
-                  Fecha de Nacimiento
-                </label>
-                <input
-                  id="birthdate"
-                  type="date"
-                  name="birthdate"
-                  value={
-                    formData.birthdate
-                      ? new Date(formData.birthdate).toISOString().split("T")[0]
-                      : ""
-                  }
-                  onChange={(e) => {
-                    const newDate = e.target.value
-                      ? new Date(e.target.value)
-                      : null;
-                    handlebirthdateChange(newDate);
-                  }}
-                  className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    isExistingPatient
-                      ? "bg-gray-100 text-gray-400"
-                      : "bg-white text-black"
-                  } ${
-                    error?.birthdate ? "border-red-500" : "border-gray-300"
-                  } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
-                  disabled={isExistingPatient}
-                />
-                {error?.birthdate && (
-                  <p className="text-red-500 text-sm mt-1">{error.birthdate}</p>
-                )}
-              </div>
+            <div>
+        <label htmlFor="birthdate" className="block text-gray-700 dark:text-white">
+          Fecha de Nacimiento
+        </label>
+        <input
+          id="birthdate"
+          type="date"
+          name="birthdate"
+          value={
+            formData.birthdate
+              ? new Date(formData.birthdate).toISOString().split("T")[0]
+              : ""
+          }
+          onChange={(e) => {
+            const newDate = e.target.value ? new Date(e.target.value) : null;
+            handlebirthdateChange(newDate);
+          }}
+          className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ${
+            errorI?.birthdate ? "border-red-500" : "border-gray-300"
+          } ${isExistingPatient ? "bg-gray-100 text-gray-400" : "bg-white text-black"} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+          disabled={isExistingPatient}
+        />
+        {errorI?.birthdate && (
+          <div className="flex items-center mt-1">
+            <FaExclamationCircle className="text-red-600 mr-2" />
+            <p className="text-red-600 text-sm">{errorI.birthdate}</p>
+          </div>
+        )}
+      </div>
+
+
 
               <div>
                 <label
@@ -534,11 +562,12 @@ const clearForm = () => {
                   className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     isExistingPatient
                       ? "bg-gray-100 text-gray-400"
-                      : "bg-white text-black"
+                      : "bg-gray-100 text-gray-400"
                   } ${
                     error?.document ? "border-red-500" : "border-gray-300"
                   } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
-                  disabled={isExistingPatient}
+                  readOnly
+                  disabled
                 />
                 {error?.document && (
                   <p className="text-red-500 text-sm mt-1">{error.document}</p>
@@ -562,15 +591,14 @@ const clearForm = () => {
                     isExistingPatient
                       ? "bg-gray-100 text-gray-400"
                       : "bg-white text-black"
-                  } ${
-                    error?.first_name ? "border-red-500" : "border-gray-300"
-                  } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                  } ${errorI?.first_name ? "border-red-500" : "border-gray-300"} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                   disabled={isExistingPatient}
                 />
-                {error?.first_name && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {error.first_name}
-                  </p>
+               {errorI?.first_name && (
+                  <div className="flex items-center mt-1">
+                    <FaExclamationCircle className="text-red-600 mr-2" />
+                    <p className="text-red-600 text-sm">{errorI.first_name}</p>
+                  </div>
                 )}
               </div>
 
@@ -591,13 +619,14 @@ const clearForm = () => {
                     isExistingPatient
                       ? "bg-gray-100 text-gray-400"
                       : "bg-white text-black"
-                  } ${
-                    error?.last_name ? "border-red-500" : "border-gray-300"
-                  } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                  }  ${errorI?.last_name ? "border-red-500" : "border-gray-300"} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                   disabled={isExistingPatient}
                 />
-                {error?.last_name && (
-                  <p className="text-red-500 text-sm mt-1">{error.last_name}</p>
+                               {errorI?.last_name && (
+                  <div className="flex items-center mt-1">
+                    <FaExclamationCircle className="text-red-600 mr-2" />
+                    <p className="text-red-600 text-sm">{errorI.last_name}</p>
+                  </div>
                 )}
               </div>
 
@@ -619,14 +648,15 @@ const clearForm = () => {
                     isExistingPatient
                       ? "bg-gray-100 text-gray-400"
                       : "bg-white text-black"
-                  } ${
-                    error?.email ? "border-red-500" : "border-gray-300"
-                  } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
-                  disabled={isExistingPatient}
+                  }  ${errorI?.email ? "border-red-500" : "border-gray-300"} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                   disabled={isExistingPatient}
                 />
-                {error?.email && (
-                  <p className="text-red-500 text-sm mt-1">{error.email}</p>
-                )}
+                {errorI?.email && (
+                    <div className="flex items-center mt-1">
+                      <FaExclamationCircle className="text-red-600 mr-2" />
+                      <p className="text-red-600 text-sm">{errorI.email}</p>
+                    </div>
+                  )}
               </div>
 
               <GenderButtons

@@ -77,6 +77,13 @@ export default function RegisterVaccination() {
     fetchCenterId();
   }, []);
 
+  const calculateAge = (dob: Date): number => {
+    const diff = Date.now() - dob.getTime();
+    const ageDate = new Date(diff);
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
+  };
+  
+
   const validateForm = () => {
     let newErrors: any = {};
 
@@ -87,9 +94,24 @@ export default function RegisterVaccination() {
       newErrors.first_name = "El nombre es obligatorio.";
     if (!patientInfo?.last_name)
       newErrors.last_name = "El apellido es obligatorio.";
-    if (!patientInfo?.birthdate)
+    if (!patientInfo?.birthdate) {
       newErrors.birthdate = "La fecha de nacimiento es obligatoria.";
+    } else {
+      const age = calculateAge(new Date(patientInfo.birthdate));
+      if (age < 18) {
+        newErrors.birthdate = "El usuario no es mayor de edad.";
+      }
+    }
     if (!patientInfo?.gender) newErrors.gender = "El género es obligatorio.";
+
+    // Validación del email
+    if (!patientInfo?.email) {
+      newErrors.email = "El email es obligatorio.";
+    } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(patientInfo.email)) {
+      newErrors.email = "El formato del email no es válido.";
+    } else if (!/(gmail\.com|hotmail\.com|yahoo\.com|outlook\.es)$/i.test(patientInfo.email)) {
+      newErrors.email = "El email debe tener un dominio válido (ej. gmail.com, outlook.es).";
+    }
 
     setError(newErrors);
 
@@ -207,11 +229,13 @@ export default function RegisterVaccination() {
     <div className="space-y-6">
       {/* Componente para la información del paciente */}
       <PatientInformation
-      setPatientInfo={setPatientInfo}
-      setPatientExists={setPatientExists}
-      setSelectedDependent={setSelectedDependent}
-      setError={setError}
-    />
+  setPatientInfo={setPatientInfo}
+  setPatientExists={setPatientExists}
+  setSelectedDependent={setSelectedDependent}
+  setError={setError}
+  errorI={error} // Pasa el estado de error correctamente al componente
+/>
+
 
     {/* Conditionally render the VaccineInformation component */}
     {patientInfo && patientExists && (
