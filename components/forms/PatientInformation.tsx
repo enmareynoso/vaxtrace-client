@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { getPatientByDocument } from "@/lib/api/auth";
 import toast, { Toaster } from "react-hot-toast";
 import { FaInfoCircle } from "react-icons/fa";
+import { supabase } from "@/lib/supabaseClient";
 
 // Dependent interface
 interface Dependent {
@@ -13,6 +14,17 @@ interface Dependent {
   gender: string;
   parent: number;
 }
+
+interface VaccinationRecord {
+  vaccine_id: number;
+  dose: number;
+  vaccine?: {
+    commercial_name?: string;
+    max_doses?: number; // Agregamos max_doses aquí
+  };
+}
+
+
 
 // Patient form data interface
 interface FormData {
@@ -66,6 +78,8 @@ export default function PatientInformation({
   const [selectedDependentId, setSelectedDependentId] = useState<number | null>(
     null
   );
+  const [appliedVaccines, setAppliedVaccines] = useState<any[]>([]);
+  const [appliedVaccinesDependent, setAppliedVaccinesDependent] = useState<any[]>([]);
   const [selectedDependentDetails, setSelectedDependentDetails] =
     useState<Dependent | null>(null);
   const [showDependentFields, setShowDependentFields] = useState(false);
@@ -79,6 +93,54 @@ export default function PatientInformation({
     last_name?: string;
     email?: string;
   } | null>(null);
+
+  // Fetch and consolidate applied vaccines for a given ID
+  const fetchAppliedVaccines = async (id: number, isDependent: boolean) => {
+    if (id === 0) {
+      // Si el dependiente es nuevo, no buscar vacunas aplicadas.
+      setAppliedVaccinesDependent([]);
+      return;
+    }
+  
+    try {
+      const { data: appliedVaccinesData, error } = await supabase
+        .from("vaxtraceapi_vaccinationrecord")
+        .select("vaccine_id, dose, vaccine:vaxtraceapi_vaccine(commercial_name, max_doses)")
+        .eq(isDependent ? "child_id" : "patient_id", id);
+  
+      if (error) {
+        console.error("Error fetching applied vaccines:", error);
+        toast.error("Error al obtener las vacunas aplicadas.");
+        return;
+      }
+  
+      const consolidatedVaccines = (appliedVaccinesData as VaccinationRecord[]).reduce((acc, record) => {
+        const existingVaccine = acc.find((v) => v.vaccine_id === record.vaccine_id);
+        if (existingVaccine) {
+          existingVaccine.totalDoses += 1;
+        } else {
+          acc.push({
+            vaccine_id: record.vaccine_id,
+            commercial_name: record.vaccine?.commercial_name || "Desconocido",
+            totalDoses: 1,
+            max_doses: record.vaccine?.max_doses || 0,
+          });
+        }
+        return acc;
+      }, [] as { vaccine_id: number; commercial_name: string; totalDoses: number; max_doses: number }[]);
+  
+      if (isDependent) {
+        setAppliedVaccinesDependent(consolidatedVaccines); // Actualiza la tabla de dependiente
+      } else {
+        setAppliedVaccines(consolidatedVaccines); // Actualiza la tabla del paciente
+      }
+    } catch (err) {
+      console.error("Error fetching applied vaccines:", err);
+      toast.error("Ocurrió un error al obtener las vacunas aplicadas.");
+    }
+  };
+  
+
 
   // Calculate age from birthdate
   const calculateAge = (dob: Date): number => {
@@ -121,15 +183,17 @@ export default function PatientInformation({
     if (!isNaN(index) && dependents[index]) {
       const selectedDependent = dependents[index];
       setSelectedDependentDetails(selectedDependent);
-      setSelectedDependent(selectedDependent); // Pasar el dependiente seleccionado al componente padre
-      setSelectedDependentId(index); // Establecer el dependiente seleccionado en el estado local
+      setSelectedDependent(selectedDependent);
+      setSelectedDependentId(index);
+      fetchAppliedVaccines(selectedDependent.id, true); // Llama a la función para vacunas del dependiente
       setShowDependentFields(false);
     } else {
       setSelectedDependentDetails(null);
       setSelectedDependent(null); // Limpiar el dependiente seleccionado si se deselecciona
       setSelectedDependentId(null); // Reset dependent if not selected
+      setAppliedVaccinesDependent([]); // Limpia la tabla de vacunas del dependiente
       setShowDependentFields(false);
-    }
+    }    
   };
 
   // Verify patient based on document number
@@ -190,6 +254,8 @@ export default function PatientInformation({
           setPatientInfo({ ...patient_info, document: documentInput });
           setPatientExists(true);
           setShowForm(true);
+          // Fetch applied vaccines after verifying the patient
+          fetchAppliedVaccines(patient_info.id , false);
           toast.success("Paciente encontrado.");
         } else {
           // Si el paciente no es encontrado en la base de datos
@@ -215,17 +281,22 @@ export default function PatientInformation({
       setShowForm(true);
     }
   };
-
+  
   // Clear the form and reset states
-  const clearForm = () => {
-    setFormData(initialFormData);
-    setDependents([]);
-    setSelectedDependentId(null);
-    setShowForm(false);
-    setPatientExists(false);
-    setSelectedDependentDetails(null);
-    setShowDependentFields(false);
-  };
+const clearForm = () => {
+  setFormData(initialFormData); // Reinicia el formulario del paciente
+  setDependents([]); // Limpia la lista de dependientes
+  setSelectedDependentId(null); // Restablece la selección del dependiente
+  setSelectedDependentDetails(null); // Limpia los detalles del dependiente seleccionado
+  setPatientExists(false); // Restablece la existencia del paciente a falso
+  setShowForm(false); // Oculta el formulario
+  setShowDependentFields(false); // Oculta los campos del dependiente
+
+  setAppliedVaccines([]); // Limpia la tabla de vacunas del paciente
+  setAppliedVaccinesDependent([]); // Limpia la tabla de vacunas del dependiente
+  setPatientInfo(initialFormData); // Actualiza el componente padre para que no tenga información de paciente
+};
+
 
   // Handle form field changes
   const handleFormChange = (
@@ -261,9 +332,10 @@ export default function PatientInformation({
     setNewDependentData(initialDependentData); // Reset new dependent form
     setSelectedDependent(null); // Limpiar el dependiente seleccionado si se deselecciona
     setSelectedDependentId(null); // Reset dependent if not selected
+    setAppliedVaccinesDependent([]); // Limpia la tabla de vacunas del dependiente
   };
 
-  const handleSaveNewDependent = () => {
+  const handleSaveNewDependent = async () => {
     // Verificar que todos los campos requeridos estén presentes
     if (
       !newDependentData.first_name ||
@@ -274,19 +346,54 @@ export default function PatientInformation({
       toast.error("Por favor, complete todos los campos del dependiente.");
       return;
     }
-
-    // Add the new dependent to the list
-    setDependents((prev: Dependent[]) => [
-      ...prev,
-      {
+  
+    // Calcular la edad del dependiente utilizando la función calculateAge
+    const birthdate = new Date(newDependentData.birthdate);
+    const age = calculateAge(birthdate);
+  
+    // Verificar si el dependiente es mayor de edad
+    if (age >= 18) {
+      toast.error("El dependiente es mayor de edad y no se puede agregar.");
+      return;
+    }
+  
+    try {
+      // Obtener todos los IDs existentes de los dependientes para calcular el siguiente ID disponible
+      const { data: existingDependents, error: fetchError } = await supabase
+        .from('vaxtraceapi_child') // Asegúrate de que este sea el nombre correcto de la tabla
+        .select('id');
+  
+      if (fetchError) {
+        console.error("Error al obtener los IDs de los dependientes:", fetchError);
+        toast.error("Error al verificar los IDs existentes.");
+        return;
+      }
+  
+      // Encontrar el siguiente ID disponible
+      const maxId = existingDependents && existingDependents.length > 0
+        ? Math.max(...existingDependents.map((dependent: { id: number }) => dependent.id))
+        : 59; // Empezar en 59 si no hay dependientes existentes
+  
+      const nextId = maxId + 1;
+  
+      // Crear el nuevo dependiente con el ID calculado
+      const newDependent = {
         ...newDependentData,
-        id: prev.length + 1,
-        parent: parseInt(formData.document),
-      },
-    ]);
-    setShowDependentFields(false);
-    setNewDependentData(initialDependentData); // Resetear el formulario del nuevo dependiente
+        id: nextId, // Asignar el ID calculado
+      };
+  
+      // Actualizar el estado local con el nuevo dependiente para que aparezca en el dropdown
+      setDependents((prev: Dependent[]) => [...prev, newDependent]);
+      setShowDependentFields(false);
+      setNewDependentData(initialDependentData); // Resetea el formulario del nuevo dependiente
+      toast.success("Dependiente agregado exitosamente y listo para ser registrado.");
+    } catch (error) {
+      console.error("Error al agregar dependiente:", error);
+      toast.error("Hubo un error al agregar el dependiente. Por favor, inténtelo de nuevo.");
+    }
   };
+  
+  
 
   const handleClearDependentFields = () => {
     setNewDependentData(initialDependentData);
@@ -560,7 +667,33 @@ export default function PatientInformation({
               </div>
             </div>
           </div>
-
+          {/* Mostrar información de las vacunas aplicadas */}
+          {appliedVaccines.length > 0 && (
+                      <div className="mt-6">
+                        <h3 className="text-lg font-semibold mb-4">Vacunas Aplicadas</h3>
+                        <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 mt-4">
+                          <thead>
+                            <tr className="bg-gray-200 dark:bg-gray-700">
+                              <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Nombre de la Vacuna</th>
+                              <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Total Dosis</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                          {appliedVaccines.map((vaccine) => (
+                              <tr
+                                key={vaccine.vaccine_id}
+                                className={`hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                                  vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""
+                                }`}
+                              >
+                                <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.commercial_name}</td>
+                                <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.totalDoses}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+          )}
           {/* Dropdown para seleccionar dependiente */}
           {dependents.length > 0 && (
             <div className="mt-4">
@@ -605,6 +738,7 @@ export default function PatientInformation({
                   </Button>
                 )}
               </div>
+
             </div>
           )}
 
@@ -764,6 +898,34 @@ export default function PatientInformation({
               </div>
             </div>
           )}
+          {/* Mostrar la tabla de vacunas aplicadas del dependiente seleccionado */}
+        {/* Mostrar la tabla de vacunas aplicadas del dependiente seleccionado */}
+        {selectedDependentDetails && selectedDependentDetails.id !== 0 && appliedVaccinesDependent.length > 0 && (
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold mb-4">Vacunas Aplicadas del Dependiente</h3>
+            <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 mt-4">
+              <thead>
+                <tr className="bg-gray-200 dark:bg-gray-700">
+                  <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Nombre de la Vacuna</th>
+                  <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Total Dosis</th>
+                </tr>
+              </thead>
+              <tbody>
+                {appliedVaccinesDependent.map((vaccine) => (
+                  <tr
+                    key={vaccine.vaccine_id}
+                    className={`hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                      vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""
+                    }`}
+                  >
+                    <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.commercial_name}</td>
+                    <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.totalDoses}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
         </>
       )}
     </div>

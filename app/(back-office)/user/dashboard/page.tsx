@@ -215,7 +215,7 @@ const UserDashboardPage: React.FC = () => {
       .select("vaccine_id, dose")
       .eq(isDependent ? "child_id" : "patient_id", userId);
   
-    const dosesAppliedMap = appliedVaccinesData.reduce((acc: any, record: any) => {
+    const dosesAppliedMap = (appliedVaccinesData || []).reduce((acc: any, record: any) => {
       acc[record.vaccine_id] = (acc[record.vaccine_id] || 0) + 1;
       return acc;
     }, {});
