@@ -6,6 +6,8 @@ import { supabase } from "@/lib/supabaseClient";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import html2pdf from "html2pdf.js";
+import logo from "../../../../public/images/logo.png";
+import Image from "next/image";
 
 // Interfaz para los registros de vacunación
 interface VaccinationRecord {
@@ -508,6 +510,11 @@ const VaccinationRecordPage: React.FC = () => {
           ref={certificateRef}
           className="bg-white p-8 shadow-lg rounded-lg max-w-4xl mx-auto dark:bg-gray-700"
         >
+          {/* Add the logo here */}
+        <div className="flex justify-center mb-6">
+
+          <Image src={logo} alt="Vaxtrace Logo" width={50} height={50} />
+        </div>
           <div className="border-b-2 pb-4 mb-6 dark:border-gray-400">
             <h3 className="text-2xl font-semibold mb-5 text-center">
               Record de Vacunación

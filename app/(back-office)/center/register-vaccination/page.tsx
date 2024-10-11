@@ -19,7 +19,7 @@ export default function RegisterVaccination() {
   const [vaccineSelections, setVaccineSelections] = useState<any[]>([]); // Selecciones de vacunas
   const [appliedVaccines, setAppliedVaccines] = useState<any[]>([]); // Vacunas aplicadas para el paciente
   const [appliedVaccinesDependent, setAppliedVaccinesDependent] = useState<any[]>([]); // Vacunas aplicadas para el dependiente
-
+  const [patientExists, setPatientExists] = useState<boolean>(false); // New state to track if the patient exists
 
   // Obtener el ID del centro desde localStorage al cargar el componente
   useEffect(() => {
@@ -91,10 +91,6 @@ export default function RegisterVaccination() {
       newErrors.birthdate = "La fecha de nacimiento es obligatoria.";
     if (!patientInfo?.gender) newErrors.gender = "El género es obligatorio.";
 
-    // Validación de vaccineInfo
-    if (vaccineInfo.length === 0)
-      newErrors.vaccines = "Debe agregar al menos una vacuna.";
-
     setError(newErrors);
 
     // Retorna true si no hay errores
@@ -114,31 +110,27 @@ export default function RegisterVaccination() {
 
   const handleSaveRecord = async () => {
     const token = Cookies.get("access_token"); // Obtener el token de las cookies
-    console.log("Token:", token); // Verificar si el token está presente
-
+  
     if (!token) {
       toast.error("Authorization token is missing.");
       return;
     }
-
+  
     if (!validateForm()) {
       toast.error("Por favor, complete todos los campos obligatorios.");
       return;
     }
-
+  
     setLoading(true);
     try {
       // Formatear la fecha de nacimiento
       const formattedBirthdate = patientInfo.birthdate
         ? new Date(patientInfo.birthdate).toISOString().split("T")[0]
         : null;
-
-      // Determinar si se debe registrar la vacuna para el padre o el dependiente
-      const targetPatient = selectedDependent || patientInfo;
-
+  
       // Verificar si es para un usuario dependiente
       const isChild = Boolean(selectedDependent);
-
+  
       // Construir los datos del registro de vacunación
       const vaccinationRecord = {
         patient: {
@@ -161,26 +153,38 @@ export default function RegisterVaccination() {
             }
           : null, // Solo incluir si es un dependiente
         is_child: isChild, // Flag to indicate if it's for a child
-        vaccinations: vaccineInfo.map((v) => ({
+        vaccinations: vaccineInfo.length > 0 ? vaccineInfo.map((v) => ({
           vaccine_id: v.vaccine_id,
           dose: v.dose,
           batch_lot_number: v.batch_lot_number,
-        })),
+        })) : [], // Solo incluir las vacunas si hay información
         center_id: centerId?.toString(),
       };
-
-      console.log("Sending vaccination record:", vaccinationRecord); // Debugging
-
+  
+      console.log("Sending vaccination record:", vaccinationRecord);
+  
       // Llamada al backend para registrar el registro de vacunación
-      await registerVaccinationRecord(vaccinationRecord, token);
+    const response = await registerVaccinationRecord(vaccinationRecord, token);
+    console.log("Backend response:", response); // Log para verificar la respuesta del backend
 
-      // Mostrar mensajes de éxito personalizados
-      toast.success(
-        selectedDependent
-          ? `Registro de vacunación creado para el usuario menor de edad ${selectedDependent.first_name}.`
-          : `Registro de vacunación creado para el usuario ${patientInfo.first_name}.`
-      );
-
+    // Comprobar el mensaje devuelto por el backend para diferenciar un nuevo paciente
+    if (response && response.message) {
+      const expectedMessage = `Paciente ${patientInfo.first_name} registrado exitosamente.`;
+      if (response.message === expectedMessage) {
+        toast.success(response.message); // Mostrar directamente el mensaje del backend
+      } else {
+        // Mostrar mensaje estándar para el registro de vacunación
+        toast.success(
+          selectedDependent
+            ? `Registro de vacunación creado para el usuario menor de edad ${selectedDependent.first_name}.`
+            : `Registro de vacunación creado para el usuario ${patientInfo.first_name}.`
+        );
+      }
+    } else {
+      toast.error("No se recibió respuesta válida del servidor.");
+    }
+    
+  
       // Llamar a la función para reiniciar el formulario
       resetForm();
     } catch (error: any) {
@@ -197,25 +201,27 @@ export default function RegisterVaccination() {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="space-y-6">
       {/* Componente para la información del paciente */}
       <PatientInformation
-        setPatientInfo={setPatientInfo}
-        setSelectedDependent={setSelectedDependent}
-        setError={setError}
-      />
+      setPatientInfo={setPatientInfo}
+      setPatientExists={setPatientExists}
+      setSelectedDependent={setSelectedDependent}
+      setError={setError}
+    />
 
-      {/* Componente para la información de la vacuna */}
-      {(patientInfo !== null || selectedDependent !== null) && (
-        <VaccineInformation
-          setVaccineInfo={setVaccineInfo}
-          patientId={patientInfo?.id}
-          childId={selectedDependent?.id}
-          birthDate={selectedDependent?.birthdate || patientInfo?.birthdate} // Pasar la fecha de nacimiento correcta
-        />
-      )}
+    {/* Conditionally render the VaccineInformation component */}
+    {patientInfo && patientExists && (
+      <VaccineInformation
+        setVaccineInfo={setVaccineInfo}
+        patientId={patientInfo?.id}
+        childId={selectedDependent?.id}
+        birthDate={selectedDependent?.birthdate || patientInfo?.birthdate} // Pass the correct birthdate
+      />
+    )}
 
       {/* Botón para guardar el registro */}
       <div className="pt-6">

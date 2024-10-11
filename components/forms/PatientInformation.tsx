@@ -42,10 +42,12 @@ interface FormData {
 export default function PatientInformation({
   setPatientInfo,
   setSelectedDependent,
+  setPatientExists,
   setError,
 }: Readonly<{
   setPatientInfo: (info: any) => void;
   setSelectedDependent: (dependent: Dependent | null) => void;
+  setPatientExists: (exists: boolean) => void; // Add this line
   setError: (error: any) => void;
 }>) {
   const initialFormData: FormData = {
@@ -73,7 +75,7 @@ export default function PatientInformation({
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [documentInput, setDocumentInput] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [patientExists, setPatientExists] = useState(false);
+  const [isExistingPatient, setIsExistingPatient] = useState(false);
   const [dependents, setDependents] = useState<Dependent[]>([]);
   const [selectedDependentId, setSelectedDependentId] = useState<number | null>(
     null
@@ -196,91 +198,93 @@ export default function PatientInformation({
     }    
   };
 
-  // Verify patient based on document number
   const handleVerifyPatient = async () => {
     if (!documentInput) {
       toast.error("Por favor, digite su documento para verificarlo.");
       return;
     }
-
+  
     if (documentInput.length !== 11) {
       toast.error("El número de documento debe tener exactamente 11 dígitos.");
       return;
     }
-
+  
     if (!/^\d{11}$/.test(documentInput)) {
       toast.error(
         "El número de documento debe tener exactamente 11 dígitos numéricos."
       );
       return;
     }
-
+  
     clearForm(); // Reset form and states before verification
-
+  
     try {
-      // Llama a la API de validación de cédulas
       const response = await fetch(
         `https://api.digital.gob.do/v3/cedulas/${documentInput}/validate`
       );
-
+  
       if (response.status === 200) {
-        // Verifica que la solicitud fue exitosa
         const data = await response.json();
-
-        // Verifica si la cédula es válida
         if (!data.valid) {
-          // Si la cédula no es válida
           toast.error("La cédula ingresada no es válida.");
+          setIsExistingPatient(false); // Use the local state update
+          setPatientExists(false); // Update the parent state
           return;
         }
-        // Si la cédula es válida, proceder con la búsqueda del paciente
+  
         const patientData = await getPatientByDocument(documentInput);
-
+  
         if (patientData && patientData.patient_info) {
           const { patient_info, children_info } = patientData;
           const birthdate = new Date(patient_info.birthdate);
           const age = calculateAge(birthdate);
           setIsMinor(age < 18);
-
-          // Actualiza los datos del formulario con la información del paciente
+  
+          // Properly update formData with the patient's information
           setFormData({
             ...patient_info,
             birthdate,
             dependents: children_info || [],
           });
-
-          // Actualiza el estado de dependientes
+  
           setDependents(children_info || []);
           setPatientInfo({ ...patient_info, document: documentInput });
-          setPatientExists(true);
+          setIsExistingPatient(true); // Use the local state update
+          setPatientExists(true); // Update the parent state
           setShowForm(true);
+  
           // Fetch applied vaccines after verifying the patient
-          fetchAppliedVaccines(patient_info.id , false);
+          fetchAppliedVaccines(patient_info.id, false);
+  
           toast.success("Paciente encontrado.");
         } else {
-          // Si el paciente no es encontrado en la base de datos
           throw new Error("Paciente no encontrado.");
         }
       } else {
-        // Si el código de estado no es 200, mostrar un error
         toast.error("Cédula no valida.");
+        setIsExistingPatient(false); // Use the local state update
+        setPatientExists(false); // Update the parent state
       }
     } catch (error) {
-      // Si no se encuentra el paciente, permite que el usuario complete el formulario manualmente
+      // If the patient is not found, allow manual entry by setting patientInfo with the document number
       setFormData((prev) => ({
         ...prev,
         document: documentInput,
       }));
-
+    
       setPatientInfo((prev: any) => ({ ...prev, document: documentInput }));
+      setPatientExists(false); // Ensure we know this is a new patient
+      setShowForm(true); // Show the form to enter patient details
+    
       toast("Paciente nuevo. Complete el formulario manualmente.", {
         icon: <FaInfoCircle size={24} color="#155e75" />,
       });
-
-      setPatientExists(false);
-      setShowForm(true);
     }
   };
+  
+  
+  
+  
   
   // Clear the form and reset states
 const clearForm = () => {
@@ -288,7 +292,7 @@ const clearForm = () => {
   setDependents([]); // Limpia la lista de dependientes
   setSelectedDependentId(null); // Restablece la selección del dependiente
   setSelectedDependentDetails(null); // Limpia los detalles del dependiente seleccionado
-  setPatientExists(false); // Restablece la existencia del paciente a falso
+  setIsExistingPatient(false); // Restablece la existencia del paciente a falso
   setShowForm(false); // Oculta el formulario
   setShowDependentFields(false); // Oculta los campos del dependiente
 
@@ -501,13 +505,13 @@ const clearForm = () => {
                     handlebirthdateChange(newDate);
                   }}
                   className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    patientExists
+                    isExistingPatient
                       ? "bg-gray-100 text-gray-400"
                       : "bg-white text-black"
                   } ${
                     error?.birthdate ? "border-red-500" : "border-gray-300"
                   } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
-                  disabled={patientExists}
+                  disabled={isExistingPatient}
                 />
                 {error?.birthdate && (
                   <p className="text-red-500 text-sm mt-1">{error.birthdate}</p>
@@ -528,13 +532,13 @@ const clearForm = () => {
                   value={formData.document}
                   onChange={handleFormChange}
                   className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    patientExists
+                    isExistingPatient
                       ? "bg-gray-100 text-gray-400"
                       : "bg-white text-black"
                   } ${
                     error?.document ? "border-red-500" : "border-gray-300"
                   } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
-                  disabled={patientExists}
+                  disabled={isExistingPatient}
                 />
                 {error?.document && (
                   <p className="text-red-500 text-sm mt-1">{error.document}</p>
@@ -555,13 +559,13 @@ const clearForm = () => {
                   value={formData.first_name}
                   onChange={handleFormChange}
                   className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    patientExists
+                    isExistingPatient
                       ? "bg-gray-100 text-gray-400"
                       : "bg-white text-black"
                   } ${
                     error?.first_name ? "border-red-500" : "border-gray-300"
                   } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
-                  disabled={patientExists}
+                  disabled={isExistingPatient}
                 />
                 {error?.first_name && (
                   <p className="text-red-500 text-sm mt-1">
@@ -584,13 +588,13 @@ const clearForm = () => {
                   value={formData.last_name}
                   onChange={handleFormChange}
                   className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    patientExists
+                    isExistingPatient
                       ? "bg-gray-100 text-gray-400"
                       : "bg-white text-black"
                   } ${
                     error?.last_name ? "border-red-500" : "border-gray-300"
                   } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
-                  disabled={patientExists}
+                  disabled={isExistingPatient}
                 />
                 {error?.last_name && (
                   <p className="text-red-500 text-sm mt-1">{error.last_name}</p>
@@ -612,13 +616,13 @@ const clearForm = () => {
                   value={formData.email}
                   onChange={handleFormChange}
                   className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    patientExists
+                    isExistingPatient
                       ? "bg-gray-100 text-gray-400"
                       : "bg-white text-black"
                   } ${
                     error?.email ? "border-red-500" : "border-gray-300"
                   } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
-                  disabled={patientExists}
+                  disabled={isExistingPatient}
                 />
                 {error?.email && (
                   <p className="text-red-500 text-sm mt-1">{error.email}</p>
@@ -628,7 +632,7 @@ const clearForm = () => {
               <GenderButtons
                 selectedGender={formData.gender}
                 onChange={handleGenderChange}
-                disabled={patientExists}
+                disabled={isExistingPatient}
               />
 
               {/* Additional fields for occupation and address */}
