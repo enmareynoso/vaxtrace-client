@@ -8,6 +8,7 @@ import { registerVaccinationRecord } from "@/lib/api/auth";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { supabase } from "@/lib/supabaseClient";
+import { FaSpinner } from "react-icons/fa";
 
 export default function RegisterVaccination() {
   const [patientInfo, setPatientInfo] = useState<any>(null); // Información del paciente
@@ -109,7 +110,7 @@ export default function RegisterVaccination() {
       newErrors.email = "El email es obligatorio.";
     } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(patientInfo.email)) {
       newErrors.email = "El formato del email no es válido.";
-    } else if (!/(gmail\.com|hotmail\.com|yahoo\.com|outlook\.es)$/i.test(patientInfo.email)) {
+    } else if (!/(gmail\.com|hotmail\.com|yahoo\.com|outlook\.es|outlook\.com)$/i.test(patientInfo.email)) {
       newErrors.email = "El email debe tener un dominio válido (ej. gmail.com, outlook.es).";
     }
 
@@ -256,7 +257,11 @@ export default function RegisterVaccination() {
             loading ? "opacity-50 cursor-not-allowed" : "hover:bg-cyan-900"
           } transition duration-150`}
         >
-          {loading ? "Guardando..." : "Guardar Registro"}
+           {loading ? (
+      <FaSpinner className="animate-spin mr-2" /> // Muestra el ícono de carga cuando loading es true
+    ) : (
+      "Guardar Registro"
+    )}
         </Button>
       </div>
     </div>

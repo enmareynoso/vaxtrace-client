@@ -151,14 +151,6 @@ export default function PatientInformation({
     }
   };
   
-  const calculateAgeMayor = (dob: Date): number => {
-    const diff = Date.now() - dob.getTime();
-    const ageDate = new Date(diff);
-    return Math.abs(ageDate.getUTCFullYear() - 1970);
-  };
-  
-
-
   // Calculate age from birthdate
   const calculateAge = (dob: Date): number => {
     if (!(dob instanceof Date) || isNaN(dob.getTime())) {
