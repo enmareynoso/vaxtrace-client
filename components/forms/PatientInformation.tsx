@@ -112,19 +112,19 @@ export default function PatientInformation({
       setAppliedVaccinesDependent([]);
       return;
     }
-  
+
     try {
       const { data: appliedVaccinesData, error } = await supabase
         .from("vaxtraceapi_vaccinationrecord")
         .select("vaccine_id, dose, vaccine:vaxtraceapi_vaccine(commercial_name, max_doses)")
         .eq(isDependent ? "child_id" : "patient_id", id);
-  
+
       if (error) {
         console.error("Error fetching applied vaccines:", error);
         toast.error("Error al obtener las vacunas aplicadas.");
         return;
       }
-  
+
       const consolidatedVaccines = (appliedVaccinesData as VaccinationRecord[]).reduce((acc, record) => {
         const existingVaccine = acc.find((v) => v.vaccine_id === record.vaccine_id);
         if (existingVaccine) {
@@ -139,7 +139,7 @@ export default function PatientInformation({
         }
         return acc;
       }, [] as { vaccine_id: number; commercial_name: string; totalDoses: number; max_doses: number }[]);
-  
+
       if (isDependent) {
         setAppliedVaccinesDependent(consolidatedVaccines); // Actualiza la tabla de dependiente
       } else {
@@ -150,7 +150,7 @@ export default function PatientInformation({
       toast.error("Ocurrió un error al obtener las vacunas aplicadas.");
     }
   };
-  
+
   // Calculate age from birthdate
   const calculateAge = (dob: Date): number => {
     if (!(dob instanceof Date) || isNaN(dob.getTime())) {
@@ -165,7 +165,7 @@ export default function PatientInformation({
   const handlebirthdateChange = (date: Date | null) => {
     if (date) {
       const age = calculateAge(date);
-  
+
       if (age < 18) {
         // Mostrar error si el usuario es menor de edad
         setError((prevError: any) => ({
@@ -189,8 +189,8 @@ export default function PatientInformation({
       }
     }
   };
-  
-  
+
+
 
   // Handle gender change
   const handleGenderChange = (value: "M" | "F") => {
@@ -219,7 +219,7 @@ export default function PatientInformation({
       setSelectedDependentId(null); // Reset dependent if not selected
       setAppliedVaccinesDependent([]); // Limpia la tabla de vacunas del dependiente
       setShowDependentFields(false);
-    }    
+    }
   };
 
   const handleVerifyPatient = async () => {
@@ -227,26 +227,26 @@ export default function PatientInformation({
       toast.error("Por favor, digite su documento para verificarlo.");
       return;
     }
-  
+
     if (documentInput.length !== 11) {
       toast.error("El número de documento debe tener exactamente 11 dígitos.");
       return;
     }
-  
+
     if (!/^\d{11}$/.test(documentInput)) {
       toast.error(
         "El número de documento debe tener exactamente 11 dígitos numéricos."
       );
       return;
     }
-  
+
     clearForm(); // Reset form and states before verification
-  
+
     try {
       const response = await fetch(
         `https://api.digital.gob.do/v3/cedulas/${documentInput}/validate`
       );
-  
+
       if (response.status === 200) {
         const data = await response.json();
         if (!data.valid) {
@@ -255,31 +255,31 @@ export default function PatientInformation({
           setPatientExists(false); // Update the parent state
           return;
         }
-  
+
         const patientData = await getPatientByDocument(documentInput);
-  
+
         if (patientData && patientData.patient_info) {
           const { patient_info, children_info } = patientData;
           const birthdate = new Date(patient_info.birthdate);
           const age = calculateAge(birthdate);
           setIsMinor(age < 18);
-  
+
           // Properly update formData with the patient's information
           setFormData({
             ...patient_info,
             birthdate,
             dependents: children_info || [],
           });
-  
+
           setDependents(children_info || []);
           setPatientInfo({ ...patient_info, document: documentInput });
           setIsExistingPatient(true); // Use the local state update
           setPatientExists(true); // Update the parent state
           setShowForm(true);
-  
+
           // Fetch applied vaccines after verifying the patient
           fetchAppliedVaccines(patient_info.id, false);
-  
+
           toast.success("Paciente encontrado.");
         } else {
           throw new Error("Paciente no encontrado.");
@@ -295,21 +295,21 @@ export default function PatientInformation({
         ...prev,
         document: documentInput,
       }));
-    
+
       setPatientInfo((prev: any) => ({ ...prev, document: documentInput }));
       setPatientExists(false); // Ensure we know this is a new patient
       setShowForm(true); // Show the form to enter patient details
-    
+
       toast("Paciente nuevo. Complete el formulario manualmente.", {
         icon: <FaInfoCircle size={24} color="#155e75" />,
       });
     }
   };
-  
-  
-  
-  
-  
+
+
+
+
+
   // Clear the form and reset states
 const clearForm = () => {
   setFormData(initialFormData); // Reinicia el formulario del paciente
@@ -374,42 +374,42 @@ const clearForm = () => {
       toast.error("Por favor, complete todos los campos del dependiente.");
       return;
     }
-  
+
     // Calcular la edad del dependiente utilizando la función calculateAge
     const birthdate = new Date(newDependentData.birthdate);
     const age = calculateAge(birthdate);
-  
+
     // Verificar si el dependiente es mayor de edad
     if (age >= 18) {
       toast.error("El dependiente es mayor de edad y no se puede agregar.");
       return;
     }
-  
+
     try {
       // Obtener todos los IDs existentes de los dependientes para calcular el siguiente ID disponible
       const { data: existingDependents, error: fetchError } = await supabase
         .from('vaxtraceapi_child') // Asegúrate de que este sea el nombre correcto de la tabla
         .select('id');
-  
+
       if (fetchError) {
         console.error("Error al obtener los IDs de los dependientes:", fetchError);
         toast.error("Error al verificar los IDs existentes.");
         return;
       }
-  
+
       // Encontrar el siguiente ID disponible
       const maxId = existingDependents && existingDependents.length > 0
         ? Math.max(...existingDependents.map((dependent: { id: number }) => dependent.id))
         : 59; // Empezar en 59 si no hay dependientes existentes
-  
+
       const nextId = maxId + 1;
-  
+
       // Crear el nuevo dependiente con el ID calculado
       const newDependent = {
         ...newDependentData,
         id: nextId, // Asignar el ID calculado
       };
-  
+
       // Actualizar el estado local con el nuevo dependiente para que aparezca en el dropdown
       setDependents((prev: Dependent[]) => [...prev, newDependent]);
       setShowDependentFields(false);
@@ -420,8 +420,8 @@ const clearForm = () => {
       toast.error("Hubo un error al agregar el dependiente. Por favor, inténtelo de nuevo.");
     }
   };
-  
-  
+
+
 
   const handleClearDependentFields = () => {
     setNewDependentData(initialDependentData);
@@ -707,10 +707,8 @@ const clearForm = () => {
                           <tbody>
                           {appliedVaccines.map((vaccine) => (
                               <tr
-                                key={vaccine.vaccine_id}
-                                className={`hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                                  vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""
-                                }`}
+                                 key={vaccine.vaccine_id}
+                                 className={vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""}
                               >
                                 <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.commercial_name}</td>
                                 <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.totalDoses}</td>
@@ -939,10 +937,8 @@ const clearForm = () => {
               <tbody>
                 {appliedVaccinesDependent.map((vaccine) => (
                   <tr
-                    key={vaccine.vaccine_id}
-                    className={`hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                      vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""
-                    }`}
+                  key={vaccine.vaccine_id}
+                  className={vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""}
                   >
                     <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.commercial_name}</td>
                     <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.totalDoses}</td>
