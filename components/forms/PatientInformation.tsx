@@ -4,7 +4,7 @@ import { getPatientByDocument } from "@/lib/api/auth";
 import toast, { Toaster } from "react-hot-toast";
 import { FaInfoCircle } from "react-icons/fa";
 import { supabase } from "@/lib/supabaseClient";
-import { FaExclamationCircle } from 'react-icons/fa';
+import { FaExclamationCircle } from "react-icons/fa";
 
 // Dependent interface
 interface Dependent {
@@ -23,9 +23,8 @@ interface VaccinationRecord {
     commercial_name?: string;
     max_doses?: number; // Agregamos max_doses aquí
   };
+  application_date?: Date;
 }
-
-
 
 // Patient form data interface
 interface FormData {
@@ -44,14 +43,17 @@ export default function PatientInformation({
   setPatientInfo,
   setSelectedDependent,
   setPatientExists,
+  setVaccineInfo,
   setError,
   errorI,
 }: Readonly<{
   setPatientInfo: (info: any) => void;
   setSelectedDependent: (dependent: Dependent | null) => void;
-  setPatientExists: (exists: boolean) => void; // Add this line
+  setPatientExists: (exists: boolean) => void;
+  setVaccineInfo: (vaccines: VaccinationRecord[]) => void;
   setError: (error: any) => void;
-  errorI: { // Define el tipo para el error aquí
+  errorI: {
+    // Define el tipo para el error aquí
     document?: string;
     birthdate?: string;
     first_name?: string;
@@ -90,7 +92,9 @@ export default function PatientInformation({
     null
   );
   const [appliedVaccines, setAppliedVaccines] = useState<any[]>([]);
-  const [appliedVaccinesDependent, setAppliedVaccinesDependent] = useState<any[]>([]);
+  const [appliedVaccinesDependent, setAppliedVaccinesDependent] = useState<
+    any[]
+  >([]);
   const [selectedDependentDetails, setSelectedDependentDetails] =
     useState<Dependent | null>(null);
   const [showDependentFields, setShowDependentFields] = useState(false);
@@ -104,6 +108,8 @@ export default function PatientInformation({
     last_name?: string;
     email?: string;
   } | null>(null);
+  const [showVaccineModal, setShowVaccineModal] = useState(false);
+  const [recommendedVaccines, setRecommendedVaccines] = useState<any[]>([]);
 
   // Fetch and consolidate applied vaccines for a given ID
   const fetchAppliedVaccines = async (id: number, isDependent: boolean) => {
@@ -116,7 +122,9 @@ export default function PatientInformation({
     try {
       const { data: appliedVaccinesData, error } = await supabase
         .from("vaxtraceapi_vaccinationrecord")
-        .select("vaccine_id, dose, vaccine:vaxtraceapi_vaccine(commercial_name, max_doses)")
+        .select(
+          "vaccine_id, dose, vaccine:vaxtraceapi_vaccine(commercial_name, max_doses)"
+        )
         .eq(isDependent ? "child_id" : "patient_id", id);
 
       if (error) {
@@ -125,8 +133,12 @@ export default function PatientInformation({
         return;
       }
 
-      const consolidatedVaccines = (appliedVaccinesData as VaccinationRecord[]).reduce((acc, record) => {
-        const existingVaccine = acc.find((v) => v.vaccine_id === record.vaccine_id);
+      const consolidatedVaccines = (
+        appliedVaccinesData as VaccinationRecord[]
+      ).reduce((acc, record) => {
+        const existingVaccine = acc.find(
+          (v) => v.vaccine_id === record.vaccine_id
+        );
         if (existingVaccine) {
           existingVaccine.totalDoses += 1;
         } else {
@@ -189,8 +201,6 @@ export default function PatientInformation({
       }
     }
   };
-
-
 
   // Handle gender change
   const handleGenderChange = (value: "M" | "F") => {
@@ -300,31 +310,29 @@ export default function PatientInformation({
       setPatientExists(false); // Ensure we know this is a new patient
       setShowForm(true); // Show the form to enter patient details
 
+      fetchRecommendedVaccines(216);
+      setShowVaccineModal(true);
+
       toast("Paciente nuevo. Complete el formulario manualmente.", {
         icon: <FaInfoCircle size={24} color="#155e75" />,
       });
     }
   };
 
-
-
-
-
   // Clear the form and reset states
-const clearForm = () => {
-  setFormData(initialFormData); // Reinicia el formulario del paciente
-  setDependents([]); // Limpia la lista de dependientes
-  setSelectedDependentId(null); // Restablece la selección del dependiente
-  setSelectedDependentDetails(null); // Limpia los detalles del dependiente seleccionado
-  setIsExistingPatient(false); // Restablece la existencia del paciente a falso
-  setShowForm(false); // Oculta el formulario
-  setShowDependentFields(false); // Oculta los campos del dependiente
+  const clearForm = () => {
+    setFormData(initialFormData); // Reinicia el formulario del paciente
+    setDependents([]); // Limpia la lista de dependientes
+    setSelectedDependentId(null); // Restablece la selección del dependiente
+    setSelectedDependentDetails(null); // Limpia los detalles del dependiente seleccionado
+    setIsExistingPatient(false); // Restablece la existencia del paciente a falso
+    setShowForm(false); // Oculta el formulario
+    setShowDependentFields(false); // Oculta los campos del dependiente
 
-  setAppliedVaccines([]); // Limpia la tabla de vacunas del paciente
-  setAppliedVaccinesDependent([]); // Limpia la tabla de vacunas del dependiente
-  setPatientInfo(initialFormData); // Actualiza el componente padre para que no tenga información de paciente
-};
-
+    setAppliedVaccines([]); // Limpia la tabla de vacunas del paciente
+    setAppliedVaccinesDependent([]); // Limpia la tabla de vacunas del dependiente
+    setPatientInfo(initialFormData); // Actualiza el componente padre para que no tenga información de paciente
+  };
 
   // Handle form field changes
   const handleFormChange = (
@@ -388,19 +396,27 @@ const clearForm = () => {
     try {
       // Obtener todos los IDs existentes de los dependientes para calcular el siguiente ID disponible
       const { data: existingDependents, error: fetchError } = await supabase
-        .from('vaxtraceapi_child') // Asegúrate de que este sea el nombre correcto de la tabla
-        .select('id');
+        .from("vaxtraceapi_child") // Asegúrate de que este sea el nombre correcto de la tabla
+        .select("id");
 
       if (fetchError) {
-        console.error("Error al obtener los IDs de los dependientes:", fetchError);
+        console.error(
+          "Error al obtener los IDs de los dependientes:",
+          fetchError
+        );
         toast.error("Error al verificar los IDs existentes.");
         return;
       }
 
       // Encontrar el siguiente ID disponible
-      const maxId = existingDependents && existingDependents.length > 0
-        ? Math.max(...existingDependents.map((dependent: { id: number }) => dependent.id))
-        : 59; // Empezar en 59 si no hay dependientes existentes
+      const maxId =
+        existingDependents && existingDependents.length > 0
+          ? Math.max(
+              ...existingDependents.map(
+                (dependent: { id: number }) => dependent.id
+              )
+            )
+          : 59; // Empezar en 59 si no hay dependientes existentes
 
       const nextId = maxId + 1;
 
@@ -410,18 +426,24 @@ const clearForm = () => {
         id: nextId, // Asignar el ID calculado
       };
 
+      const ageInMonths = calculateAgeInMonths(new Date(birthdate));
+      fetchRecommendedVaccines(ageInMonths);
+      setShowVaccineModal(true);
+
       // Actualizar el estado local con el nuevo dependiente para que aparezca en el dropdown
       setDependents((prev: Dependent[]) => [...prev, newDependent]);
       setShowDependentFields(false);
       setNewDependentData(initialDependentData); // Resetea el formulario del nuevo dependiente
-      toast.success("Dependiente agregado exitosamente y listo para ser registrado.");
+      toast.success(
+        "Dependiente agregado exitosamente y listo para ser registrado."
+      );
     } catch (error) {
       console.error("Error al agregar dependiente:", error);
-      toast.error("Hubo un error al agregar el dependiente. Por favor, inténtelo de nuevo.");
+      toast.error(
+        "Hubo un error al agregar el dependiente. Por favor, inténtelo de nuevo."
+      );
     }
   };
-
-
 
   const handleClearDependentFields = () => {
     setNewDependentData(initialDependentData);
@@ -452,6 +474,206 @@ const clearForm = () => {
       ))}
     </div>
   );
+
+  // Lógica para manejar la selección de dosis y fechas
+  const handleDoseSelection = (vaccineId: any, dose: number) => {
+    setRecommendedVaccines((prevVaccines) => {
+      const vaccineIndex = prevVaccines.findIndex(
+        (v) => v.vaccine_id === vaccineId
+      );
+      if (vaccineIndex !== -1) {
+        const updatedVaccine = {
+          ...prevVaccines[vaccineIndex],
+          appliedDoses: prevVaccines[vaccineIndex].appliedDoses?.includes(dose)
+            ? prevVaccines[vaccineIndex].appliedDoses.filter(
+                (d: number) => d !== dose
+              )
+            : [...(prevVaccines[vaccineIndex].appliedDoses || []), dose],
+        };
+        return [
+          ...prevVaccines.slice(0, vaccineIndex),
+          updatedVaccine,
+          ...prevVaccines.slice(vaccineIndex + 1),
+        ];
+      }
+      return prevVaccines;
+    });
+  };
+
+  const handleDoseDateChange = (
+    vaccineId: any,
+    doseIndex: number,
+    date: string
+  ) => {
+    setRecommendedVaccines((prevVaccines: any[]) =>
+      prevVaccines.map((vaccine) => {
+        if (vaccine.vaccine_id === vaccineId) {
+          return {
+            ...vaccine,
+            doseDates: {
+              ...(vaccine.doseDates || {}), // Asegura que doseDates siempre existe como objeto
+              [doseIndex]: date,
+            },
+          };
+        }
+        return vaccine;
+      })
+    );
+  };
+
+  // Función para calcular la edad en meses a partir de la fecha de nacimiento
+  const calculateAgeInMonths = (birthDate: Date) => {
+    const today = new Date();
+    const yearsDiff = today.getFullYear() - birthDate.getFullYear();
+    const monthsDiff = today.getMonth() - birthDate.getMonth();
+    const daysDiff = today.getDate() - birthDate.getDate();
+
+    let totalMonths = yearsDiff * 12 + monthsDiff;
+    if (daysDiff < 0) {
+      totalMonths--;
+    }
+    return totalMonths;
+  };
+
+  // Función para obtener las vacunas recomendadas según la edad
+  const fetchRecommendedVaccines = async (ageInMonths: number) => {
+    console.log(`Edad en meses: ${ageInMonths}`); // Mostrar la edad en meses en la consola
+
+    const vaccineAgeRestrictions = {
+      "0 Meses": {
+        BCG: 1,
+        "Hepatitis B": 1,
+      },
+      "2 Meses": {
+        Rotavirus: 1,
+        IPV: 1,
+        Neumococo: 1,
+        Pentavalente: 1,
+      },
+      "4 Meses": {
+        Rotavirus: 2,
+        bOPV: 1,
+        Neumococo: 2,
+        Pentavalente: 2,
+      },
+      "6 Meses": {
+        IPV: 2,
+        Pentavalente: 3,
+      },
+      "12 Meses": {
+        SRP: 1,
+        Neumococo: 3,
+      },
+      "18 Meses": {
+        SRP: 2,
+        bOPV: 3,
+        DPT: 1,
+      },
+      "48 Meses": {
+        bOPV: 4,
+        DPT: 2,
+      },
+      "108-167 Meses": {
+        DPT: 3,
+        VPH: 2,
+      },
+      "168+ Meses": "all", // Indicador para incluir todas las vacunas disponibles
+    };
+
+    // Obtener todas las vacunas disponibles desde la base de datos
+    const { data: allVaccines, error } = await supabase
+      .from("vaxtraceapi_vaccine")
+      .select("vaccine_id, commercial_name, max_doses");
+
+    if (error) {
+      console.error("Error fetching vaccines:", error);
+      return;
+    }
+
+    let recommendedVaccinesList: { [key: string]: number } = {};
+
+    // Acumular todas las vacunas relevantes según la edad del paciente
+    if (ageInMonths >= 0) {
+      Object.assign(recommendedVaccinesList, vaccineAgeRestrictions["0 Meses"]);
+    }
+    if (ageInMonths >= 2) {
+      Object.assign(recommendedVaccinesList, vaccineAgeRestrictions["2 Meses"]);
+    }
+    if (ageInMonths >= 4) {
+      Object.assign(recommendedVaccinesList, vaccineAgeRestrictions["4 Meses"]);
+    }
+    if (ageInMonths >= 6) {
+      Object.assign(recommendedVaccinesList, vaccineAgeRestrictions["6 Meses"]);
+    }
+    if (ageInMonths >= 12) {
+      Object.assign(
+        recommendedVaccinesList,
+        vaccineAgeRestrictions["12 Meses"]
+      );
+    }
+    if (ageInMonths >= 18) {
+      Object.assign(
+        recommendedVaccinesList,
+        vaccineAgeRestrictions["18 Meses"]
+      );
+    }
+    if (ageInMonths >= 48) {
+      Object.assign(
+        recommendedVaccinesList,
+        vaccineAgeRestrictions["48 Meses"]
+      );
+    }
+    if (ageInMonths >= 108) {
+      Object.assign(
+        recommendedVaccinesList,
+        vaccineAgeRestrictions["108-167 Meses"]
+      );
+    }
+    if (ageInMonths >= 168) {
+      allVaccines.forEach((vaccine) => {
+        recommendedVaccinesList[vaccine.commercial_name] = vaccine.max_doses;
+      });
+    }
+
+    // Filtrar las vacunas disponibles según las recomendaciones
+    const recommendedVaccines = allVaccines.filter((vaccine) => {
+      return recommendedVaccinesList.hasOwnProperty(vaccine.commercial_name);
+    });
+
+    setRecommendedVaccines(recommendedVaccines); // Actualizamos el estado con las vacunas recomendadas
+  };
+
+  const handleSaveVaccines = async () => {
+    try {
+      // Filtrar solo las vacunas que tienen dosis aplicadas
+      const selectedVaccines = recommendedVaccines.filter(
+        (vaccine) => vaccine.appliedDoses && vaccine.appliedDoses.length > 0
+      );
+      console.log("selectedVaccines: ", selectedVaccines);
+
+      // Crear un arreglo de objetos con los registros de las vacunas seleccionadas
+      const vaccineRecords = selectedVaccines.flatMap((vaccine) => {
+        return vaccine.appliedDoses.map((dose: string | number) => ({
+          vaccine_id: vaccine.vaccine_id,
+          commercial_name: vaccine.commercial_name,
+          dose: dose,
+          application_date: vaccine.doseDates[dose] || null, // Fecha de aplicación de la dosis
+        }));
+      });
+
+      console.log("Registros de vacunas seleccionadas:", vaccineRecords);
+
+      // Guardar la lista de registros de vacunas en el setVaccineInfo
+      setVaccineInfo(vaccineRecords);
+
+      // Alerta o confirmación de guardado exitoso
+      alert("Las dosis seleccionadas han sido guardadas exitosamente.");
+      setShowVaccineModal(false); // Cierra el modal tras el guardado
+    } catch (error) {
+      console.error("Error al guardar las dosis de vacunas:", error);
+      alert("Hubo un problema al guardar las dosis de vacunas.");
+    }
+  };
 
   return (
     <div className="border p-6 rounded-md shadow-md space-y-2 bg-white dark:bg-gray-800">
@@ -497,6 +719,108 @@ const clearForm = () => {
       {/* Always display the form for patient information */}
       {showForm && (
         <>
+          {/* Modal para seleccionar vacunas previamente subministradas */}
+          {showVaccineModal && (
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex justify-center items-center z-50">
+              <div className="bg-white p-8 rounded-lg w-full max-w-md mx-4 shadow-lg relative dark:bg-gray-800">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center dark:text-gray-300">
+                  Vacunas Previamente Aplicadas
+                </h2>
+                <p className="text-gray-600 mb-4 text-sm leading-relaxed dark:text-gray-300">
+                  Selecciona las dosis que se han aplicado de cada una de las
+                  vacunas recomendadas para su edad y proporciona la fecha de
+                  aplicación:
+                </p>
+
+                {/* Contenedor con scroll para la lista de vacunas */}
+                <div className="max-h-60 overflow-y-auto space-y-6 mb-6">
+                  {recommendedVaccines.map((vaccine) => (
+                    <div key={vaccine.vaccine_id} className="space-y-2">
+                      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                        {vaccine.commercial_name}
+                      </h3>
+
+                      {/* Dosis a Aplicar */}
+                      <div className="space-y-2">
+                        {[...Array(Number(vaccine.max_doses))].map(
+                          (_, doseIndex) => {
+                            const doseNumber = doseIndex + 1;
+                            const uniqueKey = `${vaccine.vaccine_id}-${doseNumber}`;
+                            const appliedDoses = vaccine.appliedDoses || []; // Valor predeterminado para evitar el error
+                            const doseDate =
+                              vaccine.doseDates?.[doseNumber] || ""; // Asegura que siempre haya un valor
+                            return (
+                              <div
+                                className="flex items-center space-x-3"
+                                key={uniqueKey}
+                              >
+                                <input
+                                  id={uniqueKey}
+                                  type="checkbox"
+                                  onChange={() =>
+                                    handleDoseSelection(
+                                      vaccine.vaccine_id,
+                                      doseNumber
+                                    )
+                                  }
+                                  checked={appliedDoses.includes(doseNumber)}
+                                  className="ml-2 w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                                />
+                                <label
+                                  htmlFor={uniqueKey}
+                                  className="text-gray-700 dark:text-gray-300"
+                                >
+                                  Dosis {doseNumber}
+                                </label>
+                                {Array.isArray(vaccine.appliedDoses) &&
+                                  vaccine.appliedDoses.includes(doseNumber) && (
+                                    <input
+                                      id={uniqueKey}
+                                      type="date"
+                                      onChange={(e) =>
+                                        handleDoseDateChange(
+                                          vaccine.vaccine_id,
+                                          doseNumber,
+                                          e.target.value
+                                        )
+                                      }
+                                      className="ml-2 p-2 border rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                                      required={appliedDoses.includes(
+                                        doseNumber
+                                      )}
+                                    />
+                                  )}
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Botones */}
+                <div className="flex justify-end space-x-4 mt-6">
+                  <button
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onClick={() => {
+                      handleSaveVaccines();
+                      setShowVaccineModal(false);
+                    }}
+                  >
+                    Guardar
+                  </button>
+                  <button
+                    className="bg-gray-300 text-black px-4 py-2 rounded-lg hover:bg-gray-400 transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    onClick={() => setShowVaccineModal(false)}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Formulario del Paciente y Dependiente */}
           <div>
             {/* Información del Padre/Madre o Tutor */}
@@ -506,37 +830,44 @@ const clearForm = () => {
                 : "Información del Paciente"}
             </h2>
             <div className="grid gap-4 md:grid-cols-2">
-            <div>
-        <label htmlFor="birthdate" className="block text-gray-700 dark:text-white">
-          Fecha de Nacimiento
-        </label>
-        <input
-          id="birthdate"
-          type="date"
-          name="birthdate"
-          value={
-            formData.birthdate
-              ? new Date(formData.birthdate).toISOString().split("T")[0]
-              : ""
-          }
-          onChange={(e) => {
-            const newDate = e.target.value ? new Date(e.target.value) : null;
-            handlebirthdateChange(newDate);
-          }}
-          className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ${
-            errorI?.birthdate ? "border-red-500" : "border-gray-300"
-          } ${isExistingPatient ? "bg-gray-100 text-gray-400" : "bg-white text-black"} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
-          disabled={isExistingPatient}
-        />
-        {errorI?.birthdate && (
-          <div className="flex items-center mt-1">
-            <FaExclamationCircle className="text-red-600 mr-2" />
-            <p className="text-red-600 text-sm">{errorI.birthdate}</p>
-          </div>
-        )}
-      </div>
-
-
+              <div>
+                <label
+                  htmlFor="birthdate"
+                  className="block text-gray-700 dark:text-white"
+                >
+                  Fecha de Nacimiento
+                </label>
+                <input
+                  id="birthdate"
+                  type="date"
+                  name="birthdate"
+                  value={
+                    formData.birthdate
+                      ? new Date(formData.birthdate).toISOString().split("T")[0]
+                      : ""
+                  }
+                  onChange={(e) => {
+                    const newDate = e.target.value
+                      ? new Date(e.target.value)
+                      : null;
+                    handlebirthdateChange(newDate);
+                  }}
+                  className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ${
+                    errorI?.birthdate ? "border-red-500" : "border-gray-300"
+                  } ${
+                    isExistingPatient
+                      ? "bg-gray-100 text-gray-400"
+                      : "bg-white text-black"
+                  } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                  disabled={isExistingPatient}
+                />
+                {errorI?.birthdate && (
+                  <div className="flex items-center mt-1">
+                    <FaExclamationCircle className="text-red-600 mr-2" />
+                    <p className="text-red-600 text-sm">{errorI.birthdate}</p>
+                  </div>
+                )}
+              </div>
 
               <div>
                 <label
@@ -583,10 +914,12 @@ const clearForm = () => {
                     isExistingPatient
                       ? "bg-gray-100 text-gray-400"
                       : "bg-white text-black"
-                  } ${errorI?.first_name ? "border-red-500" : "border-gray-300"} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                  } ${
+                    errorI?.first_name ? "border-red-500" : "border-gray-300"
+                  } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                   disabled={isExistingPatient}
                 />
-               {errorI?.first_name && (
+                {errorI?.first_name && (
                   <div className="flex items-center mt-1">
                     <FaExclamationCircle className="text-red-600 mr-2" />
                     <p className="text-red-600 text-sm">{errorI.first_name}</p>
@@ -611,10 +944,12 @@ const clearForm = () => {
                     isExistingPatient
                       ? "bg-gray-100 text-gray-400"
                       : "bg-white text-black"
-                  }  ${errorI?.last_name ? "border-red-500" : "border-gray-300"} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                  }  ${
+                    errorI?.last_name ? "border-red-500" : "border-gray-300"
+                  } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                   disabled={isExistingPatient}
                 />
-                               {errorI?.last_name && (
+                {errorI?.last_name && (
                   <div className="flex items-center mt-1">
                     <FaExclamationCircle className="text-red-600 mr-2" />
                     <p className="text-red-600 text-sm">{errorI.last_name}</p>
@@ -640,15 +975,17 @@ const clearForm = () => {
                     isExistingPatient
                       ? "bg-gray-100 text-gray-400"
                       : "bg-white text-black"
-                  }  ${errorI?.email ? "border-red-500" : "border-gray-300"} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
-                   disabled={isExistingPatient}
+                  }  ${
+                    errorI?.email ? "border-red-500" : "border-gray-300"
+                  } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                  disabled={isExistingPatient}
                 />
                 {errorI?.email && (
-                    <div className="flex items-center mt-1">
-                      <FaExclamationCircle className="text-red-600 mr-2" />
-                      <p className="text-red-600 text-sm">{errorI.email}</p>
-                    </div>
-                  )}
+                  <div className="flex items-center mt-1">
+                    <FaExclamationCircle className="text-red-600 mr-2" />
+                    <p className="text-red-600 text-sm">{errorI.email}</p>
+                  </div>
+                )}
               </div>
 
               <GenderButtons
@@ -693,31 +1030,45 @@ const clearForm = () => {
               </div>
             </div>
           </div>
+
           {/* Mostrar información de las vacunas aplicadas */}
           {appliedVaccines.length > 0 && (
-                      <div className="mt-6">
-                        <h3 className="text-lg font-semibold mb-4">Vacunas Aplicadas</h3>
-                        <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 mt-4">
-                          <thead>
-                            <tr className="bg-gray-200 dark:bg-gray-700">
-                              <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Nombre de la Vacuna</th>
-                              <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Total Dosis</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                          {appliedVaccines.map((vaccine) => (
-                              <tr
-                                 key={vaccine.vaccine_id}
-                                 className={vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""}
-                              >
-                                <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.commercial_name}</td>
-                                <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.totalDoses}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold mb-4">Vacunas Aplicadas</h3>
+              <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 mt-4">
+                <thead>
+                  <tr className="bg-gray-200 dark:bg-gray-700">
+                    <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">
+                      Nombre de la Vacuna
+                    </th>
+                    <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">
+                      Total Dosis
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {appliedVaccines.map((vaccine) => (
+                    <tr
+                      key={vaccine.vaccine_id}
+                      className={
+                        vaccine.totalDoses === vaccine.max_doses
+                          ? "bg-green-100 dark:bg-green-700"
+                          : ""
+                      }
+                    >
+                      <td className="py-2 px-4 text-gray-900 dark:text-gray-200">
+                        {vaccine.commercial_name}
+                      </td>
+                      <td className="py-2 px-4 text-gray-900 dark:text-gray-200">
+                        {vaccine.totalDoses}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
+
           {/* Dropdown para seleccionar dependiente */}
           {dependents.length > 0 && (
             <div className="mt-4">
@@ -762,7 +1113,6 @@ const clearForm = () => {
                   </Button>
                 )}
               </div>
-
             </div>
           )}
 
@@ -922,32 +1272,48 @@ const clearForm = () => {
               </div>
             </div>
           )}
+
           {/* Mostrar la tabla de vacunas aplicadas del dependiente seleccionado */}
-        {/* Mostrar la tabla de vacunas aplicadas del dependiente seleccionado */}
-        {selectedDependentDetails && selectedDependentDetails.id !== 0 && appliedVaccinesDependent.length > 0 && (
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-4">Vacunas Aplicadas del Dependiente</h3>
-            <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 mt-4">
-              <thead>
-                <tr className="bg-gray-200 dark:bg-gray-700">
-                  <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Nombre de la Vacuna</th>
-                  <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Total Dosis</th>
-                </tr>
-              </thead>
-              <tbody>
-                {appliedVaccinesDependent.map((vaccine) => (
-                  <tr
-                  key={vaccine.vaccine_id}
-                  className={vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""}
-                  >
-                    <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.commercial_name}</td>
-                    <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.totalDoses}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+          {selectedDependentDetails &&
+            selectedDependentDetails.id !== 0 &&
+            appliedVaccinesDependent.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-4">
+                  Vacunas Aplicadas del Dependiente
+                </h3>
+                <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 mt-4">
+                  <thead>
+                    <tr className="bg-gray-200 dark:bg-gray-700">
+                      <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">
+                        Nombre de la Vacuna
+                      </th>
+                      <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">
+                        Total Dosis
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {appliedVaccinesDependent.map((vaccine) => (
+                      <tr
+                        key={vaccine.vaccine_id}
+                        className={
+                          vaccine.totalDoses === vaccine.max_doses
+                            ? "bg-green-100 dark:bg-green-700"
+                            : ""
+                        }
+                      >
+                        <td className="py-2 px-4 text-gray-900 dark:text-gray-200">
+                          {vaccine.commercial_name}
+                        </td>
+                        <td className="py-2 px-4 text-gray-900 dark:text-gray-200">
+                          {vaccine.totalDoses}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
         </>
       )}
     </div>

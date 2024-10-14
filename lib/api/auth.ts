@@ -107,6 +107,8 @@ interface VaccinationRecordRequest {
   };
   vaccinations: {
     vaccine_id: string;
+    dose?: string;
+    application_date?: Date;
   }[];
   center_id?: string; // ID del centro que realiza el registro
 }

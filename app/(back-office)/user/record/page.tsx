@@ -511,10 +511,9 @@ const VaccinationRecordPage: React.FC = () => {
           className="bg-white p-8 shadow-lg rounded-lg max-w-4xl mx-auto dark:bg-gray-700"
         >
           {/* Add the logo here */}
-        <div className="flex justify-center mb-6">
-
-          <Image src={logo} alt="Vaxtrace Logo" width={50} height={50} />
-        </div>
+          <div className="flex justify-center mb-6">
+            <Image src={logo} alt="Vaxtrace Logo" width={50} height={50} />
+          </div>
           <div className="border-b-2 pb-4 mb-6 dark:border-gray-400">
             <h3 className="text-2xl font-semibold mb-5 text-center">
               Record de Vacunación
@@ -538,7 +537,7 @@ const VaccinationRecordPage: React.FC = () => {
               </div>
               {parentName && (
                 <div>
-                  <strong>Nombre del Padre:</strong> {parentName}
+                  <strong>Nombre del Padre/Tutor:</strong> {parentName}
                 </div>
               )}
 
@@ -577,6 +576,11 @@ const VaccinationRecordPage: React.FC = () => {
               {vaccinationRecords.map((record) => {
                 const reportedSymptoms =
                   reportedSymptomsByRecord[record.id] || [];
+                const recordDate = new Date(record.date);
+                const isOlderThanTwoWeeks =
+                  new Date().getTime() - recordDate.getTime() >
+                  14 * 24 * 60 * 60 * 1000;
+
                 return (
                   <tr
                     key={record.id}
@@ -607,8 +611,9 @@ const VaccinationRecordPage: React.FC = () => {
                             </li>
                           ))}
                         </ul>
-                      ) : isGeneratingPDF ? (
-                        <span>No reportado</span> // Mostrar "No reportado" en el PDF
+                      ) : isGeneratingPDF || isOlderThanTwoWeeks ? (
+                        // Mostrar "No reportado" en el PDF o si la vacuna fue subministrada hace más de dos semanas.
+                        <span>No reportado</span>
                       ) : (
                         <button
                           className="text-blue-500 underline mt-2"
@@ -740,6 +745,7 @@ const VaccinationRecordPage: React.FC = () => {
               </div>
             </div>
           )}
+
           <div className="flex justify-center mt-6">
             <button
               id="download-btn"

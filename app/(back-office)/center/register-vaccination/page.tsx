@@ -19,7 +19,9 @@ export default function RegisterVaccination() {
   const [error, setError] = useState<any>({}); // Ahora es un objeto para manejar errores de cada campo
   const [vaccineSelections, setVaccineSelections] = useState<any[]>([]); // Selecciones de vacunas
   const [appliedVaccines, setAppliedVaccines] = useState<any[]>([]); // Vacunas aplicadas para el paciente
-  const [appliedVaccinesDependent, setAppliedVaccinesDependent] = useState<any[]>([]); // Vacunas aplicadas para el dependiente
+  const [appliedVaccinesDependent, setAppliedVaccinesDependent] = useState<
+    any[]
+  >([]); // Vacunas aplicadas para el dependiente
   const [patientExists, setPatientExists] = useState<boolean>(false); // New state to track if the patient exists
 
   // Obtener el ID del centro desde localStorage al cargar el componente
@@ -83,7 +85,10 @@ export default function RegisterVaccination() {
     const ageDate = new Date(diff);
     return Math.abs(ageDate.getUTCFullYear() - 1970);
   };
-  
+
+  const handleSetVaccineInfo = (newVaccineInfo: any) => {
+    setVaccineInfo(newVaccineInfo);
+  };
 
   const validateForm = () => {
     let newErrors: any = {};
@@ -110,8 +115,13 @@ export default function RegisterVaccination() {
       newErrors.email = "El email es obligatorio.";
     } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(patientInfo.email)) {
       newErrors.email = "El formato del email no es válido.";
-    } else if (!/(gmail\.com|hotmail\.com|yahoo\.com|outlook\.es|outlook\.com)$/i.test(patientInfo.email)) {
-      newErrors.email = "El email debe tener un dominio válido (ej. gmail.com, outlook.es).";
+    } else if (
+      !/(gmail\.com|hotmail\.com|yahoo\.com|outlook\.es|outlook\.com)$/i.test(
+        patientInfo.email
+      )
+    ) {
+      newErrors.email =
+        "El email debe tener un dominio válido (ej. gmail.com, outlook.es).";
     }
 
     setError(newErrors);
@@ -127,33 +137,33 @@ export default function RegisterVaccination() {
     setSelectedDependent(null);
     setError({});
     setAppliedVaccines([]); // Limpiar las vacunas aplicadas del paciente
-    setVaccineSelections([]);  
+    setVaccineSelections([]);
     setAppliedVaccinesDependent([]); // Limpiar las vacunas aplicadas del dependiente
   };
 
   const handleSaveRecord = async () => {
     const token = Cookies.get("access_token"); // Obtener el token de las cookies
-  
+
     if (!token) {
       toast.error("Authorization token is missing.");
       return;
     }
-  
+
     if (!validateForm()) {
       toast.error("Por favor, complete todos los campos obligatorios.");
       return;
     }
-  
+
     setLoading(true);
     try {
       // Formatear la fecha de nacimiento
       const formattedBirthdate = patientInfo.birthdate
         ? new Date(patientInfo.birthdate).toISOString().split("T")[0]
         : null;
-  
+
       // Verificar si es para un usuario dependiente
       const isChild = Boolean(selectedDependent);
-  
+
       // Construir los datos del registro de vacunación
       const vaccinationRecord = {
         patient: {
@@ -176,38 +186,44 @@ export default function RegisterVaccination() {
             }
           : null, // Solo incluir si es un dependiente
         is_child: isChild, // Flag to indicate if it's for a child
-        vaccinations: vaccineInfo.length > 0 ? vaccineInfo.map((v) => ({
-          vaccine_id: v.vaccine_id,
-          dose: v.dose,
-          batch_lot_number: v.batch_lot_number,
-        })) : [], // Solo incluir las vacunas si hay información
+        vaccinations:
+          vaccineInfo.length > 0
+            ? vaccineInfo.map((v) => ({
+                vaccine_id: v.vaccine_id,
+                dose: v.dose,
+                batch_lot_number: v.batch_lot_number,
+                application_date: v.application_date,
+              }))
+            : [], // Solo incluir las vacunas si hay información
         center_id: centerId?.toString(),
       };
-  
-      console.log("Sending vaccination record:", vaccinationRecord);
-  
-      // Llamada al backend para registrar el registro de vacunación
-    const response = await registerVaccinationRecord(vaccinationRecord, token);
-    console.log("Backend response:", response); // Log para verificar la respuesta del backend
 
-    // Comprobar el mensaje devuelto por el backend para diferenciar un nuevo paciente
-    if (response && response.message) {
-      const expectedMessage = `Paciente ${patientInfo.first_name} registrado exitosamente.`;
-      if (response.message === expectedMessage) {
-        toast.success(response.message); // Mostrar directamente el mensaje del backend
+      console.log("Sending vaccination record:", vaccinationRecord);
+
+      // Llamada al backend para registrar el registro de vacunación
+      const response = await registerVaccinationRecord(
+        vaccinationRecord,
+        token
+      );
+      console.log("Backend response:", response); // Log para verificar la respuesta del backend
+
+      // Comprobar el mensaje devuelto por el backend para diferenciar un nuevo paciente
+      if (response && response.message) {
+        const expectedMessage = `Paciente ${patientInfo.first_name} registrado exitosamente.`;
+        if (response.message === expectedMessage) {
+          toast.success(response.message); // Mostrar directamente el mensaje del backend
+        } else {
+          // Mostrar mensaje estándar para el registro de vacunación
+          toast.success(
+            selectedDependent
+              ? `Registro de vacunación creado para el usuario menor de edad ${selectedDependent.first_name}.`
+              : `Registro de vacunación creado para el usuario ${patientInfo.first_name}.`
+          );
+        }
       } else {
-        // Mostrar mensaje estándar para el registro de vacunación
-        toast.success(
-          selectedDependent
-            ? `Registro de vacunación creado para el usuario menor de edad ${selectedDependent.first_name}.`
-            : `Registro de vacunación creado para el usuario ${patientInfo.first_name}.`
-        );
+        toast.error("No se recibió respuesta válida del servidor.");
       }
-    } else {
-      toast.error("No se recibió respuesta válida del servidor.");
-    }
-    
-  
+
       // Llamar a la función para reiniciar el formulario
       resetForm();
     } catch (error: any) {
@@ -224,29 +240,28 @@ export default function RegisterVaccination() {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="space-y-6">
       {/* Componente para la información del paciente */}
       <PatientInformation
-  setPatientInfo={setPatientInfo}
-  setPatientExists={setPatientExists}
-  setSelectedDependent={setSelectedDependent}
-  setError={setError}
-  errorI={error} // Pasa el estado de error correctamente al componente
-/>
-
-
-    {/* Conditionally render the VaccineInformation component */}
-    {patientInfo && patientExists && (
-      <VaccineInformation
-        setVaccineInfo={setVaccineInfo}
-        patientId={patientInfo?.id}
-        childId={selectedDependent?.id}
-        birthDate={selectedDependent?.birthdate || patientInfo?.birthdate} // Pass the correct birthdate
+        setPatientInfo={setPatientInfo}
+        setPatientExists={setPatientExists}
+        setSelectedDependent={setSelectedDependent}
+        setVaccineInfo={handleSetVaccineInfo}
+        setError={setError}
+        errorI={error} // Pasa el estado de error correctamente al componente
       />
-    )}
+
+      {/* Conditionally render the VaccineInformation component */}
+      {patientInfo && (
+        <VaccineInformation
+          setVaccineInfo={handleSetVaccineInfo}
+          patientId={patientInfo?.id}
+          childId={selectedDependent?.id}
+          birthDate={selectedDependent?.birthdate || patientInfo?.birthdate} // Pass the correct birthdate
+        />
+      )}
 
       {/* Botón para guardar el registro */}
       <div className="pt-6">
@@ -257,11 +272,11 @@ export default function RegisterVaccination() {
             loading ? "opacity-50 cursor-not-allowed" : "hover:bg-cyan-900"
           } transition duration-150`}
         >
-           {loading ? (
-      <FaSpinner className="animate-spin mr-2" /> // Muestra el ícono de carga cuando loading es true
-    ) : (
-      "Guardar Registro"
-    )}
+          {loading ? (
+            <FaSpinner className="animate-spin mr-2" /> // Muestra el ícono de carga cuando loading es true
+          ) : (
+            "Guardar Registro"
+          )}
         </Button>
       </div>
     </div>
