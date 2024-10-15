@@ -113,6 +113,7 @@ export default function RegisterVaccination() {
     } else if (!/(gmail\.com|hotmail\.com|yahoo\.com|outlook\.es|outlook\.com)$/i.test(patientInfo.email)) {
       newErrors.email = "El email debe tener un dominio válido (ej. gmail.com, outlook.es).";
     }
+    
 
     setError(newErrors);
 
@@ -165,6 +166,7 @@ export default function RegisterVaccination() {
           email: patientInfo.email,
           occupation: patientInfo.occupation,
           address: patientInfo.address,
+          phone_number: patientInfo.phone_number,
         },
         dependent: isChild
           ? {
@@ -249,6 +251,7 @@ export default function RegisterVaccination() {
     )}
 
       {/* Botón para guardar el registro */}
+      {patientInfo &&  (
       <div className="pt-6">
         <Button
           onClick={handleSaveRecord}
@@ -264,6 +267,7 @@ export default function RegisterVaccination() {
     )}
         </Button>
       </div>
+      )}
     </div>
   );
 }

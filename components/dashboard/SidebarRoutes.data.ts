@@ -69,7 +69,7 @@ export const userRoutes: SidebarItemType[] = [
   },
   {
     icon: LogOut,
-    label: "Log out",
+    label: "Cerrar sesión",
     href: "#", // Usaremos '#' y agregaremos la funcionalidad de logout
     action: "logout",
   },
@@ -84,7 +84,7 @@ export const centerRoutes: SidebarItemType[] = [
   },
   {
     icon: Building2,
-    label: "Registro de vacuna",
+    label: "Registro",
     href: "/center/register-vaccination",
   },
   {
@@ -99,7 +99,7 @@ export const centerRoutes: SidebarItemType[] = [
   },
   {
     icon: LogOut,
-    label: "Log out",
+    label: "Cerrar sesión",
     href: "#", // Usaremos '#' y agregaremos la funcionalidad de logout
     action: "logout",
   },

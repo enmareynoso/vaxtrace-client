@@ -37,6 +37,7 @@ interface FormData {
   gender: string;
   occupation: string;
   address: string;
+  phone_number: string;
   dependents: Dependent[]; // List of dependents
 }
 
@@ -68,6 +69,7 @@ export default function PatientInformation({
     gender: "",
     occupation: "",
     address: "",
+    phone_number: "", 
     dependents: [],
   };
 
@@ -658,6 +660,23 @@ const clearForm = () => {
               />
 
               {/* Additional fields for occupation and address */}
+              <div>
+                  <label
+                    htmlFor="phone_number"
+                    className="block text-gray-700 dark:text-white"
+                  >
+                    Teléfono
+                  </label>
+                  <input
+                    id="phone_number"
+                    name="phone_number"
+                    placeholder="Número de teléfono"
+                    value={formData.phone_number}
+                    onChange={handleFormChange}
+                    className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
               <div>
                 <label
                   htmlFor="occupation"

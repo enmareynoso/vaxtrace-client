@@ -569,7 +569,7 @@ const VaccinationRecordPage: React.FC = () => {
                   Lugar de Vacunación
                 </th>
                 <th className="border border-gray-300 px-4 py-2 text-left">
-                  Esavi
+                  Efectos Secundarios
                 </th>
               </tr>
             </thead>
