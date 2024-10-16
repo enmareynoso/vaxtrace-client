@@ -45,12 +45,6 @@ export function SidebarRoutes({ userRole }: SidebarRoutesProps) {
 
         <Separator />
 
-        <div className="p-2 md:p-6">
-          <p className="text-slate-500 mb-2">SUPPORT</p>
-          {supportRoutes.map((item) => (
-            <SidebarItem key={item.label} item={item} />
-          ))}
-        </div>
       </div>
 
       <div>

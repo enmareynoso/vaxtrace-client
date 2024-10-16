@@ -16,6 +16,7 @@ interface UserInfo {
   nationality: string;
   address: string;
   occupation: string;
+  phone_number: string;
 }
 
 // Interfaz del dependiente
@@ -42,6 +43,7 @@ const ProfilePage: React.FC = () => {
     nationality: "",
     address: "",
     occupation: "",
+    phone_number: "", 
   });
 
   const [dependents, setDependents] = useState<Dependent[]>([]);
@@ -74,7 +76,7 @@ const ProfilePage: React.FC = () => {
         const { data: user, error: userError } = await supabase
           .from("vaxtraceapi_patientuser")
           .select(
-            "first_name, last_name, document, birthdate, gender, nationality, address, occupation"
+            "first_name, last_name, document, birthdate, gender, nationality, address, occupation, phone_number"
           )
           .eq("id", userId)
           .single();
@@ -311,10 +313,8 @@ const ProfilePage: React.FC = () => {
               name="nationality"
               value={formData.nationality}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-gray-400 dark:bg-gray-950"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-gray-700 dark:bg-gray-950"
               required
-              readOnly
-              disabled
             />
           </div>
           <div className="mb-4">
@@ -333,6 +333,23 @@ const ProfilePage: React.FC = () => {
               required
             />
           </div>
+          <div className="mb-4">
+            <label
+              htmlFor="phone_number"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Teléfono
+            </label>
+            <input
+              type="text"
+              name="phone_number"
+              value={formData.phone_number}
+              onChange={handleChange}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-950"
+              required
+            />
+          </div>
+
           <div className="mb-4">
             <label
               htmlFor="occupation"

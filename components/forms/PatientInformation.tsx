@@ -4,6 +4,7 @@ import { getPatientByDocument } from "@/lib/api/auth";
 import toast, { Toaster } from "react-hot-toast";
 import { FaInfoCircle } from "react-icons/fa";
 import { supabase } from "@/lib/supabaseClient";
+import { FaExclamationCircle } from 'react-icons/fa';
 
 // Dependent interface
 interface Dependent {
@@ -36,17 +37,28 @@ interface FormData {
   gender: string;
   occupation: string;
   address: string;
+  phone_number: string;
   dependents: Dependent[]; // List of dependents
 }
 
 export default function PatientInformation({
   setPatientInfo,
   setSelectedDependent,
+  setPatientExists,
   setError,
+  errorI,
 }: Readonly<{
   setPatientInfo: (info: any) => void;
   setSelectedDependent: (dependent: Dependent | null) => void;
+  setPatientExists: (exists: boolean) => void; // Add this line
   setError: (error: any) => void;
+  errorI: { // Define el tipo para el error aquí
+    document?: string;
+    birthdate?: string;
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+  } | null;
 }>) {
   const initialFormData: FormData = {
     document: "",
@@ -57,6 +69,7 @@ export default function PatientInformation({
     gender: "",
     occupation: "",
     address: "",
+    phone_number: "", 
     dependents: [],
   };
 
@@ -73,7 +86,7 @@ export default function PatientInformation({
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [documentInput, setDocumentInput] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [patientExists, setPatientExists] = useState(false);
+  const [isExistingPatient, setIsExistingPatient] = useState(false);
   const [dependents, setDependents] = useState<Dependent[]>([]);
   const [selectedDependentId, setSelectedDependentId] = useState<number | null>(
     null
@@ -101,19 +114,19 @@ export default function PatientInformation({
       setAppliedVaccinesDependent([]);
       return;
     }
-  
+
     try {
       const { data: appliedVaccinesData, error } = await supabase
         .from("vaxtraceapi_vaccinationrecord")
         .select("vaccine_id, dose, vaccine:vaxtraceapi_vaccine(commercial_name, max_doses)")
         .eq(isDependent ? "child_id" : "patient_id", id);
-  
+
       if (error) {
         console.error("Error fetching applied vaccines:", error);
         toast.error("Error al obtener las vacunas aplicadas.");
         return;
       }
-  
+
       const consolidatedVaccines = (appliedVaccinesData as VaccinationRecord[]).reduce((acc, record) => {
         const existingVaccine = acc.find((v) => v.vaccine_id === record.vaccine_id);
         if (existingVaccine) {
@@ -128,7 +141,7 @@ export default function PatientInformation({
         }
         return acc;
       }, [] as { vaccine_id: number; commercial_name: string; totalDoses: number; max_doses: number }[]);
-  
+
       if (isDependent) {
         setAppliedVaccinesDependent(consolidatedVaccines); // Actualiza la tabla de dependiente
       } else {
@@ -139,8 +152,6 @@ export default function PatientInformation({
       toast.error("Ocurrió un error al obtener las vacunas aplicadas.");
     }
   };
-  
-
 
   // Calculate age from birthdate
   const calculateAge = (dob: Date): number => {
@@ -155,16 +166,33 @@ export default function PatientInformation({
   // Handle birthdate change for the patient
   const handlebirthdateChange = (date: Date | null) => {
     if (date) {
-      setFormData((prev) => ({
-        ...prev,
-        birthdate: date,
-      }));
-      setPatientInfo((prev: any) => ({
-        ...prev,
-        birthdate: date,
-      }));
+      const age = calculateAge(date);
+
+      if (age < 18) {
+        // Mostrar error si el usuario es menor de edad
+        setError((prevError: any) => ({
+          ...prevError,
+          birthdate: "El usuario no es mayor de edad.",
+        }));
+      } else {
+        // Limpiar el error si la fecha es válida
+        setError((prevError: any) => ({
+          ...prevError,
+          birthdate: null,
+        }));
+        setFormData((prev) => ({
+          ...prev,
+          birthdate: date,
+        }));
+        setPatientInfo((prev: any) => ({
+          ...prev,
+          birthdate: date,
+        }));
+      }
     }
   };
+
+
 
   // Handle gender change
   const handleGenderChange = (value: "M" | "F") => {
@@ -193,10 +221,9 @@ export default function PatientInformation({
       setSelectedDependentId(null); // Reset dependent if not selected
       setAppliedVaccinesDependent([]); // Limpia la tabla de vacunas del dependiente
       setShowDependentFields(false);
-    }    
+    }
   };
 
-  // Verify patient based on document number
   const handleVerifyPatient = async () => {
     if (!documentInput) {
       toast.error("Por favor, digite su documento para verificarlo.");
@@ -218,22 +245,19 @@ export default function PatientInformation({
     clearForm(); // Reset form and states before verification
 
     try {
-      // Llama a la API de validación de cédulas
       const response = await fetch(
         `https://api.digital.gob.do/v3/cedulas/${documentInput}/validate`
       );
 
       if (response.status === 200) {
-        // Verifica que la solicitud fue exitosa
         const data = await response.json();
-
-        // Verifica si la cédula es válida
         if (!data.valid) {
-          // Si la cédula no es válida
           toast.error("La cédula ingresada no es válida.");
+          setIsExistingPatient(false); // Use the local state update
+          setPatientExists(false); // Update the parent state
           return;
         }
-        // Si la cédula es válida, proceder con la búsqueda del paciente
+
         const patientData = await getPatientByDocument(documentInput);
 
         if (patientData && patientData.patient_info) {
@@ -242,53 +266,59 @@ export default function PatientInformation({
           const age = calculateAge(birthdate);
           setIsMinor(age < 18);
 
-          // Actualiza los datos del formulario con la información del paciente
+          // Properly update formData with the patient's information
           setFormData({
             ...patient_info,
             birthdate,
             dependents: children_info || [],
           });
 
-          // Actualiza el estado de dependientes
           setDependents(children_info || []);
           setPatientInfo({ ...patient_info, document: documentInput });
-          setPatientExists(true);
+          setIsExistingPatient(true); // Use the local state update
+          setPatientExists(true); // Update the parent state
           setShowForm(true);
+
           // Fetch applied vaccines after verifying the patient
-          fetchAppliedVaccines(patient_info.id , false);
+          fetchAppliedVaccines(patient_info.id, false);
+
           toast.success("Paciente encontrado.");
         } else {
-          // Si el paciente no es encontrado en la base de datos
           throw new Error("Paciente no encontrado.");
         }
       } else {
-        // Si el código de estado no es 200, mostrar un error
         toast.error("Cédula no valida.");
+        setIsExistingPatient(false); // Use the local state update
+        setPatientExists(false); // Update the parent state
       }
     } catch (error) {
-      // Si no se encuentra el paciente, permite que el usuario complete el formulario manualmente
+      // If the patient is not found, allow manual entry by setting patientInfo with the document number
       setFormData((prev) => ({
         ...prev,
         document: documentInput,
       }));
 
       setPatientInfo((prev: any) => ({ ...prev, document: documentInput }));
+      setPatientExists(false); // Ensure we know this is a new patient
+      setShowForm(true); // Show the form to enter patient details
+
       toast("Paciente nuevo. Complete el formulario manualmente.", {
         icon: <FaInfoCircle size={24} color="#155e75" />,
       });
-
-      setPatientExists(false);
-      setShowForm(true);
     }
   };
-  
+
+
+
+
+
   // Clear the form and reset states
 const clearForm = () => {
   setFormData(initialFormData); // Reinicia el formulario del paciente
   setDependents([]); // Limpia la lista de dependientes
   setSelectedDependentId(null); // Restablece la selección del dependiente
   setSelectedDependentDetails(null); // Limpia los detalles del dependiente seleccionado
-  setPatientExists(false); // Restablece la existencia del paciente a falso
+  setIsExistingPatient(false); // Restablece la existencia del paciente a falso
   setShowForm(false); // Oculta el formulario
   setShowDependentFields(false); // Oculta los campos del dependiente
 
@@ -346,42 +376,42 @@ const clearForm = () => {
       toast.error("Por favor, complete todos los campos del dependiente.");
       return;
     }
-  
+
     // Calcular la edad del dependiente utilizando la función calculateAge
     const birthdate = new Date(newDependentData.birthdate);
     const age = calculateAge(birthdate);
-  
+
     // Verificar si el dependiente es mayor de edad
     if (age >= 18) {
       toast.error("El dependiente es mayor de edad y no se puede agregar.");
       return;
     }
-  
+
     try {
       // Obtener todos los IDs existentes de los dependientes para calcular el siguiente ID disponible
       const { data: existingDependents, error: fetchError } = await supabase
         .from('vaxtraceapi_child') // Asegúrate de que este sea el nombre correcto de la tabla
         .select('id');
-  
+
       if (fetchError) {
         console.error("Error al obtener los IDs de los dependientes:", fetchError);
         toast.error("Error al verificar los IDs existentes.");
         return;
       }
-  
+
       // Encontrar el siguiente ID disponible
       const maxId = existingDependents && existingDependents.length > 0
         ? Math.max(...existingDependents.map((dependent: { id: number }) => dependent.id))
         : 59; // Empezar en 59 si no hay dependientes existentes
-  
+
       const nextId = maxId + 1;
-  
+
       // Crear el nuevo dependiente con el ID calculado
       const newDependent = {
         ...newDependentData,
         id: nextId, // Asignar el ID calculado
       };
-  
+
       // Actualizar el estado local con el nuevo dependiente para que aparezca en el dropdown
       setDependents((prev: Dependent[]) => [...prev, newDependent]);
       setShowDependentFields(false);
@@ -392,8 +422,8 @@ const clearForm = () => {
       toast.error("Hubo un error al agregar el dependiente. Por favor, inténtelo de nuevo.");
     }
   };
-  
-  
+
+
 
   const handleClearDependentFields = () => {
     setNewDependentData(initialDependentData);
@@ -478,41 +508,37 @@ const clearForm = () => {
                 : "Información del Paciente"}
             </h2>
             <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="birthdate"
-                  className="block text-gray-700 dark:text-white"
-                >
-                  Fecha de Nacimiento
-                </label>
-                <input
-                  id="birthdate"
-                  type="date"
-                  name="birthdate"
-                  value={
-                    formData.birthdate
-                      ? new Date(formData.birthdate).toISOString().split("T")[0]
-                      : ""
-                  }
-                  onChange={(e) => {
-                    const newDate = e.target.value
-                      ? new Date(e.target.value)
-                      : null;
-                    handlebirthdateChange(newDate);
-                  }}
-                  className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    patientExists
-                      ? "bg-gray-100 text-gray-400"
-                      : "bg-white text-black"
-                  } ${
-                    error?.birthdate ? "border-red-500" : "border-gray-300"
-                  } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
-                  disabled={patientExists}
-                />
-                {error?.birthdate && (
-                  <p className="text-red-500 text-sm mt-1">{error.birthdate}</p>
-                )}
-              </div>
+            <div>
+        <label htmlFor="birthdate" className="block text-gray-700 dark:text-white">
+          Fecha de Nacimiento
+        </label>
+        <input
+          id="birthdate"
+          type="date"
+          name="birthdate"
+          value={
+            formData.birthdate
+              ? new Date(formData.birthdate).toISOString().split("T")[0]
+              : ""
+          }
+          onChange={(e) => {
+            const newDate = e.target.value ? new Date(e.target.value) : null;
+            handlebirthdateChange(newDate);
+          }}
+          className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ${
+            errorI?.birthdate ? "border-red-500" : "border-gray-300"
+          } ${isExistingPatient ? "bg-gray-100 text-gray-400" : "bg-white text-black"} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+          disabled={isExistingPatient}
+        />
+        {errorI?.birthdate && (
+          <div className="flex items-center mt-1">
+            <FaExclamationCircle className="text-red-600 mr-2" />
+            <p className="text-red-600 text-sm">{errorI.birthdate}</p>
+          </div>
+        )}
+      </div>
+
+
 
               <div>
                 <label
@@ -528,13 +554,14 @@ const clearForm = () => {
                   value={formData.document}
                   onChange={handleFormChange}
                   className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    patientExists
+                    isExistingPatient
                       ? "bg-gray-100 text-gray-400"
-                      : "bg-white text-black"
+                      : "bg-gray-100 text-gray-400"
                   } ${
                     error?.document ? "border-red-500" : "border-gray-300"
                   } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
-                  disabled={patientExists}
+                  readOnly
+                  disabled
                 />
                 {error?.document && (
                   <p className="text-red-500 text-sm mt-1">{error.document}</p>
@@ -555,18 +582,17 @@ const clearForm = () => {
                   value={formData.first_name}
                   onChange={handleFormChange}
                   className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    patientExists
+                    isExistingPatient
                       ? "bg-gray-100 text-gray-400"
                       : "bg-white text-black"
-                  } ${
-                    error?.first_name ? "border-red-500" : "border-gray-300"
-                  } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
-                  disabled={patientExists}
+                  } ${errorI?.first_name ? "border-red-500" : "border-gray-300"} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                  disabled={isExistingPatient}
                 />
-                {error?.first_name && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {error.first_name}
-                  </p>
+               {errorI?.first_name && (
+                  <div className="flex items-center mt-1">
+                    <FaExclamationCircle className="text-red-600 mr-2" />
+                    <p className="text-red-600 text-sm">{errorI.first_name}</p>
+                  </div>
                 )}
               </div>
 
@@ -584,16 +610,17 @@ const clearForm = () => {
                   value={formData.last_name}
                   onChange={handleFormChange}
                   className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    patientExists
+                    isExistingPatient
                       ? "bg-gray-100 text-gray-400"
                       : "bg-white text-black"
-                  } ${
-                    error?.last_name ? "border-red-500" : "border-gray-300"
-                  } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
-                  disabled={patientExists}
+                  }  ${errorI?.last_name ? "border-red-500" : "border-gray-300"} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                  disabled={isExistingPatient}
                 />
-                {error?.last_name && (
-                  <p className="text-red-500 text-sm mt-1">{error.last_name}</p>
+                               {errorI?.last_name && (
+                  <div className="flex items-center mt-1">
+                    <FaExclamationCircle className="text-red-600 mr-2" />
+                    <p className="text-red-600 text-sm">{errorI.last_name}</p>
+                  </div>
                 )}
               </div>
 
@@ -612,26 +639,44 @@ const clearForm = () => {
                   value={formData.email}
                   onChange={handleFormChange}
                   className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    patientExists
+                    isExistingPatient
                       ? "bg-gray-100 text-gray-400"
                       : "bg-white text-black"
-                  } ${
-                    error?.email ? "border-red-500" : "border-gray-300"
-                  } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
-                  disabled={patientExists}
+                  }  ${errorI?.email ? "border-red-500" : "border-gray-300"} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                   disabled={isExistingPatient}
                 />
-                {error?.email && (
-                  <p className="text-red-500 text-sm mt-1">{error.email}</p>
-                )}
+                {errorI?.email && (
+                    <div className="flex items-center mt-1">
+                      <FaExclamationCircle className="text-red-600 mr-2" />
+                      <p className="text-red-600 text-sm">{errorI.email}</p>
+                    </div>
+                  )}
               </div>
 
               <GenderButtons
                 selectedGender={formData.gender}
                 onChange={handleGenderChange}
-                disabled={patientExists}
+                disabled={isExistingPatient}
               />
 
               {/* Additional fields for occupation and address */}
+              <div>
+                  <label
+                    htmlFor="phone_number"
+                    className="block text-gray-700 dark:text-white"
+                  >
+                    Teléfono
+                  </label>
+                  <input
+                    id="phone_number"
+                    name="phone_number"
+                    placeholder="Número de teléfono"
+                    value={formData.phone_number}
+                    onChange={handleFormChange}
+                    className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
               <div>
                 <label
                   htmlFor="occupation"
@@ -681,8 +726,8 @@ const clearForm = () => {
                           <tbody>
                           {appliedVaccines.map((vaccine) => (
                               <tr
-                                key={vaccine.vaccine_id}
-                                className={`hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                                 key={vaccine.vaccine_id}
+                                 className={`border-b border-gray-300 dark:border-gray-600 ${
                                   vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""
                                 }`}
                               >
@@ -913,10 +958,10 @@ const clearForm = () => {
               <tbody>
                 {appliedVaccinesDependent.map((vaccine) => (
                   <tr
-                    key={vaccine.vaccine_id}
-                    className={`hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                      vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""
-                    }`}
+                  key={vaccine.vaccine_id}
+                  className={`border-b border-gray-300 dark:border-gray-600 ${
+                    vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""
+                  }`}
                   >
                     <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.commercial_name}</td>
                     <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.totalDoses}</td>

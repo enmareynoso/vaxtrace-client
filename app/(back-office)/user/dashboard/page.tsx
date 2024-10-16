@@ -403,7 +403,7 @@ const UserDashboardPage: React.FC = () => {
           {recommendedVaccines.map(vaccine => (
             <tr
               key={vaccine.vaccine_id}
-              className={`cursor-pointer hover:bg-gray-400 dark:hover:bg-gray-700 ${
+              className={`cursor-pointer border-b border-gray-700 hover:bg-gray-300 dark:hover:bg-gray-700 ${
                 vaccine.missingDoses === 0 
                   ? "bg-green-200 dark:bg-green-400"  // Fondo verde para vacunas con todas las dosis aplicadas
                   : vaccine.isOverdue 
@@ -422,7 +422,7 @@ const UserDashboardPage: React.FC = () => {
 
       {/* Tabla de Vacunas Aplicadas */}
       <h3 className="text-xl font-semibold mt-8">Vacunas Aplicadas</h3>
-      <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 mt-4">
+      <table className="min-w-full bg-white  dark:bg-gray-800 border border-gray-300 dark:border-gray-600 mt-4">
         <thead>
           <tr className="bg-gray-200 dark:bg-gray-700">
             <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Nombre de la Vacuna</th>
@@ -431,7 +431,7 @@ const UserDashboardPage: React.FC = () => {
         </thead>
         <tbody>
           {appliedVaccines.map(vaccine => (
-            <tr key={vaccine.vaccine_id} className="hover:bg-gray-100 dark:hover:bg-gray-700">
+            <tr key={vaccine.vaccine_id} className="border-b border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700">
               <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.commercial_name}</td>
               <td className="py-2 px-0 text-gray-900 dark:text-gray-200">{vaccine.dose}</td>
             </tr>
