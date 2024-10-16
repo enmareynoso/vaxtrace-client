@@ -68,6 +68,11 @@ const CenterSignUp: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isChecked) {
+      toast.error("Debe aceptar los términos y condiciones para aplicar.");
+      return;
+    }
     setLoading(true); // Activar loading
 
     try {
@@ -175,7 +180,7 @@ const CenterSignUp: React.FC = () => {
       <div className="w-full md:w-1/2 bg-cyan-900 flex items-center justify-center p-6 md:p-12 flex-1">
         <div className="bg-gray-100 p-6 md:p-8 rounded-lg shadow-lg w-full max-w-md dark:bg-gray-800">
           <h1 className="text-2xl md:text-3xl font-bold mb-8 text-center text-cyan-900 dark:text-gray-300">
-            Center Sign Up
+            Aplicar Centro
           </h1>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
@@ -234,7 +239,7 @@ const CenterSignUp: React.FC = () => {
             </div>
             <div className="mb-4">
               <label className="block text-cyan-900 font-semibold dark:text-gray-300">
-                Phone Number
+               Teléfono
               </label>
               <input
                 type="text"
@@ -260,7 +265,7 @@ const CenterSignUp: React.FC = () => {
             </div>
             <div className="mb-4">
               <label className="block text-cyan-900 font-semibold dark:text-gray-300">
-                Province
+              Provincia
               </label>
               <select
                 value={province}
@@ -268,7 +273,7 @@ const CenterSignUp: React.FC = () => {
                 className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300 dark:text-gray-300"
                 required
               >
-                <option value="">Select Province</option>
+                <option value="">Seleccionar Provincia</option>
                 {provinces.map((prov) => (
                   <option key={prov.province_id} value={prov.province_id}>
                     {prov.name}
@@ -279,7 +284,7 @@ const CenterSignUp: React.FC = () => {
 
             <div className="mb-4">
               <label className="block text-cyan-900 font-semibold dark:text-gray-300">
-                Municipality
+              Municipio
               </label>
               <select
                 value={municipality}
@@ -287,7 +292,7 @@ const CenterSignUp: React.FC = () => {
                 className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300 dark:text-gray-300"
                 required
               >
-                <option value="">Select Municipality</option>
+                <option value="">Seleccionar Municipio</option>
                 {filteredMunicipalities.map((muni) => (
                   <option
                     key={muni.municipality_id}
@@ -300,7 +305,7 @@ const CenterSignUp: React.FC = () => {
             </div>
             <div className="mb-6">
               <Checkbox
-                label="Accept Terms and Conditions"
+                label="Aceptar terminos y condiciones"
                 checked={isChecked}
                 onChange={handleCheckboxChange}
               />
@@ -344,8 +349,8 @@ const CenterSignUp: React.FC = () => {
                 href="/auth/login"
                 className="text-cyan-900 hover:underline dark:text-gray-300"
               >
-                Already have an account?{" "}
-                <span className="font-semibold dark:text-gray-400">Login</span>
+                ¿Ya tienes una cuenta?{" "}
+                <span className="font-semibold dark:text-gray-400">Iniciar sesión</span>
               </a>
             </div>
           </form>
