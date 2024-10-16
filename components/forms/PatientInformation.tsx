@@ -727,7 +727,9 @@ const clearForm = () => {
                           {appliedVaccines.map((vaccine) => (
                               <tr
                                  key={vaccine.vaccine_id}
-                                 className={vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""}
+                                 className={`border-b border-gray-300 dark:border-gray-600 ${
+                                  vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""
+                                }`}
                               >
                                 <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.commercial_name}</td>
                                 <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.totalDoses}</td>
@@ -957,7 +959,9 @@ const clearForm = () => {
                 {appliedVaccinesDependent.map((vaccine) => (
                   <tr
                   key={vaccine.vaccine_id}
-                  className={vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""}
+                  className={`border-b border-gray-300 dark:border-gray-600 ${
+                    vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""
+                  }`}
                   >
                     <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.commercial_name}</td>
                     <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.totalDoses}</td>
