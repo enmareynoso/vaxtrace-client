@@ -24,8 +24,8 @@ const Accordion = () => {
         <div className="flex flex-wrap">
           <div className="w-full px-8 lg:w-1/2 ">
             <AccordionItem
-              header="¿Cómo puedo registrarme en VaxTrace?"
-              text="Infoooo."
+              header="¿Cómo puedo aplicar como centro de vacunación?"
+              text='Para aplicar como centro de vacunación en VaxTrace, debes hacer clic en la opción "Aplicar Centro" que encontrarás en la barra de navegación. Luego, deberás llenar el formulario de registro del centro. Después de completar todos los campos y aceptar los términos y condiciones, puedes proceder a aplicar. Una vez enviada la solicitud, el equipo de VaxTrace llevará a cabo un proceso de validación para verificar que la información proporcionada sea correcta. Si tu solicitud es aceptada, recibirás un correo electrónico confirmando la aprobación y un enlace para establecer tu contraseña. Si la solicitud es rechazada, te llegará un correo indicando el rechazo.'
             />
             <AccordionItem
               header="¿Es seguro usar VaxTrace para almacenar mi información de vacunación?"
@@ -33,17 +33,17 @@ const Accordion = () => {
             />
             <AccordionItem
               header="¿Cómo recibo notificaciones sobre mis vacunas?"
-              text="Al registrar tus detalles de vacunación en VaxTrace, el sistema automáticamente te enviará recordatorios a tu correo electrónico o teléfono móvil para próximas dosis o vacunas recomendadas."
+              text="Al registrar tus detalles de vacunación en VaxTrace, el sistema automáticamente te enviará recordatorios a tu correo electrónico para próximas dosis"
             />
           </div>
           <div className="w-full px-4 lg:w-1/2">
             <AccordionItem
-              header="¿Qué hago si pierdo acceso a mi cuenta de VaxTrace?"
-              text="Si pierdes el acceso a tu cuenta, puedes usar la opción de recuperación de cuenta en la página de inicio de sesión. Deberás ingresar tu dirección de correo electrónico asociada a la cuenta y seguir las instrucciones enviadas para restablecer tu contraseña. Si tienes problemas adicionales, puedes contactar con el soporte técnico de VaxTrace."
+              header="¿Qué hago si olvido mi contraseña de Vaxtrace?"
+              text='Si olvidas tu contraseña, puedes utilizar la opción de recuperación de contraseña en la página de inicio de sesión. Simplemente haz clic en "¿Olvidaste tu contraseña?" e ingresa tu dirección de correo electrónico asociada a la cuenta. Recibirás un correo electrónico con un enlace para restablecer tu contraseña. Sigue las instrucciones proporcionadas y podrás establecer una nueva contraseña para recuperar el acceso a tu cuenta.'
             />
             <AccordionItem
               header="¿Cómo accedo al historial completo de vacunación de mi hijo?"
-              text="Infooooo."
+              text="Para acceder al historial completo de vacunación de tu hijo en VaxTrace, primero debes iniciar sesión en la cuenta del padre / tutor. Una vez dentro, dirígete a la sección Record y selecciona el hijo a visualizar el record. Al seleccionar su perfil, podrás consultar todo el historial de vacunación."
             />
             <AccordionItem
               header="¿Puedo descargar el registro de vacunación de mi hijo?"
@@ -51,35 +51,6 @@ const Accordion = () => {
             />
           </div>
         </div>
-      </div>
-      <div className="absolute bottom-0 right-0 z-[-1]">
-        <svg
-          width="1440"
-          height="886"
-          viewBox="0 0 1440 886"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            opacity="0.5"
-            d="M193.307 -273.321L1480.87 1014.24L1121.85 1373.26C1121.85 1373.26 731.745 983.231 478.513 729.927C225.976 477.317 -165.714 85.6993 -165.714 85.6993L193.307 -273.321Z"
-            fill="url(#paint0_linear)"
-          />
-          <defs>
-            <linearGradient
-              id="paint0_linear"
-              x1="1908.65"
-              y1="1642.58"
-              x2="602.827"
-              y2="-418.681"
-              gradientUnits="userSpaceOnUse"
-            >
-              <stop stopColor="#3056D3" stopOpacity="0.36" />
-              <stop offset="1" stopColor="#54C8F1" stopOpacity="0.3" />
-              <stop offset="1" stopColor="#54C8F1" stopOpacity="0.096144" />
-            </linearGradient>
-          </defs>
-        </svg>
       </div>
     </section>
   );
@@ -96,12 +67,13 @@ const AccordionItem = ({ header, text }: { header: string; text: string }) => {
   };
 
   return (
-    <div className="mb-8 w-full rounded-lg bg-white p-4 shadow-[0px_20px_95px_0px_rgba(201,203,204,0.30)] dark:bg-slate-700 dark:shadow-[0px_20px_95px_0px_rgba(0,0,0,0.30)] sm:p-8 lg:px-6 xl:px-18">
+    <div className="mb-8 w-full rounded-lg bg-white p-4 shadow-xl dark:bg-slate-700 dark:shadow-[0px_20px_50px_rgba(0,0,0,0.50)] sm:p-8 lg:px-6 xl:px-18">
+
       <button
         className="faq-btn flex w-full text-left"
         onClick={(e) => handleToggle(e)}
       >
-        <div className="mr-5 flex h-10 w-full max-w-[40px] items-center justify-center rounded-lg bg-primary/5 text-primary dark:bg-white/5 dark:text-primary-light">
+        <div className="mr-5 flex h-10 w-full max-w-[40px] items-center justify-center rounded-lg bg-white border border-cyan-950 text-cyan-950 dark:bg-white/5 dark:text-primary-light">
           <svg
             className={`fill-primary stroke-primary duration-200 ease-in-out ${
               active ? "rotate-180" : ""
