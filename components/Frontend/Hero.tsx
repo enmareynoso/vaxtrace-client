@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import MainImage from "../../public/images/heroImage.png";
-import "./hero.css"
+import "./hero.css";
 
 const Hero = () => {
   return (

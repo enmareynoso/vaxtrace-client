@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { jwtDecode } from "jwt-decode";
@@ -43,7 +44,7 @@ const ProfilePage: React.FC = () => {
     nationality: "",
     address: "",
     occupation: "",
-    phone_number: "", 
+    phone_number: "",
   });
 
   const [dependents, setDependents] = useState<Dependent[]>([]);

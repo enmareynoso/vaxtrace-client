@@ -54,10 +54,10 @@ const ResetPasswordSuccess: React.FC = () => {
           />
         </div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-        Restablecer Contraseña
+          Restablecer Contraseña
         </h1>
         <p className="mt-4 text-gray-600 dark:text-gray-300">
-        Tu contraseña ha sido restablecida exitosamente.
+          Tu contraseña ha sido restablecida exitosamente.
         </p>
         <button
           onClick={handleLoginClick}

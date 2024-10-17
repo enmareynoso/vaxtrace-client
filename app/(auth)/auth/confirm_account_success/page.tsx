@@ -1,4 +1,4 @@
-"use client"; // Asegúrate de agregar esta línea al principio
+"use client";
 
 import React from "react";
 import { useRouter } from "next/navigation";
@@ -56,10 +56,11 @@ const ConfirmAccountSuccess: React.FC = () => {
           />
         </div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-        ¡Cuenta Confirmada!
+          ¡Cuenta Confirmada!
         </h1>
         <p className="mt-4 text-gray-600 dark:text-gray-300">
-        Tu cuenta ha sido confirmada exitosamente. Ahora puedes iniciar sesión y comenzar a usar nuestros servicios.
+          Tu cuenta ha sido confirmada exitosamente. Ahora puedes iniciar sesión
+          y comenzar a usar nuestros servicios.
         </p>
         <Button
           onClick={handleLogin}
@@ -73,4 +74,3 @@ const ConfirmAccountSuccess: React.FC = () => {
 };
 
 export default ConfirmAccountSuccess;
-

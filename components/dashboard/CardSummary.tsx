@@ -11,13 +11,13 @@ export const CardSummary: React.FC<CardSummaryProps> = ({
   title,
   average,
   tooltipText,
-  className, 
+  className,
 }) => (
   <div
     className={cn(
       "rounded-lg shadow-lg p-4 bg-white dark:bg-gray-800 transition-colors duration-300",
-      "transition-transform transform hover:-translate-y-3", // Clases de animación
-      className // Añadimos la clase personalizada que se pase desde las props
+      "transition-transform transform hover:-translate-y-3",
+      className
     )}
   >
     <div className="flex justify-between items-start">
@@ -56,4 +56,3 @@ export const CardSummary: React.FC<CardSummaryProps> = ({
     </div>
   </div>
 );
-

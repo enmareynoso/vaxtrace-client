@@ -10,41 +10,6 @@ import {
 } from "lucide-react";
 import { SidebarItemType } from "./SidebarItem.types";
 
-// Rutas para el administrador
-export const adminRoutes: SidebarItemType[] = [
-  {
-    icon: PanelsTopLeft,
-    label: "Dashboard",
-    href: "/admin/dashboard",
-  },
-  {
-    icon: Building2,
-    label: "Administrar centros",
-    href: "/admin/management/center",
-  },
-  {
-    icon: Calendar,
-    label: "Administrar vacunas",
-    href: "/admin/management/vaccine",
-  },
-  {
-    icon: Settings,
-    label: "Administrar perfiles",
-    href: "/admin/management/profile",
-  },
-  {
-    icon: User,
-    label: "Perfil",
-    href: "/admin/profile",
-  },
-  {
-    icon: LogOut,
-    label: "Log out",
-    href: "#", // Usaremos '#' y agregaremos la funcionalidad de logout
-    action: "logout",
-  },
-];
-
 // Rutas para el usuario
 export const userRoutes: SidebarItemType[] = [
   {
@@ -70,7 +35,7 @@ export const userRoutes: SidebarItemType[] = [
   {
     icon: LogOut,
     label: "Cerrar sesión",
-    href: "#", // Usaremos '#' y agregaremos la funcionalidad de logout
+    href: "#",
     action: "logout",
   },
 ];
@@ -100,7 +65,7 @@ export const centerRoutes: SidebarItemType[] = [
   {
     icon: LogOut,
     label: "Cerrar sesión",
-    href: "#", // Usaremos '#' y agregaremos la funcionalidad de logout
+    href: "#",
     action: "logout",
   },
 ];

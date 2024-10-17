@@ -58,18 +58,18 @@ const SetPasswordFailure: React.FC = () => {
           Token Inválido
         </h1>
         <p className="mt-4 text-gray-600 dark:text-gray-300">
-        El token que proporcionaste para establecer tu contraseña no es válido o ha expirado. 
-        Los tokens solo son válidos para un solo uso y expiran después de un cierto período.
+          El token que proporcionaste para establecer tu contraseña no es válido
+          o ha expirado. Los tokens solo son válidos para un solo uso y expiran
+          después de un cierto período.
         </p>
         <p className="mt-4 text-gray-600 dark:text-gray-300">
-        ¡No te preocupes, es fácil{" "}
+          ¡No te preocupes, es fácil{" "}
           <button
             onClick={handleRequestNewToken}
             className="text-blue-600 hover:underline"
           >
             solicitar un nuevo token!
           </button>
-          !
         </p>
       </div>
     </div>

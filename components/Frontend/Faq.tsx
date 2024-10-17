@@ -68,7 +68,6 @@ const AccordionItem = ({ header, text }: { header: string; text: string }) => {
 
   return (
     <div className="mb-8 w-full rounded-lg bg-white p-4 shadow-xl dark:bg-slate-700 dark:shadow-[0px_20px_50px_rgba(0,0,0,0.50)] sm:p-8 lg:px-6 xl:px-18">
-
       <button
         className="faq-btn flex w-full text-left"
         onClick={(e) => handleToggle(e)}

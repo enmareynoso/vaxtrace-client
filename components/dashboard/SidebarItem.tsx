@@ -1,10 +1,11 @@
 "use client";
+
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { SidebarItemProps } from "./SidebarItem.types";
 import cookies from "js-cookie";
 
-export function SidebarItem({ item }: SidebarItemProps) {
+export function SidebarItem({ item }: Readonly<SidebarItemProps>) {
   const { href, icon: Icon, label, action } = item;
   const pathname = usePathname();
   const router = useRouter();

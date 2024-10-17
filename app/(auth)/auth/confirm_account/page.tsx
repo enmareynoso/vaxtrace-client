@@ -10,7 +10,7 @@ const ConfirmAccount: React.FC = () => {
   const searchParams = useSearchParams();
   const token = searchParams.get("token") || "";
   const [loading, setLoading] = useState(false);
-  const toastShownRef = useRef(false);  // Usando useRef para rastrear si el toast ha sido mostrado
+  const toastShownRef = useRef(false); // Usando useRef para rastrear si el toast ha sido mostrado
 
   useEffect(() => {
     const handleAccountConfirmation = async () => {
@@ -84,7 +84,3 @@ const ConfirmAccount: React.FC = () => {
 };
 
 export default ConfirmAccount;
-
-
-
-

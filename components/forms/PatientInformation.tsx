@@ -4,7 +4,7 @@ import { getPatientByDocument } from "@/lib/api/auth";
 import toast, { Toaster } from "react-hot-toast";
 import { FaInfoCircle } from "react-icons/fa";
 import { supabase } from "@/lib/supabaseClient";
-import { FaExclamationCircle } from 'react-icons/fa';
+import { FaExclamationCircle } from "react-icons/fa";
 
 // Dependent interface
 interface Dependent {
@@ -24,8 +24,6 @@ interface VaccinationRecord {
     max_doses?: number; // Agregamos max_doses aquí
   };
 }
-
-
 
 // Patient form data interface
 interface FormData {
@@ -52,7 +50,8 @@ export default function PatientInformation({
   setSelectedDependent: (dependent: Dependent | null) => void;
   setPatientExists: (exists: boolean) => void; // Add this line
   setError: (error: any) => void;
-  errorI: { // Define el tipo para el error aquí
+  errorI: {
+    // Define el tipo para el error aquí
     document?: string;
     birthdate?: string;
     first_name?: string;
@@ -69,7 +68,7 @@ export default function PatientInformation({
     gender: "",
     occupation: "",
     address: "",
-    phone_number: "", 
+    phone_number: "",
     dependents: [],
   };
 
@@ -92,7 +91,9 @@ export default function PatientInformation({
     null
   );
   const [appliedVaccines, setAppliedVaccines] = useState<any[]>([]);
-  const [appliedVaccinesDependent, setAppliedVaccinesDependent] = useState<any[]>([]);
+  const [appliedVaccinesDependent, setAppliedVaccinesDependent] = useState<
+    any[]
+  >([]);
   const [selectedDependentDetails, setSelectedDependentDetails] =
     useState<Dependent | null>(null);
   const [showDependentFields, setShowDependentFields] = useState(false);
@@ -118,7 +119,9 @@ export default function PatientInformation({
     try {
       const { data: appliedVaccinesData, error } = await supabase
         .from("vaxtraceapi_vaccinationrecord")
-        .select("vaccine_id, dose, vaccine:vaxtraceapi_vaccine(commercial_name, max_doses)")
+        .select(
+          "vaccine_id, dose, vaccine:vaxtraceapi_vaccine(commercial_name, max_doses)"
+        )
         .eq(isDependent ? "child_id" : "patient_id", id);
 
       if (error) {
@@ -127,8 +130,12 @@ export default function PatientInformation({
         return;
       }
 
-      const consolidatedVaccines = (appliedVaccinesData as VaccinationRecord[]).reduce((acc, record) => {
-        const existingVaccine = acc.find((v) => v.vaccine_id === record.vaccine_id);
+      const consolidatedVaccines = (
+        appliedVaccinesData as VaccinationRecord[]
+      ).reduce((acc, record) => {
+        const existingVaccine = acc.find(
+          (v) => v.vaccine_id === record.vaccine_id
+        );
         if (existingVaccine) {
           existingVaccine.totalDoses += 1;
         } else {
@@ -191,8 +198,6 @@ export default function PatientInformation({
       }
     }
   };
-
-
 
   // Handle gender change
   const handleGenderChange = (value: "M" | "F") => {
@@ -308,25 +313,20 @@ export default function PatientInformation({
     }
   };
 
-
-
-
-
   // Clear the form and reset states
-const clearForm = () => {
-  setFormData(initialFormData); // Reinicia el formulario del paciente
-  setDependents([]); // Limpia la lista de dependientes
-  setSelectedDependentId(null); // Restablece la selección del dependiente
-  setSelectedDependentDetails(null); // Limpia los detalles del dependiente seleccionado
-  setIsExistingPatient(false); // Restablece la existencia del paciente a falso
-  setShowForm(false); // Oculta el formulario
-  setShowDependentFields(false); // Oculta los campos del dependiente
+  const clearForm = () => {
+    setFormData(initialFormData); // Reinicia el formulario del paciente
+    setDependents([]); // Limpia la lista de dependientes
+    setSelectedDependentId(null); // Restablece la selección del dependiente
+    setSelectedDependentDetails(null); // Limpia los detalles del dependiente seleccionado
+    setIsExistingPatient(false); // Restablece la existencia del paciente a falso
+    setShowForm(false); // Oculta el formulario
+    setShowDependentFields(false); // Oculta los campos del dependiente
 
-  setAppliedVaccines([]); // Limpia la tabla de vacunas del paciente
-  setAppliedVaccinesDependent([]); // Limpia la tabla de vacunas del dependiente
-  setPatientInfo(initialFormData); // Actualiza el componente padre para que no tenga información de paciente
-};
-
+    setAppliedVaccines([]); // Limpia la tabla de vacunas del paciente
+    setAppliedVaccinesDependent([]); // Limpia la tabla de vacunas del dependiente
+    setPatientInfo(initialFormData); // Actualiza el componente padre para que no tenga información de paciente
+  };
 
   // Handle form field changes
   const handleFormChange = (
@@ -390,19 +390,27 @@ const clearForm = () => {
     try {
       // Obtener todos los IDs existentes de los dependientes para calcular el siguiente ID disponible
       const { data: existingDependents, error: fetchError } = await supabase
-        .from('vaxtraceapi_child') // Asegúrate de que este sea el nombre correcto de la tabla
-        .select('id');
+        .from("vaxtraceapi_child") // Asegúrate de que este sea el nombre correcto de la tabla
+        .select("id");
 
       if (fetchError) {
-        console.error("Error al obtener los IDs de los dependientes:", fetchError);
+        console.error(
+          "Error al obtener los IDs de los dependientes:",
+          fetchError
+        );
         toast.error("Error al verificar los IDs existentes.");
         return;
       }
 
       // Encontrar el siguiente ID disponible
-      const maxId = existingDependents && existingDependents.length > 0
-        ? Math.max(...existingDependents.map((dependent: { id: number }) => dependent.id))
-        : 59; // Empezar en 59 si no hay dependientes existentes
+      const maxId =
+        existingDependents && existingDependents.length > 0
+          ? Math.max(
+              ...existingDependents.map(
+                (dependent: { id: number }) => dependent.id
+              )
+            )
+          : 59; // Empezar en 59 si no hay dependientes existentes
 
       const nextId = maxId + 1;
 
@@ -416,14 +424,16 @@ const clearForm = () => {
       setDependents((prev: Dependent[]) => [...prev, newDependent]);
       setShowDependentFields(false);
       setNewDependentData(initialDependentData); // Resetea el formulario del nuevo dependiente
-      toast.success("Dependiente agregado exitosamente y listo para ser registrado.");
+      toast.success(
+        "Dependiente agregado exitosamente y listo para ser registrado."
+      );
     } catch (error) {
       console.error("Error al agregar dependiente:", error);
-      toast.error("Hubo un error al agregar el dependiente. Por favor, inténtelo de nuevo.");
+      toast.error(
+        "Hubo un error al agregar el dependiente. Por favor, inténtelo de nuevo."
+      );
     }
   };
-
-
 
   const handleClearDependentFields = () => {
     setNewDependentData(initialDependentData);
@@ -508,37 +518,44 @@ const clearForm = () => {
                 : "Información del Paciente"}
             </h2>
             <div className="grid gap-4 md:grid-cols-2">
-            <div>
-        <label htmlFor="birthdate" className="block text-gray-700 dark:text-white">
-          Fecha de Nacimiento
-        </label>
-        <input
-          id="birthdate"
-          type="date"
-          name="birthdate"
-          value={
-            formData.birthdate
-              ? new Date(formData.birthdate).toISOString().split("T")[0]
-              : ""
-          }
-          onChange={(e) => {
-            const newDate = e.target.value ? new Date(e.target.value) : null;
-            handlebirthdateChange(newDate);
-          }}
-          className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ${
-            errorI?.birthdate ? "border-red-500" : "border-gray-300"
-          } ${isExistingPatient ? "bg-gray-100 text-gray-400" : "bg-white text-black"} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
-          disabled={isExistingPatient}
-        />
-        {errorI?.birthdate && (
-          <div className="flex items-center mt-1">
-            <FaExclamationCircle className="text-red-600 mr-2" />
-            <p className="text-red-600 text-sm">{errorI.birthdate}</p>
-          </div>
-        )}
-      </div>
-
-
+              <div>
+                <label
+                  htmlFor="birthdate"
+                  className="block text-gray-700 dark:text-white"
+                >
+                  Fecha de Nacimiento
+                </label>
+                <input
+                  id="birthdate"
+                  type="date"
+                  name="birthdate"
+                  value={
+                    formData.birthdate
+                      ? new Date(formData.birthdate).toISOString().split("T")[0]
+                      : ""
+                  }
+                  onChange={(e) => {
+                    const newDate = e.target.value
+                      ? new Date(e.target.value)
+                      : null;
+                    handlebirthdateChange(newDate);
+                  }}
+                  className={`w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ${
+                    errorI?.birthdate ? "border-red-500" : "border-gray-300"
+                  } ${
+                    isExistingPatient
+                      ? "bg-gray-100 text-gray-400"
+                      : "bg-white text-black"
+                  } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                  disabled={isExistingPatient}
+                />
+                {errorI?.birthdate && (
+                  <div className="flex items-center mt-1">
+                    <FaExclamationCircle className="text-red-600 mr-2" />
+                    <p className="text-red-600 text-sm">{errorI.birthdate}</p>
+                  </div>
+                )}
+              </div>
 
               <div>
                 <label
@@ -585,10 +602,12 @@ const clearForm = () => {
                     isExistingPatient
                       ? "bg-gray-100 text-gray-400"
                       : "bg-white text-black"
-                  } ${errorI?.first_name ? "border-red-500" : "border-gray-300"} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                  } ${
+                    errorI?.first_name ? "border-red-500" : "border-gray-300"
+                  } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                   disabled={isExistingPatient}
                 />
-               {errorI?.first_name && (
+                {errorI?.first_name && (
                   <div className="flex items-center mt-1">
                     <FaExclamationCircle className="text-red-600 mr-2" />
                     <p className="text-red-600 text-sm">{errorI.first_name}</p>
@@ -613,10 +632,12 @@ const clearForm = () => {
                     isExistingPatient
                       ? "bg-gray-100 text-gray-400"
                       : "bg-white text-black"
-                  }  ${errorI?.last_name ? "border-red-500" : "border-gray-300"} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                  }  ${
+                    errorI?.last_name ? "border-red-500" : "border-gray-300"
+                  } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                   disabled={isExistingPatient}
                 />
-                               {errorI?.last_name && (
+                {errorI?.last_name && (
                   <div className="flex items-center mt-1">
                     <FaExclamationCircle className="text-red-600 mr-2" />
                     <p className="text-red-600 text-sm">{errorI.last_name}</p>
@@ -642,15 +663,17 @@ const clearForm = () => {
                     isExistingPatient
                       ? "bg-gray-100 text-gray-400"
                       : "bg-white text-black"
-                  }  ${errorI?.email ? "border-red-500" : "border-gray-300"} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
-                   disabled={isExistingPatient}
+                  }  ${
+                    errorI?.email ? "border-red-500" : "border-gray-300"
+                  } dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                  disabled={isExistingPatient}
                 />
                 {errorI?.email && (
-                    <div className="flex items-center mt-1">
-                      <FaExclamationCircle className="text-red-600 mr-2" />
-                      <p className="text-red-600 text-sm">{errorI.email}</p>
-                    </div>
-                  )}
+                  <div className="flex items-center mt-1">
+                    <FaExclamationCircle className="text-red-600 mr-2" />
+                    <p className="text-red-600 text-sm">{errorI.email}</p>
+                  </div>
+                )}
               </div>
 
               <GenderButtons
@@ -661,21 +684,21 @@ const clearForm = () => {
 
               {/* Additional fields for occupation and address */}
               <div>
-                  <label
-                    htmlFor="phone_number"
-                    className="block text-gray-700 dark:text-white"
-                  >
-                    Teléfono
-                  </label>
-                  <input
-                    id="phone_number"
-                    name="phone_number"
-                    placeholder="Número de teléfono"
-                    value={formData.phone_number}
-                    onChange={handleFormChange}
-                    className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
+                <label
+                  htmlFor="phone_number"
+                  className="block text-gray-700 dark:text-white"
+                >
+                  Teléfono
+                </label>
+                <input
+                  id="phone_number"
+                  name="phone_number"
+                  placeholder="Número de teléfono"
+                  value={formData.phone_number}
+                  onChange={handleFormChange}
+                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
 
               <div>
                 <label
@@ -712,33 +735,45 @@ const clearForm = () => {
               </div>
             </div>
           </div>
+
           {/* Mostrar información de las vacunas aplicadas */}
           {appliedVaccines.length > 0 && (
-                      <div className="mt-6">
-                        <h3 className="text-lg font-semibold mb-4">Vacunas Aplicadas</h3>
-                        <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 mt-4">
-                          <thead>
-                            <tr className="bg-gray-200 dark:bg-gray-700">
-                              <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Nombre de la Vacuna</th>
-                              <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Total Dosis</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                          {appliedVaccines.map((vaccine) => (
-                              <tr
-                                 key={vaccine.vaccine_id}
-                                 className={`border-b border-gray-300 dark:border-gray-600 ${
-                                  vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""
-                                }`}
-                              >
-                                <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.commercial_name}</td>
-                                <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.totalDoses}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold mb-4">Vacunas Aplicadas</h3>
+              <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 mt-4">
+                <thead>
+                  <tr className="bg-gray-200 dark:bg-gray-700">
+                    <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">
+                      Nombre de la Vacuna
+                    </th>
+                    <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">
+                      Total Dosis
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {appliedVaccines.map((vaccine) => (
+                    <tr
+                      key={vaccine.vaccine_id}
+                      className={`border-b border-gray-300 dark:border-gray-600 ${
+                        vaccine.totalDoses === vaccine.max_doses
+                          ? "bg-green-100 dark:bg-green-700"
+                          : ""
+                      }`}
+                    >
+                      <td className="py-2 px-4 text-gray-900 dark:text-gray-200">
+                        {vaccine.commercial_name}
+                      </td>
+                      <td className="py-2 px-4 text-gray-900 dark:text-gray-200">
+                        {vaccine.totalDoses}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
+
           {/* Dropdown para seleccionar dependiente */}
           {dependents.length > 0 && (
             <div className="mt-4">
@@ -751,7 +786,7 @@ const clearForm = () => {
               </label>
               <select
                 onChange={handleDependentChange}
-                value={selectedDependentId !== null ? selectedDependentId : ""}
+                value={selectedDependentId ?? ""}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 shadow-sm transition duration-150 ease-in-out dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-400 dark:focus:border-blue-400"
                 id="dependent-selector"
               >
@@ -783,7 +818,6 @@ const clearForm = () => {
                   </Button>
                 )}
               </div>
-
             </div>
           )}
 
@@ -943,34 +977,48 @@ const clearForm = () => {
               </div>
             </div>
           )}
+
           {/* Mostrar la tabla de vacunas aplicadas del dependiente seleccionado */}
-        {/* Mostrar la tabla de vacunas aplicadas del dependiente seleccionado */}
-        {selectedDependentDetails && selectedDependentDetails.id !== 0 && appliedVaccinesDependent.length > 0 && (
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-4">Vacunas Aplicadas del Dependiente</h3>
-            <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 mt-4">
-              <thead>
-                <tr className="bg-gray-200 dark:bg-gray-700">
-                  <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Nombre de la Vacuna</th>
-                  <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Total Dosis</th>
-                </tr>
-              </thead>
-              <tbody>
-                {appliedVaccinesDependent.map((vaccine) => (
-                  <tr
-                  key={vaccine.vaccine_id}
-                  className={`border-b border-gray-300 dark:border-gray-600 ${
-                    vaccine.totalDoses === vaccine.max_doses ? "bg-green-100 dark:bg-green-700" : ""
-                  }`}
-                  >
-                    <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.commercial_name}</td>
-                    <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.totalDoses}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+          {selectedDependentDetails &&
+            selectedDependentDetails.id !== 0 &&
+            appliedVaccinesDependent.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-4">
+                  Vacunas Aplicadas del Dependiente
+                </h3>
+                <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 mt-4">
+                  <thead>
+                    <tr className="bg-gray-200 dark:bg-gray-700">
+                      <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">
+                        Nombre de la Vacuna
+                      </th>
+                      <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">
+                        Total Dosis
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {appliedVaccinesDependent.map((vaccine) => (
+                      <tr
+                        key={vaccine.vaccine_id}
+                        className={`border-b border-gray-300 dark:border-gray-600 ${
+                          vaccine.totalDoses === vaccine.max_doses
+                            ? "bg-green-100 dark:bg-green-700"
+                            : ""
+                        }`}
+                      >
+                        <td className="py-2 px-4 text-gray-900 dark:text-gray-200">
+                          {vaccine.commercial_name}
+                        </td>
+                        <td className="py-2 px-4 text-gray-900 dark:text-gray-200">
+                          {vaccine.totalDoses}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
         </>
       )}
     </div>

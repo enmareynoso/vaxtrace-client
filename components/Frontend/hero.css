@@ -1,3 +1,7 @@
 .custom-comenzar-button:hover {
-    background: linear-gradient(160deg, rgba(84, 200, 241, 0.9) 10%, rgba(0, 96, 100, 0.9) 100%);
-  }
+  background: linear-gradient(
+    160deg,
+    rgba(84, 200, 241, 0.9) 10%,
+    rgba(0, 96, 100, 0.9) 100%
+  );
+}
