@@ -192,7 +192,9 @@ const SignIn: React.FC = () => {
               />
             </div>
             <div className="mb-6 password-input-container">
-              <label className="block text-cyan-900 dark:text-gray-100 font-semibold">Contraseña</label>
+              <label className="block text-cyan-900 dark:text-gray-100 font-semibold">
+                Contraseña
+              </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -211,14 +213,15 @@ const SignIn: React.FC = () => {
                   onClick={togglePasswordVisibility}
                   className="toggle-password-button"
                 >
-                    {showPassword ? "👁️" : "🔒"}
-
+                  {showPassword ? "🔒" : "👀"}
                 </button>
               </div>
 
               {/* Mostrar advertencia si CapsLock está activado */}
               {isCapsLockOn && (
-                <p className="text-red-600 text-sm mt-2">¡Atención! Caps Lock está activado.</p>
+                <p className="text-red-600 text-sm mt-2">
+                  ¡Atención! Caps Lock está activado.
+                </p>
               )}
             </div>
 

@@ -292,7 +292,7 @@ const ProfilePage: React.FC = () => {
               name="gender"
               value={formData.gender}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-gray-400 dark:bg-gray-950"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 dark:bg-gray-950"
               required
               disabled
             >
@@ -472,7 +472,7 @@ const ProfilePage: React.FC = () => {
                     name="gender"
                     value={dependentFormData.gender}
                     onChange={handleDependentFormChange}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-gray-400 dark:bg-gray-950"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 dark:bg-gray-950"
                     required
                     disabled
                   >
