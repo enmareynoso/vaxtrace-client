@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-export function CustomTooltip(props: CustomTooltipProps) {
+export function CustomTooltip(props: Readonly<CustomTooltipProps>) {
   const { content } = props;
   return (
     <TooltipProvider>

@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { Menu, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Sidebar } from "./Sidebar";
 import { ToggleTheme } from "../common/ToogleTheme";
@@ -12,7 +11,7 @@ interface NavbarProps {
   userRole: UserRole;
 }
 
-export function Navbar({ userRole }: NavbarProps) {
+export function Navbar({ userRole }: Readonly<NavbarProps>) {
   return (
     <nav
       className="flex items-center px-2 gap-x-4 md:px-6 
@@ -32,15 +31,10 @@ export function Navbar({ userRole }: NavbarProps) {
       </div>
 
       {/* Search Input */}
-      <div className="relative w-[300px]">
-        <Input
-          placeholder="Search..."
-          className="rounded-lg"
-          label={""}
-          value={""}
-          onChange={() => {}}
-        />
-        <Search strokeWidth={1} className="absolute top-2 right-2" />
+      <div className="relative w-[1000px]">
+        <h1 className="text-lg font-semibold text-cyan-900 dark:text-cyan-700">
+          Sistema para el registro de vacunación en la República Dominicana
+        </h1>
       </div>
 
       {/* Theme Toggle */}

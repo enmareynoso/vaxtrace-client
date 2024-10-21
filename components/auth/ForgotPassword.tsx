@@ -9,30 +9,35 @@ import toast, { Toaster } from "react-hot-toast";
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showToast, setShowToast] = useState(false); // Nuevo estado para manejar el toast
+  const [showToast, setShowToast] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true); // Indicar que la petición está en curso
+    setLoading(true);
 
     try {
       const response = await requestPasswordReset(email);
 
       // Verificar si ya existe un token válido
-      if (response.message === "Ya existe un token de restablecimiento válido. Por favor, revisa tu correo.") {
-        toast.error("Ya existe un token de restablecimiento válido. Por favor, revisa tu correo", {
-          id: "reset-link-exists-toast",
-        });
+      if (
+        response.message ===
+        "Ya existe un token de restablecimiento válido. Por favor, revisa tu correo."
+      ) {
+        toast.error(
+          "Ya existe un token de restablecimiento válido. Por favor, revisa tu correo",
+          {
+            id: "reset-link-exists-toast",
+          }
+        );
       } else {
         toast.success("Correo de restablecimiento de contraseña enviado", {
           id: "reset-link-toast",
         });
       }
-
     } catch (error: any) {
       toast.error(error.message || "An unexpected error occurred.");
     } finally {
-      setLoading(false); // Finalizar el indicador de carga
+      setLoading(false);
     }
   };
 
@@ -74,11 +79,15 @@ const ForgotPassword: React.FC = () => {
             ¿Olvidaste tu contraseña?
           </h2>
           <p className="text-lg text-cyan-900 dark:text-white text-left mb-4 ">
-            Introduce tu correo electrónico a continuación para recibir un enlace de restablecimiento de contraseña.
+            Introduce tu correo electrónico a continuación para recibir un
+            enlace de restablecimiento de contraseña.
           </p>
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
-              <label className="block text-cyan-900 dark:text-white mb-2 font-semibold" htmlFor="email">
+              <label
+                className="block text-cyan-900 dark:text-white mb-2 font-semibold"
+                htmlFor="email"
+              >
                 Correo electrónico:
               </label>
               <input
@@ -96,7 +105,8 @@ const ForgotPassword: React.FC = () => {
               className="w-full bg-cyan-800 text-white py-2 rounded hover:text-white hover:bg-cyan-900 transition duration-200"
               disabled={loading} // Deshabilitar botón durante la carga
             >
-              {loading ? "Enviando..." : "Restablecer contraseña"} {/* Cambiar texto del botón durante la carga */}
+              {loading ? "Enviando..." : "Restablecer contraseña"}{" "}
+              {/* Cambiar texto del botón durante la carga */}
             </Button>
             <Toaster position="bottom-center" reverseOrder={false} />
             <div className="mt-6 text-center">
@@ -162,4 +172,3 @@ const ForgotPassword: React.FC = () => {
 };
 
 export default ForgotPassword;
-

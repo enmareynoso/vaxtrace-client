@@ -9,6 +9,7 @@ interface LoginCredentials {
   email: string;
   password: string;
 }
+
 // Crear el esquema de validación de la contraseña
 const schema = new passwordValidator();
 schema
@@ -38,6 +39,7 @@ const errorMessages = {
   symbols: "La contraseña debe contener al menos un símbolo especial.",
   spaces: "La contraseña no debe contener espacios.",
 };
+
 // Validar la contraseña antes de enviar la solicitud al backend
 const validatePassword = (
   password: string
@@ -50,7 +52,7 @@ const validatePassword = (
 interface PasswordResetRequest {
   token: string;
   new_password: string;
-  user_type: string;
+  user_type?: string;
 }
 
 interface CreateUserRequest {

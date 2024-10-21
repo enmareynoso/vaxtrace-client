@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { jwtDecode } from "jwt-decode";
@@ -30,7 +31,9 @@ const UserDashboardPage: React.FC = () => {
   const [recommendedVaccines, setRecommendedVaccines] = useState<Vaccine[]>([]);
   const [appliedVaccines, setAppliedVaccines] = useState<Vaccine[]>([]);
   const [dependents, setDependents] = useState<Dependent[]>([]);
-  const [selectedDependent, setSelectedDependent] = useState<number | null>(null);
+  const [selectedDependent, setSelectedDependent] = useState<number | null>(
+    null
+  );
   const [mainUserId, setMainUserId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -64,14 +67,19 @@ const UserDashboardPage: React.FC = () => {
         }
 
         const birthDateObj = new Date(user.birthdate);
-        const ageInYears = new Date().getFullYear() - birthDateObj.getFullYear();
+        const ageInYears =
+          new Date().getFullYear() - birthDateObj.getFullYear();
         setAge(ageInYears);
         setFullName(`${user.first_name} ${user.last_name}`);
         setBirthdate(birthDateObj.toLocaleDateString());
         setDocument(user.document);
 
         fetchDependents(userId);
-        fetchRecommendedVaccines(calculateAgeInMonths(birthDateObj), userId, false);
+        fetchRecommendedVaccines(
+          calculateAgeInMonths(birthDateObj),
+          userId,
+          false
+        );
         fetchAppliedVaccines(userId, false);
       } catch (error) {
         console.error("Error during fetching process:", error);
@@ -96,7 +104,9 @@ const UserDashboardPage: React.FC = () => {
     }
   };
 
-  const handleDependentChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleDependentChange = async (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const selectedId = Number(event.target.value);
     setSelectedDependent(selectedId);
 
@@ -115,7 +125,11 @@ const UserDashboardPage: React.FC = () => {
         setFullName(`${dependentData.first_name} ${dependentData.last_name}`);
         setBirthdate(dependentBirthDate.toLocaleDateString());
 
-        fetchRecommendedVaccines(calculateAgeInMonths(dependentBirthDate), selectedId, true);
+        fetchRecommendedVaccines(
+          calculateAgeInMonths(dependentBirthDate),
+          selectedId,
+          true
+        );
         fetchAppliedVaccines(selectedId, true);
       }
     }
@@ -157,71 +171,78 @@ const UserDashboardPage: React.FC = () => {
     return totalMonths;
   };
 
-  const fetchRecommendedVaccines = async (ageInMonths: number, userId: number, isDependent: boolean) => {
+  const fetchRecommendedVaccines = async (
+    ageInMonths: number,
+    userId: number,
+    isDependent: boolean
+  ) => {
     console.log(`Edad en meses: ${ageInMonths}`); // Mostrar la edad en meses en la consola
-  
+
     const vaccineAgeRestrictions = {
       "0 Meses": {
-        "BCG": 1,
+        BCG: 1,
         "Hepatitis B": 1,
       },
       "2 Meses": {
-        "Rotavirus": 1,
-        "IPV": 1,
-        "Neumococo": 1,
-        "Pentavalente": 1,
+        Rotavirus: 1,
+        IPV: 1,
+        Neumococo: 1,
+        Pentavalente: 1,
       },
       "4 Meses": {
-        "Rotavirus": 2,
-        "bOPV": 1,
-        "Neumococo": 2,
-        "Pentavalente": 2,
+        Rotavirus: 2,
+        bOPV: 1,
+        Neumococo: 2,
+        Pentavalente: 2,
       },
       "6 Meses": {
-        "IPV": 2,
-        "Pentavalente": 3,
+        IPV: 2,
+        Pentavalente: 3,
       },
       "12 Meses": {
-        "SRP": 1,
-        "Neumococo": 3,
+        SRP: 1,
+        Neumococo: 3,
       },
       "18 Meses": {
-        "SRP": 2,
-        "bOPV": 3,
-        "DPT": 1,
+        SRP: 2,
+        bOPV: 3,
+        DPT: 1,
       },
       "48 Meses": {
-        "bOPV": 4,
-        "DPT": 2,
+        bOPV: 4,
+        DPT: 2,
       },
       "108-167 Meses": {
-        "DPT": 3,
-        "VPH": 2,
+        DPT: 3,
+        VPH: 2,
       },
       "168+ Meses": "all", // Indicador para incluir todas las vacunas disponibles
     };
-  
+
     const { data: allVaccines, error } = await supabase
       .from("vaxtraceapi_vaccine")
       .select("vaccine_id, commercial_name, max_doses");
-  
+
     if (error) {
       console.error("Error fetching vaccines:", error);
       return;
     }
-  
+
     const { data: appliedVaccinesData } = await supabase
       .from("vaxtraceapi_vaccinationrecord")
       .select("vaccine_id, dose")
       .eq(isDependent ? "child_id" : "patient_id", userId);
-  
-    const dosesAppliedMap = (appliedVaccinesData || []).reduce((acc: any, record: any) => {
-      acc[record.vaccine_id] = (acc[record.vaccine_id] || 0) + 1;
-      return acc;
-    }, {});
-  
+
+    const dosesAppliedMap = (appliedVaccinesData || []).reduce(
+      (acc: any, record: any) => {
+        acc[record.vaccine_id] = (acc[record.vaccine_id] || 0) + 1;
+        return acc;
+      },
+      {}
+    );
+
     let recommendedVaccinesList: { [key: string]: number } = {};
-  
+
     // Acumular todas las vacunas relevantes según la edad del paciente
     if (ageInMonths >= 0) {
       Object.assign(recommendedVaccinesList, vaccineAgeRestrictions["0 Meses"]);
@@ -236,80 +257,99 @@ const UserDashboardPage: React.FC = () => {
       Object.assign(recommendedVaccinesList, vaccineAgeRestrictions["6 Meses"]);
     }
     if (ageInMonths >= 12) {
-      Object.assign(recommendedVaccinesList, vaccineAgeRestrictions["12 Meses"]);
+      Object.assign(
+        recommendedVaccinesList,
+        vaccineAgeRestrictions["12 Meses"]
+      );
     }
     if (ageInMonths >= 18) {
-      Object.assign(recommendedVaccinesList, vaccineAgeRestrictions["18 Meses"]);
+      Object.assign(
+        recommendedVaccinesList,
+        vaccineAgeRestrictions["18 Meses"]
+      );
     }
     if (ageInMonths >= 48) {
-      Object.assign(recommendedVaccinesList, vaccineAgeRestrictions["48 Meses"]);
+      Object.assign(
+        recommendedVaccinesList,
+        vaccineAgeRestrictions["48 Meses"]
+      );
     }
     if (ageInMonths >= 108) {
-      Object.assign(recommendedVaccinesList, vaccineAgeRestrictions["108-167 Meses"]);
+      Object.assign(
+        recommendedVaccinesList,
+        vaccineAgeRestrictions["108-167 Meses"]
+      );
     }
     if (ageInMonths >= 168) {
-      allVaccines.forEach(vaccine => {
+      allVaccines.forEach((vaccine) => {
         recommendedVaccinesList[vaccine.commercial_name] = vaccine.max_doses;
       });
     }
-  
+
     const recommendedVaccines = allVaccines
-      .filter(vaccine => recommendedVaccinesList.hasOwnProperty(vaccine.commercial_name))
-      .map(vaccine => {
-        const dosesRequired = recommendedVaccinesList[vaccine.commercial_name] || vaccine.max_doses;
+      .filter((vaccine) =>
+        recommendedVaccinesList.hasOwnProperty(vaccine.commercial_name)
+      )
+      .map((vaccine) => {
+        const dosesRequired =
+          recommendedVaccinesList[vaccine.commercial_name] || vaccine.max_doses;
         const dosesApplied = dosesAppliedMap[vaccine.vaccine_id] || 0;
         const missingDoses = Math.max(dosesRequired - dosesApplied, 0); // Calcula las dosis faltantes correctamente
-        const isOverdue = dosesRequired > 0 && dosesApplied < dosesRequired && ageInMonths > 0; // Determinar si la vacuna está atrasada
-  
+        const isOverdue =
+          dosesRequired > 0 && dosesApplied < dosesRequired && ageInMonths > 0; // Determinar si la vacuna está atrasada
+
         return {
           ...vaccine,
           missingDoses,
           isOverdue,
         };
       });
-  
+
     setRecommendedVaccines(recommendedVaccines);
   };
-  
-  
-  
-
 
   const fetchAppliedVaccines = async (userId: number, isDependent: boolean) => {
     try {
-        const { data: appliedVaccinesData, error } = await supabase
-            .from("vaxtraceapi_vaccinationrecord")
-            .select(`vaccine_id, dose, vaccine:vaxtraceapi_vaccine(commercial_name)`)
-            .eq(isDependent ? "child_id" : "patient_id", userId);
+      const { data: appliedVaccinesData, error } = await supabase
+        .from("vaxtraceapi_vaccinationrecord")
+        .select(
+          `vaccine_id, dose, vaccine:vaxtraceapi_vaccine(commercial_name)`
+        )
+        .eq(isDependent ? "child_id" : "patient_id", userId);
 
-        if (error) {
-            console.error("Error fetching applied vaccines:", error);
-            return;
-        }
+      if (error) {
+        console.error("Error fetching applied vaccines:", error);
+        return;
+      }
 
-        // Agrupar las dosis aplicadas por cada vacuna y sumar el total de dosis aplicadas
-        const consolidatedVaccines = appliedVaccinesData.reduce((acc: any, record: any) => {
-            const existingVaccine = acc.find((v: any) => v.vaccine_id === record.vaccine_id);
+      // Agrupar las dosis aplicadas por cada vacuna y sumar el total de dosis aplicadas
+      const consolidatedVaccines = appliedVaccinesData.reduce(
+        (acc: any, record: any) => {
+          const existingVaccine = acc.find(
+            (v: any) => v.vaccine_id === record.vaccine_id
+          );
 
-            if (existingVaccine) {
-                existingVaccine.dose += 1; // Sumar una dosis al contador
-            } else {
-                acc.push({
-                    vaccine_id: record.vaccine_id,
-                    commercial_name: record.vaccine?.commercial_name || "Nombre no disponible",
-                    dose: 1, // Empezar con la primera dosis
-                });
-            }
+          if (existingVaccine) {
+            existingVaccine.dose += 1; // Sumar una dosis al contador
+          } else {
+            acc.push({
+              vaccine_id: record.vaccine_id,
+              commercial_name:
+                record.vaccine?.commercial_name || "Nombre no disponible",
+              dose: 1, // Empezar con la primera dosis
+            });
+          }
 
-            return acc;
-        }, []);
+          return acc;
+        },
+        []
+      );
 
-        setAppliedVaccines(consolidatedVaccines);
+      setAppliedVaccines(consolidatedVaccines);
     } catch (err) {
-        console.error("Error during fetching applied vaccines:", err);
+      console.error("Error during fetching applied vaccines:", err);
     }
-};
-
+  };
 
   return (
     <div>
@@ -319,130 +359,163 @@ const UserDashboardPage: React.FC = () => {
         </div>
       ) : (
         <>
-              {/* Título de bienvenida */}
-    <h2 className="text-3xl font-bold mb-6 mt-4">{fullName ? `Bienvenido, ${fullName}` : "User Dashboard"}</h2>
+          {/* Título de bienvenida */}
+          <h2 className="text-3xl font-bold mb-6 mt-4">
+            {fullName ? `Bienvenido, ${fullName}` : "User Dashboard"}
+          </h2>
 
-    {/* Tarjetas de resumen */}
-    <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 lg:gap-x-24 mb-8">
-      <CardSummary
-        icon={UserRound}
-        total={birthdate || "--"}
-        title="Fecha de Nacimiento"
-        tooltipText="Fecha de nacimiento del usuario"
-      />
-      <CardSummary
-        icon={Waypoints}
-        total={age !== null ? age.toString() : "--"}
-        title="Edad"
-        tooltipText="Edad del usuario"
-      />
-      <CardSummary
-        icon={BookOpenCheck}
-        total={document || "--"}
-        title="Documento"
-        tooltipText="Documento del usuario"
-      />
-    </div>
+          {/* Tarjetas de resumen */}
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 lg:gap-x-24 mb-8">
+            <CardSummary
+              icon={UserRound}
+              total={birthdate || "--"}
+              title="Fecha de Nacimiento"
+              tooltipText="Fecha de nacimiento del usuario"
+            />
+            <CardSummary
+              icon={Waypoints}
+              total={age !== null ? age.toString() : "--"}
+              title="Edad"
+              tooltipText="Edad del usuario"
+            />
+            <CardSummary
+              icon={BookOpenCheck}
+              total={document || "--"}
+              title="Documento"
+              tooltipText="Documento del usuario"
+            />
+          </div>
 
-{/* Dropdown de selección de dependientes */}
-{dependents.length > 0 && (
-  <div className="mb-8 mt-6">
-    <label htmlFor="dependent-select" className="block mb-3 font-semibold text-lg text-gray-800 dark:text-gray-200">
-      Visualizar Información de dependiente:
-    </label>
-    <select
-      id="dependent-select"
-      value={selectedDependent || ""}
-      onChange={handleDependentChange}
-      className="block w-full p-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
+          {/* Dropdown de selección de dependientes */}
+          {dependents.length > 0 && (
+            <div className="mb-8 mt-6">
+              <label
+                htmlFor="dependent-select"
+                className="block mb-3 font-semibold text-lg text-gray-800 dark:text-gray-200"
+              >
+                Visualizar Información de dependiente:
+              </label>
+              <select
+                id="dependent-select"
+                value={selectedDependent || ""}
+                onChange={handleDependentChange}
+                className="block w-full p-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
                  rounded-lg text-gray-900 dark:text-gray-200 
                  focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 
                  focus:border-blue-400 dark:focus:border-blue-500 
                  transition ease-in-out duration-150"
-    >
-            <option value="" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200">
-              Seleccionar dependiente (Padre)
-            </option>
-            {dependents.map(dependent => (
-              <option
-                key={dependent.id}
-                value={dependent.id}
-                className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200"
               >
-                {dependent.first_name} {dependent.last_name}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
+                <option
+                  value=""
+                  className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200"
+                >
+                  Seleccionar dependiente (Padre)
+                </option>
+                {dependents.map((dependent) => (
+                  <option
+                    key={dependent.id}
+                    value={dependent.id}
+                    className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200"
+                  >
+                    {dependent.first_name} {dependent.last_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
-            {/* Recommended Vaccines Table */}
-      {/* Tabla de Vacunas Recomendadas */}
-      <h3 className="text-xl font-semibold mt-8 mb-4">Vacunas requeridas según  edad del paciente</h3>
-      {/* Explicación del proceso para determinar las vacunas recomendadas */}
-      <div className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 p-4 rounded-lg shadow-sm mb-6">
-        <p className="text-gray-800 dark:text-gray-200 text-justify">
-          Las vacunas requeridas se determinan según la edad del usuario o dependiente en meses. 
-          El sistema toma en cuenta las vacunas que deben administrarse en diferentes intervalos de edad 
-          específicos para garantizar que se sigan las pautas del esquema de  vacunación. 
-          Las vacunas que aparecen con un fondo <span className="bg-red-200 dark:bg-red-600 px-1 rounded">rojo</span> 
-          indican que están atrasadas, mientras que las que tienen un fondo 
-          <span className="bg-green-200 dark:bg-green-600 px-1 rounded">verde</span> 
-          son aquellas para las que se han aplicado todas las dosis requeridas.
-        </p>
-      </div>
-
-      <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 mt-4">
-        <thead>
-          <tr className="bg-gray-200 dark:bg-gray-700">
-            <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Nombre de la Vacuna</th>
-            <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Dosis Faltantes</th>
-          </tr>
-        </thead>
-        <tbody>
-          {recommendedVaccines.map(vaccine => (
-            <tr
-              key={vaccine.vaccine_id}
-              className={`cursor-pointer border-b border-gray-700 hover:bg-gray-300 dark:hover:bg-gray-700 ${
-                vaccine.missingDoses === 0 
-                  ? "bg-green-200 dark:bg-green-400"  // Fondo verde para vacunas con todas las dosis aplicadas
-                  : vaccine.isOverdue 
-                  ? "bg-red-200 dark:bg-red-400"    // Fondo rojo para vacunas que están atrasadas
-                  : "dark:bg-gray-800"  // Fondo por defecto para otras filas en modo oscuro
-              }`}
-              title={vaccine.missingDoses === 0 ? "Completada" : "Atrasada"}
-            >
-              <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.commercial_name}</td>
-              <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.missingDoses}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-
-      {/* Tabla de Vacunas Aplicadas */}
-      <h3 className="text-xl font-semibold mt-8">Vacunas Aplicadas</h3>
-      <table className="min-w-full bg-white  dark:bg-gray-800 border border-gray-300 dark:border-gray-600 mt-4">
-        <thead>
-          <tr className="bg-gray-200 dark:bg-gray-700">
-            <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">Nombre de la Vacuna</th>
-            <th className="py-2 pr-24 text-left text-gray-800 dark:text-gray-200">Dosis</th>
-          </tr>
-        </thead>
-        <tbody>
-          {appliedVaccines.map(vaccine => (
-            <tr key={vaccine.vaccine_id} className="border-b border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700">
-              <td className="py-2 px-4 text-gray-900 dark:text-gray-200">{vaccine.commercial_name}</td>
-              <td className="py-2 px-0 text-gray-900 dark:text-gray-200">{vaccine.dose}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-              </>
-            )}
+          {/* Tabla de Vacunas Recomendadas */}
+          <h3 className="text-xl font-semibold mt-8 mb-4">
+            Vacunas requeridas según edad del paciente
+          </h3>
+          {/* Explicación del proceso para determinar las vacunas recomendadas */}
+          <div className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 p-4 rounded-lg shadow-sm mb-6">
+            <p className="text-gray-800 dark:text-gray-200 text-justify">
+              Las vacunas requeridas se determinan según la edad del usuario o
+              dependiente en meses. El sistema toma en cuenta las vacunas que
+              deben administrarse en diferentes intervalos de edad específicos
+              para garantizar que se sigan las pautas del esquema de vacunación.
+              Las vacunas que aparecen con un fondo{" "}
+              <span className="bg-red-200 dark:bg-red-600 px-1 rounded">
+                rojo
+              </span>
+              indican que están atrasadas, mientras que las que tienen un fondo
+              <span className="bg-green-200 dark:bg-green-600 px-1 rounded">
+                verde
+              </span>
+              son aquellas para las que se han aplicado todas las dosis
+              requeridas.
+            </p>
           </div>
-        );
-      };
+
+          <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 mt-4">
+            <thead>
+              <tr className="bg-gray-200 dark:bg-gray-700">
+                <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">
+                  Nombre de la Vacuna
+                </th>
+                <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">
+                  Dosis Faltantes
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {recommendedVaccines.map((vaccine) => (
+                <tr
+                  key={vaccine.vaccine_id}
+                  className={`cursor-pointer border-b border-gray-700 hover:bg-gray-300 dark:hover:bg-gray-700 ${
+                    vaccine.missingDoses === 0
+                      ? "bg-green-200 dark:bg-green-400" // Fondo verde para vacunas con todas las dosis aplicadas
+                      : vaccine.isOverdue
+                      ? "bg-red-200 dark:bg-red-400" // Fondo rojo para vacunas que están atrasadas
+                      : "dark:bg-gray-800" // Fondo por defecto para otras filas en modo oscuro
+                  }`}
+                  title={vaccine.missingDoses === 0 ? "Completada" : "Atrasada"}
+                >
+                  <td className="py-2 px-4 text-gray-900 dark:text-gray-200">
+                    {vaccine.commercial_name}
+                  </td>
+                  <td className="py-2 px-4 text-gray-900 dark:text-gray-200">
+                    {vaccine.missingDoses}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Tabla de Vacunas Aplicadas */}
+          <h3 className="text-xl font-semibold mt-8">Vacunas Aplicadas</h3>
+          <table className="min-w-full bg-white  dark:bg-gray-800 border border-gray-300 dark:border-gray-600 mt-4">
+            <thead>
+              <tr className="bg-gray-200 dark:bg-gray-700">
+                <th className="py-2 px-4 text-left text-gray-800 dark:text-gray-200">
+                  Nombre de la Vacuna
+                </th>
+                <th className="py-2 pr-24 text-left text-gray-800 dark:text-gray-200">
+                  Dosis
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {appliedVaccines.map((vaccine) => (
+                <tr
+                  key={vaccine.vaccine_id}
+                  className="border-b border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <td className="py-2 px-4 text-gray-900 dark:text-gray-200">
+                    {vaccine.commercial_name}
+                  </td>
+                  <td className="py-2 px-0 text-gray-900 dark:text-gray-200">
+                    {vaccine.dose}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
+    </div>
+  );
+};
 
 export default UserDashboardPage;

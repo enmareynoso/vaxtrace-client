@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
+import "./signIn.css";
 
 interface CustomJwtPayload {
   user_id: number;
@@ -23,6 +24,7 @@ const SignIn: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isCapsLockOn, setIsCapsLockOn] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -88,6 +90,20 @@ const SignIn: React.FC = () => {
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.getModifierState("CapsLock")) {
+      setIsCapsLockOn(true);
+    } else {
+      setIsCapsLockOn(false);
+    }
+  };
+
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!e.getModifierState("CapsLock")) {
+      setIsCapsLockOn(false);
+    }
   };
 
   return (
@@ -175,7 +191,7 @@ const SignIn: React.FC = () => {
                 required
               />
             </div>
-            <div className="mb-6">
+            <div className="mb-6 password-input-container">
               <label className="block text-cyan-900 dark:text-gray-100 font-semibold">
                 Contraseña
               </label>
@@ -184,12 +200,31 @@ const SignIn: React.FC = () => {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white"
+                  onKeyDown={handleKeyDown}
+                  onKeyUp={handleKeyUp}
+                  className="w-full px-3 py-2 border rounded dark:bg-gray-500 dark:text-white password-input"
                   placeholder="Password"
                   required
                 />
+
+                {/* Botón para alternar la visibilidad de la contraseña */}
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="toggle-password-button"
+                >
+                  {showPassword ? "🔒" : "👀"}
+                </button>
               </div>
+
+              {/* Mostrar advertencia si CapsLock está activado */}
+              {isCapsLockOn && (
+                <p className="text-red-600 text-sm mt-2">
+                  ¡Atención! Caps Lock está activado.
+                </p>
+              )}
             </div>
+
             <Button
               variant="outline"
               className="w-full bg-cyan-800 text-white py-2 rounded hover:text-white hover:bg-cyan-900 transition duration-200"

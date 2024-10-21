@@ -1,0 +1,25 @@
+
+/* Ocultar el ícono predeterminado de mostrar/ocultar contraseña */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear,
+input[type="password"]::-webkit-contacts-auto-fill-button,
+input[type="password"]::-webkit-textfield-decoration-container {
+  display: none !important;
+}
+
+/* Otros estilos personalizados */
+.password-input-container {
+  position: relative;
+}
+
+.password-input {
+  padding-right: 2.5rem; /* Espacio para el ícono de ojo */
+}
+
+.toggle-password-button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}

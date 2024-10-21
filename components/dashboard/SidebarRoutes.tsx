@@ -2,12 +2,7 @@
 
 import { Separator } from "@/components/ui/separator";
 import { SidebarItem } from "./SidebarItem";
-import {
-  adminRoutes,
-  userRoutes,
-  centerRoutes,
-  supportRoutes,
-} from "./SidebarRoutes.data";
+import { userRoutes, centerRoutes, supportRoutes } from "./SidebarRoutes.data";
 import { UserRole } from "@/lib/types/UserRoles";
 import { SidebarItemType } from "./SidebarItem.types";
 
@@ -15,13 +10,10 @@ interface SidebarRoutesProps {
   userRole: UserRole;
 }
 
-export function SidebarRoutes({ userRole }: SidebarRoutesProps) {
+export function SidebarRoutes({ userRole }: Readonly<SidebarRoutesProps>) {
   let routes: SidebarItemType[] = [];
 
   switch (userRole) {
-    case "admin":
-      routes = [...adminRoutes];
-      break;
     case "user":
       routes = [...userRoutes];
       break;
@@ -42,9 +34,6 @@ export function SidebarRoutes({ userRole }: SidebarRoutesProps) {
             <SidebarItem key={item.label} item={item} />
           ))}
         </div>
-
-        <Separator />
-
       </div>
 
       <div>

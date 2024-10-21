@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { jwtDecode } from "jwt-decode";
@@ -43,7 +44,7 @@ const ProfilePage: React.FC = () => {
     nationality: "",
     address: "",
     occupation: "",
-    phone_number: "", 
+    phone_number: "",
   });
 
   const [dependents, setDependents] = useState<Dependent[]>([]);
@@ -291,7 +292,7 @@ const ProfilePage: React.FC = () => {
               name="gender"
               value={formData.gender}
               onChange={handleChange}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-gray-400 dark:bg-gray-950"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 dark:bg-gray-950"
               required
               disabled
             >
@@ -471,7 +472,7 @@ const ProfilePage: React.FC = () => {
                     name="gender"
                     value={dependentFormData.gender}
                     onChange={handleDependentFormChange}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md text-gray-400 dark:bg-gray-950"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 dark:bg-gray-950"
                     required
                     disabled
                   >

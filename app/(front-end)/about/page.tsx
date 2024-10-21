@@ -1,5 +1,5 @@
 import React from "react";
-import { FaCheckCircle, FaEye } from "react-icons/fa"; // Importamos el nuevo ícono FaEye
+import { FaCheckCircle, FaEye } from "react-icons/fa";
 
 const AboutPage: React.FC = () => {
   return (

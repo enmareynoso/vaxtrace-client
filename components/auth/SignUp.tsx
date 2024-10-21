@@ -73,7 +73,7 @@ const CenterSignUp: React.FC = () => {
       toast.error("Debe aceptar los términos y condiciones para aplicar.");
       return;
     }
-    setLoading(true); // Activar loading
+    setLoading(true);
 
     try {
       const payload = {
@@ -97,7 +97,7 @@ const CenterSignUp: React.FC = () => {
     } catch (error: any) {
       toast.error(error.message || "Registration failed.");
     } finally {
-      setLoading(false); // Desactivar loading después del registro
+      setLoading(false);
     }
   };
   const handleCheckboxChange = () => {
@@ -218,9 +218,16 @@ const CenterSignUp: React.FC = () => {
               <input
                 type="text"
                 value={directorDocument}
-                onChange={(e) => setDirectorDocument(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Limitar solo a números y a 11 caracteres
+                  if (/^\d*$/.test(value) && value.length <= 11) {
+                    setDirectorDocument(value);
+                  }
+                }}
                 className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300 dark:text-gray-300"
                 placeholder="Director Document"
+                minLength={11}
                 required
               />
             </div>
@@ -239,7 +246,7 @@ const CenterSignUp: React.FC = () => {
             </div>
             <div className="mb-4">
               <label className="block text-cyan-900 font-semibold dark:text-gray-300">
-               Teléfono
+                Teléfono
               </label>
               <input
                 type="text"
@@ -265,7 +272,7 @@ const CenterSignUp: React.FC = () => {
             </div>
             <div className="mb-4">
               <label className="block text-cyan-900 font-semibold dark:text-gray-300">
-              Provincia
+                Provincia
               </label>
               <select
                 value={province}
@@ -284,7 +291,7 @@ const CenterSignUp: React.FC = () => {
 
             <div className="mb-4">
               <label className="block text-cyan-900 font-semibold dark:text-gray-300">
-              Municipio
+                Municipio
               </label>
               <select
                 value={municipality}
@@ -350,7 +357,9 @@ const CenterSignUp: React.FC = () => {
                 className="text-cyan-900 hover:underline dark:text-gray-300"
               >
                 ¿Ya tienes una cuenta?{" "}
-                <span className="font-semibold dark:text-gray-400">Iniciar sesión</span>
+                <span className="font-semibold dark:text-gray-400">
+                  Iniciar sesión
+                </span>
               </a>
             </div>
           </form>
