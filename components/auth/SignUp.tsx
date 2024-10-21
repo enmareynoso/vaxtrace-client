@@ -218,9 +218,16 @@ const CenterSignUp: React.FC = () => {
               <input
                 type="text"
                 value={directorDocument}
-                onChange={(e) => setDirectorDocument(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Limitar solo a números y a 11 caracteres
+                  if (/^\d*$/.test(value) && value.length <= 11) {
+                    setDirectorDocument(value);
+                  }
+                }}
                 className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-cyan-300 dark:text-gray-300"
                 placeholder="Director Document"
+                minLength={11}
                 required
               />
             </div>

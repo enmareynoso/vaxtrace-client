@@ -32,7 +32,7 @@ export function Navbar({ userRole }: Readonly<NavbarProps>) {
 
       {/* Search Input */}
       <div className="relative w-[1000px]">
-        <h1 className="text-lg font-semibold text-gray-800 dark:text-white">
+        <h1 className="text-lg font-semibold text-cyan-900 dark:text-cyan-700">
           Sistema para el registro de vacunación en la República Dominicana
         </h1>
       </div>
